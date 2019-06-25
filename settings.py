@@ -9,6 +9,13 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@192.168.3.25:3306/recruit'
 
+    # 配置允许上传的文件
+
+    UPLOADED_TABLE_DEST = "upload"
+    # UPLOADED_TABLE_ALLOW=("xls", "xlsx", 'csv','pdf')
+
+
+
 class ProductConfig(Config):
     pass
 

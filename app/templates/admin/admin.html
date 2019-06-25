@@ -10,6 +10,32 @@
 {#    第一行，留空，上传按钮那些#}
 
     <div class="row">
+
+
+
+{#    上传数据按钮 #}
+     <form class="col s6" action="{{ url_for('admin.upload') }}" enctype="multipart/form-data" method="POST"  accept-charset="utf-8">
+    <div class="file-field input-field">
+      <div class="btn">
+        <span>选择文件</span>
+        <input type="file" name="table">
+
+      </div>
+      <div class="file-path-wrapper">
+        <input class="file-path validate"   type="text" placeholder="Upload one or more files">
+
+      </div>
+{#        <input type=submit class="btn">#}
+
+    </div>
+
+
+
+  </form>
+    <div class="col s4"></div>
+
+
+
     </div>
 
 
@@ -19,15 +45,8 @@
 
 {#        表格内容  ajax请求的内容填充到这里#}
         <table id="records">
-            <thead>
-            <tr><th>测试</th> <th>测试2</th></tr>
 
 
-
-            </thead>
-            <tbody>
-
-            </tbody>
 
 
         </table>

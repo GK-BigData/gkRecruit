@@ -4,15 +4,21 @@
 # Time  :2019/6/25 上午10:30 
 
 from flask import Blueprint,render_template,jsonify,request
-
+import os
 from app.admin.models import Record
-
 from app import db
 from app.common.restful import rjson
+
+from app import upload_tables
+from xpinyin import Pinyin
+
 
 #  这里使用 restful api http://www.pythondoc.com/flask-restful/first.html
 
 bp_admin = Blueprint('admin',__name__)
+pinyin = Pinyin()
+
+
 
 @bp_admin.route("/")
 def index():
@@ -29,10 +35,11 @@ def get_records():
     result = []
 
     for data in datasets:
+        print(dir(data))
         result.append({
             "id":data.id,
             "time":data.time,
-            "year":data.year,
+            "zsyear":data.zsyear,
             "status":data.status
         })
     #
@@ -57,22 +64,43 @@ def add_record():
 
     id = request.args['id']
     time = request.args['time']
-    year = request.args['year']
+    zsyear = request.args['zsyear']
     status = request.args['status']
     item = Record()
     item.id=id
     item.time=time
-    item.year=year
+    item.zsyear=zsyear
     item.status=status
 
     print(type(db.session))
     db.session.add(item)
 
     db.session.commit()
-
-
-
-
-
-
     return "添加成功"
+
+
+#     https://www.jianshu.com/p/9d6da9b76d70
+@bp_admin.route("/upload",methods=['POST'])
+def upload():
+    pass
+    print(request.files)
+    tablefile = request.files['table'].filename
+
+    filename_py=pinyin.get_pinyin( tablefile)
+    filename = upload_tables.save(request.files['table'],name= filename_py)
+    # zsyear = request.args['zsyear']
+    print(filename)
+
+    ab = os.path.join("upload",filename)
+    print(ab)
+    print(os.path.abspath(ab))
+
+
+
+
+    return "上传成功."
+
+
+
+
+

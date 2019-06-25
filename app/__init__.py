@@ -7,7 +7,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from settings import config
 
+from flask_uploads import UploadSet,configure_uploads,DOCUMENTS,IMAGES
+
 db = SQLAlchemy()
+
+upload_tables = UploadSet('TABLE',IMAGES+DOCUMENTS+('pdf',
+                                                    ))
 
 def create_app():
 
@@ -22,6 +27,11 @@ def create_app():
     from app.admin.views import  bp_admin
     app.register_blueprint(bp_admin,url_prefix='/admin')
     from app.admin.models import Record
+
+
+    # 配置上传插件
+    configure_uploads(app,upload_tables)
+
 
 
     return app
