@@ -13,7 +13,7 @@ from app import create_app,db
 # 创建app
 app = create_app()
 
-dfgdg=123456
+
 # 脚本管理
 manager = Manager(app)
 

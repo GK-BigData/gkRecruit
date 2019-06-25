@@ -11,12 +11,17 @@ db = SQLAlchemy()
 
 def create_app():
 
-    app = Flask(__name__,static_folder='static')
+    #初始化app
+    app = Flask(__name__)
     app.config.from_object(config)
+
+    db.init_app(app)
 
 
     # 导入各个模块
     from app.admin.views import  bp_admin
     app.register_blueprint(bp_admin,url_prefix='/admin')
+    from app.admin.models import Record
+
 
     return app
