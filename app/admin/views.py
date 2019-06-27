@@ -84,6 +84,8 @@ def add_record():
 def upload():
     pass
     print(request.files)
+    print(request.args)
+    print(request.form)
     tablefile = request.files['table'].filename
 
     filename_py=pinyin.get_pinyin( tablefile)
