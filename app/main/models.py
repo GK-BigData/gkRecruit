@@ -7,7 +7,7 @@ from app import db
 
 class zs(db.Model):
     __tablename__='zs'
-    zsyear = db.Column(db.Integer())  # 年序号
+    zsyear = db.Column(db.Integer(),db.ForeignKey("record.zsyear"))                                    # 年序号
     id = db.Column(db.Integer(),autoincrement=True,primary_key=True)   #总序号
     student_name=db.Column(db.String(225),nullable=False)            #姓名
     education_number=db.Column(db.String(225),nullable=False)       #教育部考生号
