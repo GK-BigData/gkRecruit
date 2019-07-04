@@ -36,9 +36,11 @@ function loadRecords()
 }
 
 
+
 function upload() {
 
     console.log("上传文件.");
+
 
 
 
@@ -53,17 +55,25 @@ function upload() {
      */
     var file = $("#uploadfile")[0].files;
 
-
+    var year = $("#year option:selected").text();
+    console.log("year:"+year);
     console.log(file);
     console.log(file.length);
     if(file.length===0)
     {
+
         console.log("请选择文件");
         return;
     }
+
+    //上传解析时设置按钮成不用解析的
+    $("#upload").addClass("disabled");
+
     formData.append("table",file[0]);
-    formData.append("zsyear","2018");
+    formData.append("zsyear",year);
+
     console.log(formData);
+
     $.ajax({
         url:"upload",
         type:"POST",
@@ -71,12 +81,17 @@ function upload() {
         contentType:false,
         processData:false,
         success:function (data) {
-            console.log("上传成功")
+            console.log("上传成功");
+             M.toast({html:"服务端响应成功:"+data.data});
+
+             $("#upload").removeClass("disabled");
             
         },
         error:function()
         {
-            console.log("上传失败")
+            console.log("上传失败");
+            M.toast({html:"服务端响应失败"});
+            $("#upload").removeClass("disabled");
         }
 
     })

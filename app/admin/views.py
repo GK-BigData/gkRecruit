@@ -6,12 +6,17 @@
 from flask import Blueprint,render_template,jsonify,request
 import os
 from app.admin.models import Record
+from app.main.models import zs
+
 from app import db
 from app.common.restful import rjson
 
 from app import upload_tables
 from xpinyin import Pinyin
 
+import csv
+
+from datetime import datetime
 
 #  这里使用 restful api http://www.pythondoc.com/flask-restful/first.html
 
@@ -24,7 +29,11 @@ pinyin = Pinyin()
 def index():
     return render_template("admin/admin.html")
 
+@bp_admin.route("/setfield")
+def setfield():
 
+
+    return render_template("admin/setfield.html")
 # 获取全部数据
 
 @bp_admin.route("/records",methods=['GET'])
@@ -48,6 +57,7 @@ def get_records():
 # 获取某个数据
 @bp_admin.route("/records/<int:id>",methods=['GET'])
 def get_record(id):
+
     pass
 
 
@@ -79,6 +89,14 @@ def add_record():
     return "添加成功"
 
 
+# 选择字段导入 ,
+@bp_admin.route("/import",methods=['POST'])
+def importdata():
+
+
+
+    pass
+
 #     https://www.jianshu.com/p/9d6da9b76d70
 @bp_admin.route("/upload",methods=['POST'])
 def upload():
@@ -86,21 +104,104 @@ def upload():
     print(request.files)
     print(request.args)
     print(request.form)
+
+    # 文件名名
     tablefile = request.files['table'].filename
+    zsyear = request.form['zsyear']
 
     filename_py=pinyin.get_pinyin( tablefile)
+
+    # 指定保存的文件名为拼音处理后的
     filename = upload_tables.save(request.files['table'],name= filename_py)
-    # zsyear = request.args['zsyear']
     print(filename)
 
-    ab = os.path.join("upload",filename)
-    print(ab)
-    print(os.path.abspath(ab))
+    ab = os.path.abspath(os.path.join("upload",filename))
+
+    print("保存路径:", ab)
+
+
+    # --------------------------检查年的存不存在
+
+
+    result = Record.query.filter(Record.zsyear==zsyear).first()
+
+    if result:
+        return rjson( zsyear+ "年的数据已存在",1)
+
+    try:
+        parse_csv(ab,zsyear)
+
+
+        record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="测试")
+        print(record)
+        print("查询结果:",result)
+        db.session.add(record)
+        print("开始提交数据....")
+        db.session.commit()
+    except Exception as e:
+        print("发生异常,rollback回滚数据:",e)
+        db.session.rollback()
+        pass
 
 
 
 
-    return "上传成功."
+
+
+
+
+
+
+
+
+
+
+
+    return  rjson( "上传成功.")
+
+
+
+def parse_csv(path,year):
+
+    reader = csv.DictReader(open(path,"r"))
+    # 需要的字段
+    fields_name = ['考生号', '姓名', '教育部考生号', '性别', '性别名称', '录取科目号', '录取科目名称', '录取科目总分数', '加分', '加分特征', '录取专业号', '专业名称',
+                   '户口所在地', '地区名称', '科类代码', '科类名称', '出生日期', '毕业中学号', '中学名称', '外省中学', '考生类别', '考生类别名称', '毕业类别', '毕业类别名称',
+                   '民族', '民族名称', '政治面貌', '政治面貌名称', '录取类型', '录取编号', '录取1', '录取2', '录取2编号', '录取通知书编号', '投档总分', '专业代码',
+                   '专序', '院系', '院系序号', '校区', '学制', '来源省', '来源省1', '录取志愿', '调剂', '专业1', '专业2', '专业3', '专业4', '专业5',
+                   '专业6', '应往届类别', '农村城镇类别']
+    fields = ['student_number', 'student_name', 'education_number', 'sex_number', 'sex_name', 'recruit_number',
+              'recruit_name', 'recruit_score', 'extra_poinss', 'extra_poinss_features', 'recruit_major_number',
+              'major_name', 'student_address_number', 'student_address', 'section_core', 'section_name', 'birthday',
+              'graduation_secondary_school_number', 'graduation_secondary_school_name', 'provincial_middle_schools',
+              'student_type_number', 'student_type_name', 'graduation_type_number', 'graduation_type_name',
+              'nation_number', 'nation_name', 'political_appearance_number', 'political_appearance_name', 'offer_type',
+              'offer_number', 'offer1', 'offer2', 'offer2_number', 'offer_book_number', 'total_score_of_filing',
+              'major_number', 'major_array', 'departments', 'departments_number', 'School', 'education__time',
+              'source_provinces', 'source_provinces1', 'offer_volunteer', 'adjust', 'Professional_1', 'Professional_2',
+              'Professional_3', 'Professional_4', 'Professional_5', 'Professional_6', 'Past_Categories',
+              'countryside_town']
+    for row in reader:
+        item = {}
+        # 遍历所有数据库字段
+        for i in range(0, len(fields)):
+            # 如果
+            if fields_name[i] in row.keys() and  row[fields_name[i]]!='':
+                item[fields[i]] = row[fields_name[i]]
+            else:
+                item[fields[i]] = None
+        item['zsyear']=year
+        item['student_name']="*"
+        zsitem  = zs(**item)
+        db.session.add(zsitem)
+
+
+# 解析数据
+def parseTable(path):
+
+
+
+    pass
 
 
 
