@@ -15,27 +15,60 @@ from app import upload_tables
 from xpinyin import Pinyin
 
 import csv
+import xlrd
+
 
 from datetime import datetime
+
+from app.common.excel_utils  import  get_columns,excel2dict,excel2list
 
 #  这里使用 restful api http://www.pythondoc.com/flask-restful/first.html
 
 bp_admin = Blueprint('admin',__name__)
 pinyin = Pinyin()
 
+needcolumns_name = ['姓名', '教育部考生号', '性别名称', '身份证号', '投档总分', '排位', '录取专业', '报到注销', '报到/注销', '户口所在地', '毕业中学', '民族', '政治面貌', '考生类型', '院系', '学制', '来源省', '录取志愿', '专业1', '专业2', '专业3', '专业4', '专业5', '专业6']
+needcolumns_fields=['student_name', 'education_number', 'sex_name', 'id_card', 'total_score_of_filing', 'ranking', 'major_name', 'report', 'report_for_cancel', 'student_address', 'graduation_secondary_school_name', 'nation_name', 'political_appearance_name', 'student_type', 'departments', 'education__time', 'source_provinces', 'offer_volunteer', 'Professional_1', 'Professional_2', 'Professional_3', 'Professional_4', 'Professional_5', 'Professional_6']
+
+need_columns = {}
+for i in range(0, len(needcolumns_name)):
+    need_columns[needcolumns_fields[i]] = needcolumns_name[i]
 
 
 @bp_admin.route("/")
 def index():
     return render_template("admin/admin.html")
 
-@bp_admin.route("/setfield")
-def setfield():
+# 修改字段导入数据 界面
+@bp_admin.route("/setfield/<int:zsyear>")
+def setfield(zsyear):
+    '''
+    解析excel 选择字段，导入到数据库
+    :param zsyear:
+    :return:
+    '''
+
+    nowrecord = Record.query.filter(Record.zsyear==zsyear).first()
+
+    filename = os.path.join("upload", nowrecord.filename)
 
 
-    return render_template("admin/setfield.html")
+    print("打开文件:",filename)
+    inputcolumns = get_columns(filename)
+    print(need_columns)
+    print(inputcolumns)
+
+
+    return render_template("admin/setfield.html",
+                           zsyear=nowrecord.zsyear,
+                           need_columns=need_columns,
+                           needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns)
+
+
+
+
+
 # 获取全部数据
-
 @bp_admin.route("/records",methods=['GET'])
 def get_records():
 
@@ -53,6 +86,25 @@ def get_records():
         })
     #
     return rjson(result,0)
+
+# 获取全部数据
+@bp_admin.route("/records_html",methods=['GET'])
+def get_records2():
+
+    datasets = Record.query.all()
+    # 查询到的是Record对象，不能序列化
+    result = []
+
+    for data in datasets:
+        print(dir(data))
+        result.append({
+            "id":data.id,
+            "time":data.time,
+            "zsyear":data.zsyear,
+            "status":data.status
+        })
+    #
+    return render_template("admin/item_record.html",records=datasets)
 
 # 获取某个数据
 @bp_admin.route("/records/<int:id>",methods=['GET'])
@@ -81,6 +133,7 @@ def add_record():
     item.time=time
     item.zsyear=zsyear
     item.status=status
+    item.size=0
 
     print(type(db.session))
     db.session.add(item)
@@ -89,13 +142,66 @@ def add_record():
     return "添加成功"
 
 
+
+
+
 # 选择字段导入 ,
-@bp_admin.route("/import",methods=['POST'])
+@bp_admin.route("/setfield/import",methods=['POST'])
 def importdata():
 
 
+    printArgs("导入数据:")
+    zsyear = request.form['zsyear']
+    field_columns = {}
+    for col in needcolumns_fields:
+        field_columns[col] = request.form[col]
 
-    pass
+    print("字段和 输入列的关系:",field_columns)
+
+
+
+
+
+    record = Record.query.filter(Record.zsyear==zsyear).first()
+
+    file = os.path.join('upload',record.filename)
+
+
+    # excel转换为字典,只提取fields这些列名的
+    excel_data = excel2list(file,columns=field_columns.values())
+
+
+
+
+    try:
+
+        #
+        print("删除原始数据...")
+        deleteresult = zs.query.filter(zs.zsyear==zsyear).delete()
+        print("删除结果:",deleteresult)
+        size = 0
+        for row in excel_data:
+
+            params={}
+            for key in field_columns.keys():
+                params[key] = row[ field_columns[key] ]
+            params['zsyear']=zsyear
+            zsitem = zs(**params)
+            db.session.add(zsitem)
+            size+=1
+
+        print("开始提交数据...")
+
+        record.size=size
+        print("更新数据:",record)
+
+        db.session.commit()
+        return rjson("导入数据成功,共导入"+str(size)+"条数据", 0)
+    except Exception as e:
+        print("发生异常:回滚数据",e)
+        db.session.rollback()
+        return rjson("导入数据失败:"+str(e),1)
+
 
 #     https://www.jianshu.com/p/9d6da9b76d70
 @bp_admin.route("/upload",methods=['POST'])
@@ -109,15 +215,9 @@ def upload():
     tablefile = request.files['table'].filename
     zsyear = request.form['zsyear']
 
-    filename_py=pinyin.get_pinyin( tablefile)
+    # filename_py=pinyin.get_pinyin( tablefile)
+    # 文件名暂时用年份来表示
 
-    # 指定保存的文件名为拼音处理后的
-    filename = upload_tables.save(request.files['table'],name= filename_py)
-    print(filename)
-
-    ab = os.path.abspath(os.path.join("upload",filename))
-
-    print("保存路径:", ab)
 
 
     # --------------------------检查年的存不存在
@@ -128,11 +228,19 @@ def upload():
     if result:
         return rjson( zsyear+ "年的数据已存在",1)
 
+    filename_py = zsyear + os.path.splitext(tablefile)[1]
+    # 指定保存的文件名为拼音处理后的
+    filename = upload_tables.save(request.files['table'], name=filename_py)
+    print(filename)
+    ab = os.path.abspath(os.path.join("upload", filename))
+    print("保存路径:", ab)
+
+
+
     try:
-        parse_csv(ab,zsyear)
+        # parse_csv(ab,zsyear)
 
-
-        record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="测试")
+        record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="测试",filename=filename_py)
         print(record)
         print("查询结果:",result)
         db.session.add(record)
@@ -141,14 +249,8 @@ def upload():
     except Exception as e:
         print("发生异常,rollback回滚数据:",e)
         db.session.rollback()
+        return rjson("上传失败:"+str(e),1)
         pass
-
-
-
-
-
-
-
 
 
 
@@ -203,7 +305,10 @@ def parseTable(path):
 
     pass
 
-
+def printArgs(where):
+    print("from:",where)
+    print("args:",request.args)
+    print("form:",request.form)
 
 
 

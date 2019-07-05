@@ -1,0 +1,26 @@
+{#记录表 ， 用来给admin.html ajax请求 #}
+<tbody>
+{% for record in  records %}
+
+    <tr>
+        <td>{{ record.id  }}</td>
+    <td>{{record.time }}</td>
+    <td>{{record.zsyear }}</td>
+    <td>{{record.size }}</td>
+    <td>{{record.status }}</td>
+    <td>
+        <a class="dropdown-trigger btn" data-target="action{{ record.id }}">操作</a>
+        <ul id="action{{ record.id }}" class="dropdown-content">
+    <li><a >信息</a></li>
+    <li><a>删除</a></li>
+    <li><a onclick="action_import('{{ record.id }}')">导入数据</a></li>
+    <li><a>更新文件</a></li>
+    </ul>
+    </td>
+
+
+    </tr>
+
+{% endfor %}
+
+</tbody>

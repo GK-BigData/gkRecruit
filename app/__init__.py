@@ -11,7 +11,7 @@ from flask_uploads import UploadSet,configure_uploads,DOCUMENTS,IMAGES
 
 db = SQLAlchemy()
 
-upload_tables = UploadSet('TABLE',IMAGES+DOCUMENTS+('pdf',
+upload_tables = UploadSet('TABLE',IMAGES+DOCUMENTS+('pdf','csv'
                                                     ))
 
 def create_app():

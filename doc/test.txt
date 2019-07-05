@@ -1,0 +1,57 @@
+CREATE TABLE zs (
+        id INTEGER NOT NULL AUTO_INCREMENT,
+        student_name VARCHAR(225) NOT NULL,
+        education_number VARCHAR(225) NOT NULL,
+        sex_name VARCHAR(225) NOT NULL,
+        id_card VARCHAR(225) NOT NULL,
+        total_score_of_filing INTEGER NOT NULL,
+        ranking VARCHAR(255),
+        major_name VARCHAR(225) NOT NULL,
+        report VARCHAR(225),
+        report_for_cancel VARCHAR(225),
+        student_address VARCHAR(225),
+        graduation_secondary_school_name VARCHAR(225),
+        nation_name VARCHAR(225),
+        political_appearance_name VARCHAR(225),
+        student_type VARCHAR(225),
+        departments VARCHAR(225),
+        education__time VARCHAR(225),
+        source_provinces VARCHAR(225),
+        offer_volunteer VARCHAR(225),
+        `Professional_1` VARCHAR(225),
+        `Professional_2` VARCHAR(225),
+        `Professional_3` VARCHAR(225),
+        `Professional_4` VARCHAR(225),
+        `Professional_5` VARCHAR(225),
+        `Professional_6` VARCHAR(225),
+        zsyear INTEGER,
+        PRIMARY KEY (id),
+        FOREIGN KEY(zsyear) REFERENCES record (zsyear)
+)
+
+create table record(
+id int primary key ,
+year int not null unique
+);
+create table zs(
+
+id int primary key,
+zsyear int,
+
+foreign key(zsyear) references record(year)
+)
+
+
+CREATE TABLE stu(
+    sid INT PRIMARY KEY,
+    NAME VARCHAR(50) NOT NULL
+);
+
+外键约束只能指向主键或者唯一约束的键 ,联合主键的不行(两个主键)
+
+mysql设置联合主键,这样两个都是主键
+create table record(
+id int  ,
+year int not null ,
+primary key(id,year)
+);

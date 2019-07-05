@@ -1,10 +1,77 @@
 {% extends 'base.html' %}
 
+{% block container %}
+
 <div class="row">
 
-
-
-
-
+<h1>选择要导入的字段</h1>
 
 </div>
+
+
+
+    <form id="fields">
+
+    <div class="row">
+        <select name="zsyear">
+          <option value="{{ zsyear }}">{{ zsyear }}</option>
+      </select>
+    <label>数据年份</label>
+
+
+    </div>
+
+
+    {% for field,name in need_columns.items() %}
+
+
+    <div class="row">
+
+    <div class="col s3">{{ name }}</div>
+    <div class="col s3 input-field">
+        <select name="{{ field }}">
+        {% for inpcol in inputcolumns %}
+{#            如果field名字刚好对应 ，就选中 #}
+            {% if inpcol==name %}
+            <option selected>{{ inpcol }}</option>
+            {% else %}
+                <option>{{ inpcol }}</option>
+            {% endif %}
+
+            {% endfor %}
+        </select>
+        <label>{{  name }}</label>
+    </div>
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    {% endfor %}
+</form>
+
+    <div class="progress" style="display:none" id="progress">
+    <div class="indeterminate" ></div>
+    </div>
+    <div class="row">
+
+    <div class="btn col s3" id='submit' onclick="submit()">提交</div>
+
+    </div>
+
+
+{% endblock %}
+{% block script %}
+
+       <script type="text/javascript"  src="{{ url_for('static',filename='admin/setfield.js') }}"></script>
+
+{% endblock %}

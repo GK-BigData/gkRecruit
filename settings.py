@@ -7,7 +7,7 @@ class Config(object):
     DEBUG=True
     DATABASE_URI=''
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:gkbigdata123456@172.16.1.104:3306:3306/recruit'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:gkbigdata123456@172.16.1.255:3306:3306/recruit'
 
     # 配置允许上传的文件
 
@@ -23,7 +23,7 @@ class DevelopmentConfig(Config):
     pass
 class TestConfig(Config):
 
-    SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:gkbigdata123456@172.16.1.104:3306/recruit'
+    SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:123456@172.16.1.100:3306/recruit'
 
 
 

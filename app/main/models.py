@@ -7,14 +7,14 @@ from app import db
 
 class zs(db.Model):
     __tablename__='zs'
-    zsyear = db.Column(db.Integer(),db.ForeignKey("record.zsyear"))                                    # 年序号
-    id = db.Column(db.Integer(),autoincrement=True,primary_key=True)   #总序号
+    id = db.Column(db.Integer(), autoincrement=True, primary_key=True)  # 总序号
+
     student_name=db.Column(db.String(225),nullable=False)            #姓名
     education_number=db.Column(db.String(225),nullable=False)       #教育部考生号
     sex_name=db.Column(db.String(225),nullable=False)               #性别名称
     id_card=db.Column(db.String(225),nullable=False)                #身份证 -- 目前没有
     total_score_of_filing = db.Column(db.Integer, nullable=False)   #投档总分
-    ranking=db.Column(db.String)                                     #排位
+    ranking=db.Column(db.String(255))                                     #排位
     major_name=db.Column(db.String(225),nullable=False)             #录取专业（专业名称）
     report=db.Column(db.String(225))                                     #报道注销 -- 目前没有
     report_for_cancel=db.Column(db.String(225))                           #报道/注销  -- 目前没有
@@ -33,6 +33,8 @@ class zs(db.Model):
     Professional_4 = db.Column(db.String(225))                  # 专业4
     Professional_5 = db.Column(db.String(225))                  # 专业5
     Professional_6 = db.Column(db.String(225))                  # 专业6
+    # 这个外键指向record表的zsyear字段
+    zsyear = db.Column(db.Integer, db.ForeignKey("record.zsyear"),nullable=False)  # 年序号
 
 
 

@@ -12,11 +12,20 @@ class Record(db.Model):
 
     __tablename__='record'
     id = db.Column(db.Integer(),autoincrement=True,primary_key=True)
-    time = db.Column(db.DateTime(),nullable=False,primary_key=True)
-    zsyear = db.Column(db.String(10))
+    time = db.Column(db.DateTime(),nullable=False)
+    # 添加唯一约束，zs表用到他
+    zsyear = db.Column(db.Integer,nullable=False,unique=True)
     status = db.Column(db.String(30))
+
+    # 本地保存文件名
+    filename=db.Column(db.String(20),nullable=False)
+    # 记录数
+    size = db.Column(db.Integer)
+
+
+
     # record表和zs表外键关联,这里的zss 代表这一年的所有zs 数据
-    zss = db.relationship('zs',backref='record')
+    zss = db.relationship('zs',backref='record',lazy='dynamic')
 
 
 
