@@ -12,6 +12,8 @@ function action_import(id)
 {
     console.log("导入数据动作:"+id);
 
+    window.open("")
+
 
 }
 
@@ -25,6 +27,7 @@ function loadRecords()
         var table = $("#records");
         //清空元素
         table.empty();
+
     //    添加表头
         table.append("<thead><tr><th>id</th> <th>时间</th> <th>数据年份</th> <th>记录数</th> <th>状态</th><th>操作</th></tr></thead>");
 
