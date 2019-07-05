@@ -7,6 +7,10 @@ class All_Picture():
     def __init__(self):
         self.init_opts = opts.InitOpts(theme=ThemeType.LIGHT)
 
+    def getchart(self,db,zyear,chartid):
+        pass
+        self.db = db
+
     def bar_picture(self,bar_xdata,bar_ydata):
         bar_xdata=bar_xdata
         bar_ydata=bar_ydata
@@ -40,7 +44,7 @@ class All_Picture():
                             origin=[75,75]
                         ),
                         graphic_imagestyle_opts=opts.GraphicImageStyleOpts(
-                            image="logo.png",
+                            image="http://127.0.0.1:5000/static/main/logo.png",
                             width=110,
                             height=110,
                             opacity=0.4
@@ -52,7 +56,7 @@ class All_Picture():
 
             )
             # 是否翻转
-            .reversal_axis()
+            # .reversal_axis()
             .set_series_opts(
                 # 翻转后的位置
                 label_opts=opts.LabelOpts(position="right"),
@@ -72,4 +76,6 @@ class All_Picture():
 
 if __name__=='__main__':
     AP=All_Picture()
-
+    test = AP.bar_picture([1,2],[2,4])
+    print(test)
+    print(type(test))
