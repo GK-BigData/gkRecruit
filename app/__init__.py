@@ -27,10 +27,7 @@ def create_app():
     from app.admin.views import  bp_admin
     app.register_blueprint(bp_admin,url_prefix='/admin')
     from app.admin.models import Record
-
     from app.main.models import zs
-
-
 
     # 配置上传插件
     configure_uploads(app,upload_tables)
