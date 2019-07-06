@@ -7,7 +7,7 @@
 var chart = echarts.init(document.getElementById('test'));
 $.ajax(
     {
-        url:"charts?zsyear=2018&chartid=全国各个地区人数",
+        url:"charts?zsyear=2018&chartid=各学院男女人数占比雷达图",
         dataType:"json",
         type:"GET",
         success:function (data) {

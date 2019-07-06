@@ -14,6 +14,8 @@ from app import db
 import  sqlalchemy.sql.functions as func
 from  sqlalchemy.sql.expression import *
 
+from sqlalchemy.sql.expression import *
+
 bp_main = Blueprint('main',__name__)
 
 allcharts=["各学院男女人数占比雷达图",
@@ -58,9 +60,10 @@ def charts():
     elif chartid=='全国各个地区人数':
         x=[]
         y=[]
-        sql=sql.with_entities(zs.student_address,func.count()).group_by(zs.student_address)
+        sql = sql.with_entities(zs.student_address, func.count()).group_by(zs.student_address).order_by(desc(column( 'count_1')))
         print('全国各个地区人数',sql)
         dataset=sql.limit(10)
+        #dataset=db.session.execute("select student_address ,count(1) as counts from zs group by student_address order by counts desc limit 10;")
         for item in dataset:
             x.append(item[0])
             y.append(item[1])
@@ -69,6 +72,31 @@ def charts():
         print(y)
         result=a.bar_picture(x,y)
 
+    elif chartid=='各学院男女人数占比雷达图':
+        women_data=[]
+        man_data=[]
+        datas=[]
+        departments=[]
+        sql=sql.with_entities(zs.departments,zs.sex_name,func.count()).group_by(zs.departments,zs.sex_name)
+        dataset=sql.all()
+        print(sql)
+
+        for item in dataset:
+            print(item)
+            if item[0] not in departments:
+                departments.append(item[0])
+
+            if item[1]=='男':
+                man_data.append(item[2])
+
+            if item[1]=='女':
+                women_data.append(item[2])
+
+
+        print(departments)
+        print(man_data)
+        print(women_data)
+        result=a.radar_picture(women_data,man_data,departments)
 
 
 
