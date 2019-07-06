@@ -3,6 +3,8 @@
 # Project :zs
 # Time  :2019/6/25 上午10:19 
 
+
+
 class Config(object):
     DEBUG=True
     DATABASE_URI=''
@@ -23,8 +25,8 @@ class DevelopmentConfig(Config):
     pass
 class TestConfig(Config):
 
-    SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:123456@172.16.1.100:3306/recruit'
-
+    #SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:123456@172.16.1.100:3306/recruit'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:gkbigdata123456@172.16.1.104:3306/recruit'
 
 
 config=TestConfig()

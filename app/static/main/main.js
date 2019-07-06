@@ -7,7 +7,7 @@
 var chart = echarts.init(document.getElementById('test'));
 $.ajax(
     {
-        url:"charts?zsyear=2018&chartid=男女比例",
+        url:"charts?zsyear=2018&chartid=全国各个地区人数",
         dataType:"json",
         type:"GET",
         success:function (data) {
