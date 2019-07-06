@@ -6,7 +6,10 @@ from pyecharts.options import ComponentTitleOpts
 
 
 class All_Picture():
-    def __init__(self,title,subtitle=''):
+
+    def __init__(self,title,subtitle='',y_name='',x_name=''):
+        self.y_name = y_name
+        self.x_name=x_name
         self.title=title
         self.subtitle=subtitle
         self.init_opts = opts.InitOpts(theme=ThemeType.LIGHT)
@@ -37,16 +40,16 @@ class All_Picture():
             .add_yaxis("d", bar_ydata)
 
             .set_global_opts(
-                title_opts=opts.TitleOpts(title=self.title,subtitle="副标题"),
+                title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
                 #显示下载等按钮
                 toolbox_opts=opts.ToolboxOpts(),
                 legend_opts=opts.LegendOpts(is_show=False),
 
                 #设置y轴名称和value单位
-                yaxis_opts=opts.AxisOpts(name="y轴名称",axislabel_opts=opts.LabelOpts(formatter="{value}/单位")),
+                yaxis_opts=opts.AxisOpts(name=self.y_name,axislabel_opts=opts.LabelOpts(formatter="{value}")),
 
                 #设置x轴名称
-                xaxis_opts=opts.AxisOpts(name="x轴名称"),
+                xaxis_opts=opts.AxisOpts(name=self.x_name),
 
                 #设置logo
                 graphic_opts=self.logo
@@ -87,7 +90,7 @@ class All_Picture():
                 rosetype="area",
             )
 
-            .set_global_opts(title_opts=opts.TitleOpts(title="修改这里，标题"),
+            .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
                              #调整位置
                              #legend_opts=opts.LegendOpts(pos_left="15%"),
 
@@ -102,7 +105,7 @@ class All_Picture():
         p = (
             Pie(init_opts=self.init_opts)
                 .add("",[list(p) for p in zip(x_data, y_data)])
-                .set_global_opts(title_opts=opts.TitleOpts(title="修改这里，标题"),
+                .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
                                  #添加logo
                                  graphic_opts=self.logo
                                  )
@@ -115,7 +118,7 @@ class All_Picture():
         g = (
             Map(init_opts=self.init_opts)
                 .add("标示，修改这里", [list(z) for z in zip(x_data, y_data)], "广东")
-                .set_global_opts(title_opts=opts.TitleOpts(title="修改这里,标题"),
+                .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
                                  #分段类型
                                  visualmap_opts=opts.VisualMapOpts(max_=1000,is_piecewise=True),
                                  # 添加logo
@@ -132,7 +135,7 @@ class All_Picture():
         c = (
             Map(init_opts=self.init_opts)
                 .add("标示，修改这里", [list(z) for z in zip(x_data, y_data)], "china")
-                .set_global_opts(title_opts=opts.TitleOpts(title="修改这里,标题"),
+                .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
                                  # 分段类型
                                  visualmap_opts=opts.VisualMapOpts(max_=1000, is_piecewise=True),
 
@@ -169,7 +172,7 @@ class All_Picture():
             .add("男",v1)
             .add("女",v2)
             .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
-            .set_global_opts(title_opts=opts.TitleOpts(title="主标题-修改这里"),
+            .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
                              # 添加logo
                              graphic_opts=self.logo
                              )
@@ -200,7 +203,7 @@ class All_Picture():
         table=(
             Table()
             .add(headers=headers,rows=data)
-            .set_global_opts(title_opts=ComponentTitleOpts(title="主标题",subtitle="副标题"),
+            .set_global_opts(title_opts=ComponentTitleOpts(title=self.title,subtitle=self.subtitle),
                              # 添加logo
                              graphic_opts=self.logo
                              )
