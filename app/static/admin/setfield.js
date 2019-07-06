@@ -7,8 +7,12 @@ $("select").change(function () {
 
    var  select_element =  $(this);
    console.log(select_element);
-    var id=select_element.attr('id');
+
+    var id=select_element.attr('name');
+
     console.log(id);
+
+
 
 
 });

@@ -220,5 +220,6 @@ class All_Picture():
 
 
 if __name__=='__main__':
-    AP=All_Picture()
+    AP=All_Picture("fff")
+
 

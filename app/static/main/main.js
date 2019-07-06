@@ -4,7 +4,7 @@
 //     console.log(data);
 //
 // });
-var chart = echarts.init(document.getElementById('test'));
+var chart = echarts.init(document.getElementById('test'),'vintage');
 $.ajax(
     {
         url:"charts?zsyear=2018&chartid=各学院男女人数占比雷达图",

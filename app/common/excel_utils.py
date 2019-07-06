@@ -8,7 +8,7 @@ import xlrd
 '''Excel工具'''
 def get_columns(path,sheet_index=0):
     '''
-
+    读取前10个元素
     :param path:文件路径
     :param sheet_index:excel的第几个工作表
     :return:
@@ -18,8 +18,9 @@ def get_columns(path,sheet_index=0):
     sheet = book.sheet_by_index(sheet_index)
 
 #     第一行作为列名
-    return sheet.row_values(0)
-
+    columns =  sheet.row_values(0)
+    results={}
+    for i in max()
 
 def excel2list(path:str,sheet_index=0,columns=None)->list:
 
