@@ -1,18 +1,38 @@
 // admin界面的js代码
 
 //各种操作，loadRecords函数返回的html里的js调用
+//通用请求成功函数
+function actionSuccess(data)
+{
 
+   M.toast({html:"服务端响应成功:"+data.data});
+    loadRecords();
+}
+function actionError(data) {
+       M.toast({html:"服务端响应失败:"+data});
+}
+//获取信息
 function action_info(id)
 {
 
 }
+//删除数据
+function action_delete(id) {
+    console.log("删除数据:"+id);
+    $.ajax({
+        url:"records/"+id,
+        method:"DELETE",
+        success:actionSuccess,
+        error:actionError
+    })
 
+}
 
 function action_import(id)
 {
     console.log("导入数据动作:"+id);
 
-    window.open("")
+    window.open("setfield/"+id)
 
 
 }
@@ -109,7 +129,7 @@ function upload() {
              M.toast({html:"服务端响应成功:"+data.data});
 
              $("#upload").removeClass("disabled");
-            
+            loadRecords();
         },
         error:function()
         {

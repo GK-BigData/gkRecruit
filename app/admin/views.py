@@ -40,15 +40,15 @@ def index():
     return render_template("admin/admin.html")
 
 # 修改字段导入数据 界面
-@bp_admin.route("/setfield/<int:zsyear>")
-def setfield(zsyear):
+@bp_admin.route("/setfield/<int:id>")
+def setfield(id):
     '''
     解析excel 选择字段，导入到数据库
     :param zsyear:
     :return:
     '''
 
-    nowrecord = Record.query.filter(Record.zsyear==zsyear).first()
+    nowrecord = Record.query.filter(Record.id==id).first()
 
     filename = os.path.join("upload", nowrecord.filename)
 
@@ -109,16 +109,23 @@ def get_records2():
 # 获取某个数据
 @bp_admin.route("/records/<int:id>",methods=['GET'])
 def get_record(id):
+    item = Record.query.filter(Record.id==id).first()
 
-    pass
+    return rjson(item,0)
 
 
 
 # 删除数据
 @bp_admin.route('/records/<int:id>',methods=['DELETE'])
 def delete_record(id):
-    pass
-
+    try:
+        item = Record.query.filter(Record.id == id).first()
+        result = db.session.delete(item)
+        print("删除结果:",result)
+        db.session.commit()
+    except Exception as e:
+        return rjson("错误:{}".format(str(e)), 1)
+    return rjson("删除成功", 0)
 # 添加数据
 @bp_admin.route("/records",methods=['POST'])
 def add_record():
@@ -134,6 +141,7 @@ def add_record():
     item.zsyear=zsyear
     item.status=status
     item.size=0
+
 
     print(type(db.session))
     db.session.add(item)
@@ -155,6 +163,7 @@ def importdata():
     field_columns = {}
     for col in needcolumns_fields:
         field_columns[col] = request.form[col]
+
 
     print("字段和 输入列的关系:",field_columns)
 
