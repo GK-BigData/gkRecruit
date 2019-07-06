@@ -30,7 +30,7 @@
     <div class="col s3">{{ name }}</div>
     <div class="col s3 input-field">
         <select name="{{ field }}">
-        {% for inpcol in inputcolumns %}
+        {% for inpcol in inputcolumns.values() %}
 {#            如果field名字刚好对应 ，就选中 #}
             {% if inpcol==name %}
             <option selected>{{ inpcol }}</option>
