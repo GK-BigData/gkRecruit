@@ -151,26 +151,32 @@ class All_Picture():
     #雷达图--各个学院男女比例占比
     def radar_picture(self,value1,value2,schemanames):
 
+        maxvalue = 0
+        for value in value1+value2:
+            if value>maxvalue:
+                maxvalue=value
+
         #各个学院男生人数占比
-        v1=list(value1)
+        v1=[value1]
 
         #各个学院女生人数占比
-        v2=list(value2)
+        v2=[value2]
 
         '''
         v1 = [[4300, 10000, 28000, 35000, 50000, 19000]]
         v2 = [[5000, 14000, 28000, 31000, 42000, 21000]]
         '''
+
         schema=[]
         for name in schemanames:
-            schema.append(opts.RadarIndicatorItem(name=name,max_=3000))
+            schema.append(opts.RadarIndicatorItem(name=name,max_=maxvalue))
         r=(
             Radar(init_opts=self.init_opts)
             .add_schema(
                 schema=schema
             )
-            .add("男",v1)
-            .add("女",v2)
+            .add("女",v1)
+            .add("男",v2)
             .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
             .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
                              # 添加logo
