@@ -12,6 +12,7 @@ def bar_chart() -> Map:
                              )
 
     )
+    print(Faker.guangdong_city)
     for z in zip(Faker.guangdong_city, Faker.values()):
         print(list(z))
 

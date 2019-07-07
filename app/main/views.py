@@ -24,6 +24,7 @@ allcharts=["各学院男女人数占比雷达图",
            "政治面貌",
            "投档分直方图",
            "全国各个地区人数",
+           "学年制",
            ]
 
 @bp_main.route("/")
@@ -74,7 +75,6 @@ def charts():
     elif chartid=='各学院男女人数占比雷达图':
         women_data=[]
         man_data=[]
-        datas=[]
         departments=[]
         sql=sql.with_entities(zs.departments,zs.sex_name,func.count()).group_by(zs.departments,zs.sex_name)
         dataset=sql.all()
@@ -97,7 +97,20 @@ def charts():
         print(women_data)
         result=a.radar_picture(women_data,man_data,departments)
 
-
+    elif chartid=='学年制':
+        x = []
+        y = []
+        # dataset = db.session.execute("select sex_name,count(1) from zs group by sex_name;").fetchall()
+        sql = sql.with_entities(zs.education__time, func.count()).group_by(zs.education__time)
+        print("sql语句:", sql)
+        dataset = sql.all()
+        for item in dataset:
+            x.append(item[0])
+            y.append(item[1])
+        print("查询结果")
+        print(x)
+        print(y)
+        result = a.rose_picture(x, y)
 
     #
     # x=[]
