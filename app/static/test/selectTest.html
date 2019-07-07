@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{#select 选择事件测试#}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h1>2333</h1>
+<label for="job">选择工作</label><select id="job">
+    <option>Android</option>
+    <option>BigData</option>
+    <option>Front End</option>
+</select>
+<select id="job2"></select>
+选择的工作:<div id="result"></div>
+<script src="/static/js/jquery.min.js"></script>
+<script>
+
+//选择器测试
+
+
+
+
+
+    $('#job').change(function () {
+        console.log(this);
+        var select =  $(this).children('option:selected');
+        console.log(select);
+
+        console.log(select.val());
+
+        $('#result').html(select.val());
+        
+    })
+    
+</script>
+</body>
+</html>

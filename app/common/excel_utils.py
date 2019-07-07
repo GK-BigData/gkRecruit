@@ -6,9 +6,9 @@
 import xlrd
 
 '''Excel工具'''
-def get_columns(path,sheet_index=0):
+def get_columns(path,sheet_index=0)->dict:
     '''
-
+    读取前10个元素
     :param path:文件路径
     :param sheet_index:excel的第几个工作表
     :return:
@@ -18,7 +18,18 @@ def get_columns(path,sheet_index=0):
     sheet = book.sheet_by_index(sheet_index)
 
 #     第一行作为列名
-    return sheet.row_values(0)
+    columns =  sheet.row_values(0)
+    results={}
+    # 初始化字典元素
+    for col in columns:
+        results[col]=[]
+    #     1开始跳过第一行
+    for i in range(1,min(sheet.nrows,10)):
+
+        for col,index in enumerate(columns):
+            results[col].append(sheet.cell_value(i,index))
+    return results
+
 
 
 def excel2list(path:str,sheet_index=0,columns=None)->list:

@@ -1,4 +1,21 @@
 
+
+//值改变时 ，在后面显示出预览值,jquery查询到的所有select可以直接设置全部结果的change函数
+$("select").change(function () {
+
+   console.log("select 改变值了");
+
+   var  select_element =  $(this);
+   console.log(select_element);
+
+    var id=select_element.attr('name');
+
+    console.log(id);
+
+
+
+
+});
 //提交，填充数据到mysql
 function submit() {
 
