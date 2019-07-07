@@ -26,7 +26,7 @@ def get_columns(path,sheet_index=0)->dict:
     #     1开始跳过第一行
     for i in range(1,min(sheet.nrows,10)):
 
-        for col,index in enumerate(columns):
+        for index,col in enumerate(columns):
             results[col].append(sheet.cell_value(i,index))
     return results
 

@@ -16,12 +16,15 @@ from xpinyin import Pinyin
 
 import csv
 import xlrd
+import json
 
 
 from datetime import datetime
 
 from app.common.excel_utils  import  get_columns,excel2dict,excel2list
 
+import  sqlalchemy.sql.functions as func
+from  sqlalchemy.sql.expression import *
 #  这里使用 restful api http://www.pythondoc.com/flask-restful/first.html
 
 bp_admin = Blueprint('admin',__name__)
@@ -34,7 +37,7 @@ need_columns = {}
 for i in range(0, len(needcolumns_name)):
     need_columns[needcolumns_fields[i]] = needcolumns_name[i]
 
-
+#主界面，显示所有记录的界面
 @bp_admin.route("/")
 def index():
     return render_template("admin/admin.html")
@@ -48,12 +51,14 @@ def setfield(id):
     :return:
     '''
 
+
     nowrecord = Record.query.filter(Record.id==id).first()
 
     filename = os.path.join("upload", nowrecord.filename)
 
 
     print("打开文件:",filename)
+    # 获取预览数据,字典格式,键为列名，值是数组列表
     inputcolumns = get_columns(filename)
     print(need_columns)
     print(inputcolumns)
@@ -62,10 +67,28 @@ def setfield(id):
     return render_template("admin/setfield.html",
                            zsyear=nowrecord.zsyear,
                            need_columns=need_columns,
-                           needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns)
+                           needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns,preview=json.dumps(inputcolumns))
 
 
 
+# 获取全部数据
+@bp_admin.route("/records_html",methods=['GET'])
+def get_records2():
+
+    datasets = Record.query.all()
+    # 查询到的是Record对象，不能序列化
+    result = []
+
+    for data in datasets:
+        print(dir(data))
+        result.append({
+            "id":data.id,
+            "time":data.time,
+            "zsyear":data.zsyear,
+            "status":data.status
+        })
+    #
+    return render_template("admin/item_record.html",records=datasets)
 
 
 # 获取全部数据
@@ -87,32 +110,24 @@ def get_records():
     #
     return rjson(result,0)
 
-# 获取全部数据
-@bp_admin.route("/records_html",methods=['GET'])
-def get_records2():
 
-    datasets = Record.query.all()
-    # 查询到的是Record对象，不能序列化
-    result = []
+# 获取某个预览数据
+@bp_admin.route("/preview/<int:id>",methods=['GET'])
+def preview(id):
+    # 返回类型，返回json还是html表格
+    type=request.args['type']
 
-    for data in datasets:
-        print(dir(data))
-        result.append({
-            "id":data.id,
-            "time":data.time,
-            "zsyear":data.zsyear,
-            "status":data.status
-        })
-    #
-    return render_template("admin/item_record.html",records=datasets)
-
-# 获取某个数据
-@bp_admin.route("/records/<int:id>",methods=['GET'])
-def get_record(id):
     item = Record.query.filter(Record.id==id).first()
+    zsyear = item.zsyear
 
-    return rjson(item,0)
+    students = zs.query.filter(zs.zsyear==zsyear).order_by(func.rand()).limit(10).all()
 
+    print(students[:10])
+
+    if type=='json':
+        return rjson(students,0)
+    else:
+        return render_template('admin/preview.html',students=students , need_column=need_columns)
 
 
 # 删除数据
