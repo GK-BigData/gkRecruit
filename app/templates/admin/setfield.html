@@ -23,37 +23,15 @@
 
 
     {% for field,name in need_columns.items() %}
-
-
-    <div class="row">
-
-    <div class="col s3">{{ name }}</div>
-    <div class="col s3 input-field">
-
-        <select name="{{ field }}">
-         <option value="" disabled selected>未选择</option>
-        {% for inpcol,values in inputcolumns.items() %}
-{#            如果field名字刚好对应 ，就选中 #}
-            {% if inpcol==name %}
-            <option value="{{ inpcol }}" selected>{{ inpcol }}:     {{ values }}</option>
-            {% else %}
-                <option value="{{ inpcol }}">{{ inpcol }}:     {{ values }}</option>
-            {% endif %}
-            {% endfor %}
-
-        </select>
-        <label>{{  name }}</label>
-    </div>
-
+        <div class="row">
+        {{ name }}
+        <div class="input-field inline">
+{#            设置input为只读#}
+            <input  readonly="readonly" id="{{ field }}" name="{{ field }}" type="text" onclick="showField('{{ field }}','{{ name }}')"/>
+            <label for="{{ field }}">{{ name }}</label>
+        </div>
 
     </div>
-
-
-
-
-
-
-
 
 
 
@@ -69,6 +47,42 @@
     <div class="btn col s3" id='submit' onclick="submit()">提交</div>
 
     </div>
+
+
+
+
+{#    --------------------------选择变量模态框--------------#}
+    <div class="modal bottom-sheet" id="field_modal">
+{#    表格选择 内容， 行可以点击 #}
+    <div class="modal-content">
+
+        <h4>为<span id="name"></span>选择数据<span id="field" style="display: none"></span></h4>
+
+{#        选择的表格 #}
+        <table id="field_table">
+
+{#            遍历预览数据，预览数据是 key+value的列表组成 #}
+            {% for col,values in inputcolumns.items() %}
+
+                <tr>
+{#                遍历生成行 ,因为是倒置，表头在第一个#}
+                 <th>{{ col }}</th>
+                {% for value in values %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+
+                </tr>
+
+            {% endfor %}
+
+
+        </table>
+
+    </div>
+
+
+    </div>
+
 
 
 {% endblock %}

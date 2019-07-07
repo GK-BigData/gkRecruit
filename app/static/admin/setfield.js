@@ -16,6 +16,25 @@ $("select").change(function () {
 
 
 });
+
+
+
+//显示选择框,参数为数据库 字段名和 字段的名字
+function showField(field,name)
+{
+
+    console.log("显示选择框:"+field+" name:"+name);
+
+    console.log(field_modal);
+    field_modal.open();
+
+
+
+
+
+
+}
+
 //提交，填充数据到mysql
 function submit() {
 
@@ -43,3 +62,14 @@ function submit() {
         })
 
 }
+
+var field_modal=null;
+document.addEventListener('DOMContentLoaded',function (evt) {
+
+    var elements = $("#field_modal");
+
+    field_modal = M.Modal.init(elements,{})[0];
+
+    console.log("初始化modal成功...")
+
+});
