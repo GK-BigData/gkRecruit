@@ -1,19 +1,21 @@
 from example.commons import Faker
 from pyecharts import options as opts
-from pyecharts.charts import Map
-
-
-def bar_chart() -> Map:
+from pyecharts.charts import Funnel
+def funnel_sort_ascending() :
     c = (
-        Map()
-            .add("商家A", [list(z) for z in zip(Faker.guangdong_city, Faker.values())], "广东")
-            .set_global_opts(title_opts=opts.TitleOpts(title="map-demo"),
-                             visualmap_opts=opts.VisualMapOpts(max_=200)
-                             )
-
+        Funnel()
+        .add(
+            "商品",
+            [list(z) for z in zip(Faker.choose(), Faker.values())],
+            sort_="ascending",
+            label_opts=opts.LabelOpts(position="inside"),
+        )
+        .set_global_opts(title_opts=opts.TitleOpts(title="Funnel-Sort（ascending）"))
     )
-    for z in zip(Faker.guangdong_city, Faker.values()):
-        print(list(z))
-
+    for z in zip(Faker.choose(), Faker.values()):
+        print(Faker.choose())
+        print(Faker.values())
+        print(z)
     return c
-bar_chart().render('map.html')
+
+funnel_sort_ascending().render('map.html')

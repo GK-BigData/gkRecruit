@@ -23,7 +23,7 @@ class DevelopmentConfig(Config):
     pass
 class TestConfig(Config):
 
-    SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:gkbigdata123456@172.16.1.104:3306/recruit'
+    SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:gkbigdata123456@10.10.165.141:3306/recruit'
 
 
 
