@@ -1,11 +1,56 @@
 // admin界面的js代码
 
+
+//初始化模态框等
+function initComponents()
+{
+    var info = $('#modal_info');
+    //第一个参数为配置
+    M.Modal.init(info,{
+    //
+    onOpenStart:function (modal,trigger) {
+        console.log(trigger);
+        console.log("on open start"+modal);
+        console.log(modal);
+        console.log(this);
+        record_id = $(trigger).attr("data-id");
+    //    ajax请求预览数据
+        loadInfo(record_id);
+
+    }
+    });
+
+
+}
+
+function loadInfo(id)
+{
+    $('#progress_info').css('display','block');
+    $.get('preview/'+id+'?type=html',function (data) {
+
+        var table = $('#previewtable');
+        table.empty();
+
+
+        var a = table.append(data);
+        console.log(data);
+        $('#progress_info').css('display','none');
+
+        console.log("加载信息完成:");
+        console.log(data);
+
+    })
+
+
+}
+
+
 //各种操作，loadRecords函数返回的html里的js调用
 //通用请求成功函数
 function actionSuccess(data)
 {
-
-   M.toast({html:"服务端响应成功:"+data.data});
+    console.log(data);
+    showJsonResult(data,'操作失败');
     loadRecords();
 }
 function actionError(data) {
@@ -14,6 +59,7 @@ function actionError(data) {
 //获取信息
 function action_info(id)
 {
+    console.log("查看信息:"+id);
 
 }
 //删除数据
@@ -125,11 +171,14 @@ function upload() {
         contentType:false,
         processData:false,
         success:function (data) {
+            console.log(data);
             console.log("上传成功");
-             M.toast({html:"服务端响应成功:"+data.data});
+
+             showJsonResult(data,'上传数据失败');
 
              $("#upload").removeClass("disabled");
             loadRecords();
+            // if(data.code===0){}
         },
         error:function()
         {
@@ -146,4 +195,4 @@ function upload() {
 
 loadRecords();
 
-
+initComponents();

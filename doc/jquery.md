@@ -21,3 +21,14 @@ $("buttonid").removeClass('disabled')
  隐藏
      $('#progress').css('display','none');
 ```
+
+## 3. 清空元素和添加元素
+
+> Ajax请求数据刷新页面时，需要清空某个元素下面的内容，在添加上去
+
+$('#xx').empty()	清空元素
+
+$('#xx').append() 添加元素到里面,可以是html字符串
+
+
+

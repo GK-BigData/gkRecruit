@@ -27,3 +27,7 @@ model里的方法
 update 
 
 查询完后update更新
+
+delete
+删除所有数据
+ zss = zs.query.delete()

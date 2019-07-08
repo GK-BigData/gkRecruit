@@ -23,34 +23,31 @@
 
 
     {% for field,name in need_columns.items() %}
+        <div class="row">
+        <div class="col ">
+         {{ name }}
+        <div class="input-field  inline">
+{#            设置input为只读#}
+{#            readonly="readonly" #}
+            <input id="{{ field }}" value="{{ fileds[loop.index0] }}" name="{{ field }}" type="text" onclick="showField('{{ field }}','{{ name }}')"/>
+{# <label for="{{ field }}">{{ name }}</label>#}
+        </div>
+       </div>
 
+{#            如果有对应的推断字段的话#}
 
-    <div class="row">
+        <p  id="{{ field }}-preview" class="" style="text-overflow: ellipsis;overflow: hidden;">
+                {% if fileds[loop.index0] in inputcolumns.keys() %}
+            {{ inputcolumns[fileds[loop.index0]] |join(' ') }}
+                    {% else %}
 
-    <div class="col s3">{{ name }}</div>
-    <div class="col s3 input-field">
-        <select name="{{ field }}">
-        {% for inpcol in inputcolumns.values() %}
-{#            如果field名字刚好对应 ，就选中 #}
-            {% if inpcol==name %}
-            <option selected>{{ inpcol }}</option>
-            {% else %}
-                <option>{{ inpcol }}</option>
             {% endif %}
-            {% endfor %}
-        </select>
-        <label>{{  name }}</label>
+        </p>
+
+
+
+
     </div>
-
-
-    </div>
-
-
-
-
-
-
-
 
 
 
@@ -68,9 +65,52 @@
     </div>
 
 
+
+
+{#    --------------------------选择变量模态框--------------#}
+    <div class="modal bottom-sheet" id="field_modal">
+{#    表格选择 内容， 行可以点击 #}
+    <div class="modal-content">
+
+        <h4>为<span id="name"></span>选择数据<span id="field" style="display: none"></span></h4>
+
+{#        选择的表格 #}
+        <table id="field_table">
+
+{#            遍历预览数据，预览数据是 key+value的列表组成 #}
+            {% for col,values in inputcolumns.items() %}
+
+                <tr onclick="select_field('{{ col }}')">
+{#                遍历生成行 ,因为是倒置，表头在第一个#}
+                 <th>{{ col }}</th>
+                {% for value in values %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+
+                </tr>
+
+            {% endfor %}
+
+
+        </table>
+
+    </div>
+
+
+    </div>
+
+
+
 {% endblock %}
 {% block script %}
 
-       <script type="text/javascript"  src="{{ url_for('static',filename='admin/setfield.js') }}"></script>
+     <script type="text/javascript"  src="{{ url_for('static',filename='admin/setfield.js') }}"></script>
+    <script type="text/javascript">
+{#   传入预览 json数据#}
+    var preview = {{ preview |safe }};
+
+
+    </script>
+
 
 {% endblock %}

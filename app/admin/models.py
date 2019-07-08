@@ -22,6 +22,8 @@ class Record(db.Model):
     # 记录数
     size = db.Column(db.Integer)
 
+    # 从记录里选择需要的字段的，记录，下次更新数据时，直接读取上次的选择
+    fields=db.Column(db.Text)
 
 
     # record表和zs表外键关联,这里的zss 代表这一年的所有zs 数据

@@ -1,0 +1,27 @@
+{#记录数据，预览 ,当请求类型是html时 用这个模板渲染#}
+
+{#表头#}
+<thead>
+<tr>
+{% for  field,name in need_column.items() %}
+        <th> {{ name }} </th>
+        {% endfor %}
+</tr>
+</thead>
+
+<tbody>
+
+    {% for student in students %}
+    <tr>
+
+    {% for  field,name in need_column.items() %}
+        <td> {{ student[field] }} </td>
+        {% endfor %}
+
+
+
+    </tr>
+{% endfor %}
+
+
+</tbody>

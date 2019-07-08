@@ -11,10 +11,10 @@ class zs(db.Model):
     student_name=db.Column(db.String(225),nullable=False)            #姓名
     education_number=db.Column(db.String(225),nullable=False)       #教育部考生号
     sex_name=db.Column(db.String(225),nullable=False)               #性别名称
-    id_card=db.Column(db.String(225),nullable=False)                #身份证 -- 目前没有
-    total_score_of_filing = db.Column(db.Integer, nullable=False)   #投档总分
+    id_card=db.Column(db.String(225))                #身份证 -- 目前没有
+    total_score_of_filing = db.Column(db.Integer)   #投档总分
     ranking=db.Column(db.String(255))                                     #排位
-    major_name=db.Column(db.String(225),nullable=False)             #录取专业（专业名称）
+    major_name=db.Column(db.String(225))             #录取专业（专业名称）
     report=db.Column(db.String(225))                                     #报道注销 -- 目前没有
     report_for_cancel=db.Column(db.String(225))                           #报道/注销  -- 目前没有
     student_address=db.Column(db.String(225))                           #户口所在地（地区名称）
