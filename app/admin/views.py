@@ -258,7 +258,7 @@ def importdata():
         # 更新记录数和选择的字段
         record.size=size
         record.fields=fields
-
+        record.status='已导入数据'
         print("更新数据:",record)
 
         db.session.commit()
@@ -306,7 +306,7 @@ def upload():
     try:
         # parse_csv(ab,zsyear)
 
-        record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="测试",filename=filename_py)
+        record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="未导入数据",filename=filename_py)
         print(record)
         print("查询结果:",result)
         db.session.add(record)
