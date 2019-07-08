@@ -51,8 +51,13 @@ def excel2list(path:str,sheet_index=0,columns=None)->list:
 
         item = {}
         for col in columns:
-            index = excelColumns.index(col)
-            item[col]=sheet.cell_value(i,index)
+            # 如果需要的列里在excel里找不到,就给个None值
+            if col in excelColumns:
+                # 查找这个列在excel里的第几列
+                index = excelColumns.index(col)
+                item[col]=sheet.cell_value(i,index)
+            else:
+                item[col]=None
         result.append(item)
     return result
 

@@ -24,6 +24,7 @@
 
 
 
+
     <div class="container">
         <h1>Test</h1>
 
@@ -31,6 +32,23 @@
 
         {% endblock %}
 
+
+{#    添加一个全局的错误模态提示框 ,子页面可以直接调用#}
+
+
+    <div class="modal modal-fixed-footer" id="base-modal">
+
+        <div class="modal-content">
+            <h4 id="base-modal-title"></h4>
+            <p id="base-modal-content"></p>
+        </div>
+        <div class="modal-footer">
+            <a class="btn waves-red modal-close">关闭</a>
+        </div>
+
+    </div>
+
+{#-----------------------模态框结束-------------#}
     </div>
 
 
@@ -38,6 +56,33 @@
     <script type="text/javascript" src="{{ url_for('static',filename='material/js/materialize.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='base.js') }}"></script>
 
+    <script>
+{#        初始化通用模态框 #}
+
+        var base_modal = M.Modal.init(document.getElementById('base-modal'));
+
+    {#    调用函数#}
+        function showDialog(title,content) {
+            $('#base-modal-title').html(title);
+            $('#base-modal-content').html(content);
+            base_modal.open();
+
+        }
+        {#输出json结果 ， 结果格式通用是返回 {code:xx,data:xx} 这种形式，code==0表示成功的，弹一个toast即可,不是一的显示对话框#}
+        function showJsonResult(data,title)
+        {
+            if(title===undefined)title='异常';
+            if(data.code!==0)
+            {
+                showDialog(title,data.data);
+            }
+            else
+                M.toast({html:data.data})
+        }
+
+
+
+    </script>
 
 {% block script %}
 {% endblock %}

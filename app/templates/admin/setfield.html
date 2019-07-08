@@ -24,12 +24,28 @@
 
     {% for field,name in need_columns.items() %}
         <div class="row">
-        {{ name }}
-        <div class="input-field inline">
+        <div class="col ">
+         {{ name }}
+        <div class="input-field  inline">
 {#            设置input为只读#}
-            <input  readonly="readonly" id="{{ field }}" name="{{ field }}" type="text" onclick="showField('{{ field }}','{{ name }}')"/>
-            <label for="{{ field }}">{{ name }}</label>
+{#            readonly="readonly" #}
+            <input id="{{ field }}" value="{{ fileds[loop.index0] }}" name="{{ field }}" type="text" onclick="showField('{{ field }}','{{ name }}')"/>
+{# <label for="{{ field }}">{{ name }}</label>#}
         </div>
+       </div>
+
+{#            如果有对应的推断字段的话#}
+
+        <p  id="{{ field }}-preview" class="" style="text-overflow: ellipsis;overflow: hidden;">
+                {% if fileds[loop.index0] in inputcolumns.keys() %}
+            {{ inputcolumns[fileds[loop.index0]] |join(' ') }}
+                    {% else %}
+
+            {% endif %}
+        </p>
+
+
+
 
     </div>
 
@@ -64,7 +80,7 @@
 {#            遍历预览数据，预览数据是 key+value的列表组成 #}
             {% for col,values in inputcolumns.items() %}
 
-                <tr>
+                <tr onclick="select_field('{{ col }}')">
 {#                遍历生成行 ,因为是倒置，表头在第一个#}
                  <th>{{ col }}</th>
                 {% for value in values %}
@@ -91,7 +107,7 @@
      <script type="text/javascript"  src="{{ url_for('static',filename='admin/setfield.js') }}"></script>
     <script type="text/javascript">
 {#   传入预览 json数据#}
-    var preview = {{ preview }};
+    var preview = {{ preview |safe }};
 
 
     </script>

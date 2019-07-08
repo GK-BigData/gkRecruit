@@ -49,8 +49,8 @@ function loadInfo(id)
 //通用请求成功函数
 function actionSuccess(data)
 {
-
-   M.toast({html:"服务端响应成功:"+data.data});
+    console.log(data);
+    showJsonResult(data,'操作失败');
     loadRecords();
 }
 function actionError(data) {
@@ -171,11 +171,14 @@ function upload() {
         contentType:false,
         processData:false,
         success:function (data) {
+            console.log(data);
             console.log("上传成功");
-             M.toast({html:"服务端响应成功:"+data.data});
+
+             showJsonResult(data,'上传数据失败');
 
              $("#upload").removeClass("disabled");
             loadRecords();
+            // if(data.code===0){}
         },
         error:function()
         {

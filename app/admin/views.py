@@ -54,20 +54,51 @@ def setfield(id):
 
     nowrecord = Record.query.filter(Record.id==id).first()
 
+    fields = nowrecord.fields
     filename = os.path.join("upload", nowrecord.filename)
 
 
     print("打开文件:",filename)
-    # 获取预览数据,字典格式,键为列名，值是数组列表
+    # 获取预览数据,字典格式,键为 列名，值是数组列表
     inputcolumns = get_columns(filename)
     print(need_columns)
     print(inputcolumns)
 
+    print("数据库的的 fields",fields)
+    # fields是空的话,就进行推断,将需要的字段 和 输入的字段进行匹配
+    if fields==None:
+        fields=caculateFields(need_columns,inputcolumns)
+    else:
+        fields=fields.split(",")
 
+    print("处理有fields",fields)
+    # preview是 inputcolumns的json字符串
     return render_template("admin/setfield.html",
                            zsyear=nowrecord.zsyear,
                            need_columns=need_columns,
-                           needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns,preview=json.dumps(inputcolumns))
+                           needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns,preview=json.dumps(inputcolumns),
+                           fileds = fields
+                           )
+
+def caculateFields(need_columns:dict,inputcolumns:dict)->list:
+    '''
+    根据字段推断出可能选什么，待优化现在只是判断字段名一致的
+    :param need_columns:
+    :param inputcolumns:
+    :return:
+    '''
+    result=[]
+    # need_columns.values的需要的中文键
+    for col in need_columns.values():
+
+        #输入的键里有 需要的列的话，就将这个键设置为当前选择的
+        if col in inputcolumns.keys():
+            result.append(col)
+        else:
+            result.append( '')
+    return result
+
+
 
 
 
@@ -135,8 +166,12 @@ def preview(id):
 def delete_record(id):
     try:
         item = Record.query.filter(Record.id == id).first()
+        # 先删除招生数据再删除记录
+        zss = zs.query.filter(zs.zsyear==item.zsyear).delete()
+
         result = db.session.delete(item)
-        print("删除结果:",result)
+
+        print("删除结果:",zss)
         db.session.commit()
     except Exception as e:
         return rjson("错误:{}".format(str(e)), 1)
@@ -178,7 +213,8 @@ def importdata():
     field_columns = {}
     for col in needcolumns_fields:
         field_columns[col] = request.form[col]
-
+    #     将选择的列保存起来，下次可以直接读取，str将所有变成字符串再join
+    fields = ",".join(map( lambda  x:str(x),field_columns.values()))
 
     print("字段和 输入列的关系:",field_columns)
 
@@ -187,6 +223,7 @@ def importdata():
 
 
     record = Record.query.filter(Record.zsyear==zsyear).first()
+
 
     file = os.path.join('upload',record.filename)
 
@@ -208,7 +245,9 @@ def importdata():
 
             params={}
             for key in field_columns.keys():
+
                 params[key] = row[ field_columns[key] ]
+
             params['zsyear']=zsyear
             zsitem = zs(**params)
             db.session.add(zsitem)
@@ -216,7 +255,10 @@ def importdata():
 
         print("开始提交数据...")
 
+        # 更新记录数和选择的字段
         record.size=size
+        record.fields=fields
+
         print("更新数据:",record)
 
         db.session.commit()
