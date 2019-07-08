@@ -7,7 +7,7 @@
 var chart = echarts.init(document.getElementById('test'),'vintage');
 $.ajax(
     {
-        url:"charts?zsyear=2018&chartid=学年制",
+        url:"charts?zsyear=2018&chartid=男女人数排三的专业",
         dataType:"json",
         type:"GET",
         success:function (data) {

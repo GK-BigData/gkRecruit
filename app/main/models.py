@@ -8,7 +8,6 @@ from app import db
 class zs(db.Model):
     __tablename__='zs'
     id = db.Column(db.Integer(), autoincrement=True, primary_key=True)  # 总序号
-
     student_name=db.Column(db.String(225),nullable=False)            #姓名
     education_number=db.Column(db.String(225),nullable=False)       #教育部考生号
     sex_name=db.Column(db.String(225),nullable=False)               #性别名称
