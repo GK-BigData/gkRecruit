@@ -136,10 +136,10 @@ class All_Picture():
         return p.dump_options()
 
 
-    def pie_picture(self,x_data,y_data):
+    def pie_picture(self,data):
         p = (
             Pie(init_opts=self.init_opts)
-                .add("",[list(p) for p in zip(x_data, y_data)])
+                .add("",data)
                 .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
                                  #添加logo
                                  graphic_opts=self.logo
