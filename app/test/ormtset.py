@@ -10,3 +10,6 @@ from app.main.models import zs
 sql = zs.query.groupby(zs.sex_name)
 
 print(sql)
+
+
+

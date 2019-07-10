@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+{#js代码封装测试#}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<script>
+
+    var report = function (name) {
+        this.name=name;
+    };
+    report.prototype.getName=function () {
+        return this.name;
+    };
+    report.prototype.getName2=function () {
+        return this.name.toUpperCase()
+
+    };
+
+    var test = new report("formatfa");
+    console.log(test.getName());
+    console.log(test.getName2());
+
+
+</script>
+</body>
+</html>

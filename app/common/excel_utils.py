@@ -6,11 +6,12 @@
 import xlrd
 
 '''Excel工具'''
-def get_columns(path,sheet_index=0)->dict:
+def get_columns(path,sheet_index=0,previewsize=0)->dict:
     '''
     读取前10个元素
     :param path:文件路径
     :param sheet_index:excel的第几个工作表
+    :param previewsize:预览行数
     :return:
     '''
     book = xlrd.open_workbook(path)
@@ -24,7 +25,7 @@ def get_columns(path,sheet_index=0)->dict:
     for col in columns:
         results[col]=[]
     #     1开始跳过第一行
-    for i in range(1,min(sheet.nrows,10)):
+    for i in range(1,min(sheet.nrows,previewsize)):
 
         for index,col in enumerate(columns):
             results[col].append(sheet.cell_value(i,index))

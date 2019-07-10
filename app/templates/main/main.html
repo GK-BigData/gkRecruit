@@ -2,9 +2,71 @@
 
 {% block container  %}
 
-<div id="test" style="width: 900px;height: 500px;">
+
+
+{# 第一个侧滑  素材栏 #}
+
+
+<div class="sidenav row" id="slide-raw">
+
+<h4>可选元素</h4>
+{# 图表列表 #}
+<div class="charts s12 col">
+
+{#    测试#}
+
+
+    <div class="card s12 col"><div class="card-image" >
+
+     <div  id="test1" style="width: 200px;height: 200px;"></div>
+     <span class="card-title">12345</span>
+
+    </div>
+    <div class="card-content"><p>1234567</p></div>
+        <div  class="card-action"><a href="#!" onclick="addChart('男女人数排三的专业')">添加到列表</a></div>
+    </div>
+
 
 </div>
+
+
+</div>
+
+
+
+
+
+{# 右边的配置界面 #}
+<a href="#!" class="sidenav-trigger" data-target="slide-raw"> <i>Trigger</i> </a>
+
+
+
+
+
+{#  主显示区域  #}
+
+{#报告区域#}
+<div id="report">
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -14,10 +76,34 @@
 {% block script %}
 
     <script type="text/javascript" src="{{ url_for('static',filename='js/echarts.js') }}"></script>
-      <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
-        <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/china.js"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/Sortable.min.js') }}"></script>
 
     <script src="{{ url_for('static',filename='js/vintage.js') }}"></script>
+    <script type="text/javascript"  src="{{ url_for('static',filename='main/report.js') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='main/main.js') }}"></script>
+
+
+    <script type="text/javascript">
+
+    document.addEventListener('DOMContentLoaded',function (evt) {
+
+        var slide_raw = M.Sidenav.init(document.getElementById('slide-raw'),{
+            onOpenStart:function () {
+                console.log("打开...");
+            }
+        });
+
+
+        console.log(slide_raw);
+
+       // slide_raw.open();
+        console.log("页面加载完成,侧滑:");
+
+
+    });
+
+    </script>
+{#  <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>#}
+{#        <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/china.js"></script>#}
 
 {% endblock %}

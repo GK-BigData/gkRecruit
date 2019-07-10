@@ -3,7 +3,7 @@
 # Project :zs
 # Time  :2019/6/25 上午10:30 
 
-from flask import Blueprint,render_template,jsonify,request
+from flask import Blueprint,render_template,jsonify,request,redirect,url_for
 import os
 from app.admin.models import Record
 from app.main.models import zs
@@ -37,24 +37,31 @@ need_columns = {}
 for i in range(0, len(needcolumns_name)):
     need_columns[needcolumns_fields[i]] = needcolumns_name[i]
 
-#主界面，显示所有记录的界面
+
+# 主界面，显示所有记录的界面
 @bp_admin.route("/")
 def index():
     return render_template("admin/admin.html")
 
+
+
 # 修改字段导入数据 界面
 @bp_admin.route("/setfield/<int:id>")
 def setfield(id):
-    '''
+
+    """
     解析excel 选择字段，导入到数据库
     :param zsyear:
     :return:
-    '''
-
+    """
 
     nowrecord = Record.query.filter(Record.id==id).first()
 
+    if nowrecord==None:
+        return redirect(url_for('admin.index'))
     fields = nowrecord.fields
+
+
     filename = os.path.join("upload", nowrecord.filename)
 
 
@@ -77,8 +84,7 @@ def setfield(id):
                            zsyear=nowrecord.zsyear,
                            need_columns=need_columns,
                            needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns,preview=json.dumps(inputcolumns),
-                           fileds = fields
-                           )
+                           fileds = fields)
 
 def caculateFields(need_columns:dict,inputcolumns:dict)->list:
     '''
@@ -309,7 +315,18 @@ def upload():
         record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="未导入数据",filename=filename_py)
         print(record)
         print("查询结果:",result)
+
+        # 尝试解析数据
+
+        raw_columns = ','.join( get_columns(getUploadPath(filename)).keys())
+
+        record.raw_fields=raw_columns
+
         db.session.add(record)
+
+
+
+
         print("开始提交数据....")
         db.session.commit()
     except Exception as e:
@@ -378,3 +395,5 @@ def printArgs(where):
 
 
 
+def getUploadPath(filename):
+    return os.path.join('upload',filename)
