@@ -6,7 +6,6 @@
 
 {# 第一个侧滑  素材栏 #}
 
-
 <div class="sidenav row" id="slide-raw">
 
 <h4>可选元素</h4>
@@ -37,6 +36,16 @@
 
 
 {# 右边的配置界面 #}
+    <div class="sidenav" id="slide-config">
+    <h4>图表配置</h4>
+
+
+    </div>
+
+
+
+
+
 <a href="#!" class="sidenav-trigger" data-target="slide-raw"> <i>Trigger</i> </a>
 
 
@@ -85,6 +94,7 @@
 
     <script type="text/javascript">
 
+{#    初始化侧滑 #}
     document.addEventListener('DOMContentLoaded',function (evt) {
 
         var slide_raw = M.Sidenav.init(document.getElementById('slide-raw'),{

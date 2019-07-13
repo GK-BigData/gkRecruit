@@ -32,3 +32,5 @@ $('#xx').append() 添加元素到里面,可以是html字符串
 
 
 
+javascript封装
+https://www.cnblogs.com/rik28/p/6418827.html

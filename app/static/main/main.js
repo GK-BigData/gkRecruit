@@ -41,6 +41,15 @@ function addChart(elementid)
 
 }
 
+function editChart(chart)
+{
+
+
+}
+function chartTest() {
+ console.log("chartTest");
+}
+
 //加载模板
 function loadBaseOption()
 {

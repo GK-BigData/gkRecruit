@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+
+<script type="text/javascript">
+
+    var fchart = fchart||{};
+
+    console.log(fchart);
+    {#第一种#}
+    fchart={
+        init:function  (a) {
+            console.log("init ...");
+            return a
+        }
+    };
+    {#第一种#}
+    fchart=(function () {
+        fchart.init=function (a) {
+            console.log("init ...");
+            return a
+        };
+        return {
+            init:fchart.init
+        }
+    })();
+
+    console.log(fchart);
+    fchart.staticTest=function(){
+
+        console.log(" a static be invoke ....")
+    };
+
+
+    console.log(fchart)
+
+
+
+
+</script>
+</html>

@@ -20,7 +20,8 @@ Report.prototype.addElement=function () {
 
 Report.prototype.addChart=  function (option) {
 
-    var element = $('<div style="background-color: blue; width: 800px;height: 400px">xxx </div>');
+
+    var element = $('<div  onclick="chartTest()" style="background-color: blue; width: 800px;height: 400px">xxx </div>');
     // element.attr('id','1223');
 
 
@@ -30,7 +31,7 @@ Report.prototype.addChart=  function (option) {
     var chart = echarts.init(element[0]);
     chart.setOption(option);
     this.elements.push(chart);
-
+    element.append("<a class=\"btn-floating btn-large waves-effect waves-light red\"><i class=\"material-icons\">add</i></a>")
 
 
    //var sortable = Sortable.create(document.getElementById(this.id));
