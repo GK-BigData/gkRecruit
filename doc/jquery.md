@@ -30,7 +30,51 @@ $('#xx').empty()	清空元素
 
 $('#xx').append() 添加元素到里面,可以是html字符串
 
+添加时生成属性
 
+https://www.jb51.net/article/54815.htm
 
-javascript封装
-https://www.cnblogs.com/rik28/p/6418827.html
+## 4.设置input输入框
+
+$('xxx').val(要设置的值)
+
+$('xx').val()
+
+5. 判断数据类型
+
+   ```javascript
+   #https://www.cnblogs.com/lingdu87/p/9152806.html
+   console.log(typeof str); //string
+   var num=1;
+   console.log(typeof num); //number
+   var bn=false;
+   console.log(typeof bn); //boolean
+   var a;
+   console.log(typeof a); //undfined
+   var obj = null;
+   console.log(typeof obj); //object
+   var doc = document;
+   console.log(typeof doc);//object
+   var arr = [];
+   console.log(arr); //object
+   var fn = function(){};
+   console.log(typeof fn); //function   
+   var str="string";
+   console.log(typeof str); //string
+   var num=1;
+   console.log(typeof num); //number
+   var bn=false;
+   console.log(typeof bn); //boolean
+   var a;
+   console.log(typeof a); //undfined
+   var obj = null;
+   console.log(typeof obj); //object
+   var doc = document;
+   console.log(typeof doc);//object
+   var arr = [];
+   console.log(arr); //object
+   var fn = function(){};
+   console.log(typeof fn); //function   
+   ```
+
+   

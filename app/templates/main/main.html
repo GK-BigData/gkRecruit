@@ -14,7 +14,6 @@
 
 {#    测试#}
 
-
     <div class="card s12 col"><div class="card-image" >
 
      <div  id="test1" style="width: 200px;height: 200px;"></div>
@@ -39,6 +38,11 @@
     <div class="sidenav" id="slide-config">
     <h4>图表配置</h4>
 
+    <div class="row ">
+        <div class="input-field col">
+            <input id="chart_title"/>
+        </div>
+    </div>
 
     </div>
 
@@ -94,20 +98,34 @@
 
     <script type="text/javascript">
 
+{#    侧滑对象#}
+     var slide_config;
+     var slide_raw;
+
+     {#当前编辑的图表id#}
+     var noweditid;
+
 {#    初始化侧滑 #}
     document.addEventListener('DOMContentLoaded',function (evt) {
 
-        var slide_raw = M.Sidenav.init(document.getElementById('slide-raw'),{
+        slide_raw = M.Sidenav.init(document.getElementById('slide-raw'),{
             onOpenStart:function () {
                 console.log("打开...");
             }
         });
 
+        slide_config = M.Sidenav.init(document.getElementById('slide-config'),{
+            edge:'right',
+            {#关闭完成 时#}
+            onCloseEnd:function () {
+
+            }
+        });
 
         console.log(slide_raw);
-
        // slide_raw.open();
         console.log("页面加载完成,侧滑:");
+        slide_config.open();
 
 
     });

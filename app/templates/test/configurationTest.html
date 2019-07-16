@@ -1,0 +1,238 @@
+
+
+{#配置项测试#}
+{% extends 'base.html' %}
+
+
+{% block container %}
+
+{#    测试图表#}
+    <div id="chart" style="width: 400px;height: 400px;">
+
+    </div>
+
+    <a  href="#!"  class="button waves-red" onclick="generateConfig()">打开配置</a>
+ <div class="input-field ">
+          <input id="password" type="text" class="validate">
+          <label for="password">输入框测试</label>
+        </div>
+
+{#    嵌套测试 #}
+    <ul class="collapsible">
+
+    <li>
+        <div class="collapsible-header">二级展开</div>
+        <div class="collapsible-body">
+            <ul class="collapsible">
+                <li> <div class="collapsible-header">二级展开</div>
+        <div class="collapsible-body">
+            <ul class="collapsible">
+                <li>三级</li>
+                <li>T三级</li>
+            </ul>
+        </div></li>
+                <li>Test2</li>
+            </ul>
+        </div>
+    </li>
+
+    </ul>
+
+
+
+
+    <div class="sidenav" style="width: 500px" id="slide">
+
+        <h4>图表配置</h4>
+    {#        配置项 #}
+    <div  class="container" id="option"></div>
+    </div>
+
+
+{% endblock %}
+
+
+
+
+
+{% block script %}
+
+
+     <script type="text/javascript" src="{{ url_for('static',filename='js/echarts.js') }}"></script>
+    <script type="text/javascript">
+
+    var configTool={
+         nowchartid:''
+    };
+
+    function newinput(key,value,id) {
+        var div = $('<div class="input-field"></div>');
+        var input = $('<input/>',{
+            id:id,
+            type:'text',
+            class:'validate',
+            value:value
+        });
+        var label = $('<label></label>',{
+            for:id,
+            class:'active'
+        });
+        label.html(key);
+
+        div.append(input);
+        div.append(label);
+
+        return div[0];
+
+
+
+
+    }
+{#    option菜单 ,递归生成  , input的id为  option->series->为key#}
+    function optionMenu(option,parentDom,parentkey,level)
+    {
+        {#option 为当前对象, parentDom父节点 parentkey用于构造 id title->text这样，逗号分隔 #}
+
+        var ul = document.createElement('ul');
+        ul.setAttribute('class','col collapsible disable');
+        //每个子的相对于父元素缩进20
+        ul.setAttribute('style','margin-left:20px;');
+
+        var childrenCount = 0;
+        for (key in option)
+         {
+             childrenCount+=1;
+             var value = option[key];
+             var type = typeof  value;
+             var id=parentkey+'-'+key;
+
+             console.log("id:"+id);
+
+             var li = document.createElement('li');
+
+
+
+             {#生成 key 和 valude 的div #}
+             var header = document.createElement('div');
+             header.setAttribute('class','collapsible-header');
+             var body = document.createElement('ul');
+             body.setAttribute('class','collapsible-body');
+
+             if (type==='string')
+             {
+                 console.log("value :"+li);
+
+                 li.append(newinput(key,value,id))
+             }
+             else if(type==='number')
+             {
+                li.append(newinput(key,value,id))
+             }
+             else if(type==='boolean')
+             {
+                li.append(newinput(key,value,id))
+             }
+             else if(type==='object')
+             {
+
+
+                header.innerHTML=key+" ";
+             var count = optionMenu(value,body,id,level+1);
+
+             $(li).append(header).append(body);
+
+             }
+
+
+            $(ul).append(li);
+
+
+        }
+
+
+        $(parentDom).append(ul);
+    {#    返回有多少个#}
+     return childrenCount;
+
+    }
+{#    生成配置#}
+        function generateConfig() {
+            slide.open();
+
+            var chart = echarts.getInstanceByDom(document.getElementById('chart'));
+
+            console.log("图表配置:");
+            console.log(chart.getOption());
+
+            {#容器#}
+            var container = document.getElementById('option');
+
+            optionMenu(chart.getOption(),container,'',0);
+
+            console.log("初始化..");
+
+            M.Collapsible.init(document.querySelectorAll('.collapsible'));
+    }
+
+
+
+    function updateOption()
+    {
+        var allInput = $('input');
+        console.log("所有输入框:");
+        console.log(allInput);
+
+        //生成的option 和图表的合并
+        var options={};
+        for(input in allInput)
+        {
+            console.log(input)
+            console.log(input.attr('id'));
+        }
+
+    }
+
+    configTool.nowchartid='chart';
+
+    {#生成测试图表#}
+    var chart = echarts.init(document.getElementById('chart'));
+
+    var options = {
+        title:{
+            text:"测试图表"
+        },
+        series:{
+            type:'pie',
+            data:[
+                {name:"Android",value:40},
+                {name:"Linux",value:30},
+                {name:"Windows",value:3}
+            ]
+        }
+    };
+
+    chart.setOption(options);
+
+    var slide;
+    {#初始化侧滑栏#}
+    document.addEventListener('DOMContentLoaded',function (evt) {
+        slide=M.Sidenav.init(document.getElementById('slide'),{
+        {#关闭时#}
+        edge:'right',
+
+        onCloseEnd:function () {
+        var chart = echarts.getInstanceByDom(document.getElementById(configTool.nowchartid));
+        //关闭后设置更新option
+
+            console.log("侧滑关闭，开始更新....");
+            updateOption();
+
+        }
+    });
+
+
+    });
+
+    </script>
+
+{% endblock %}
