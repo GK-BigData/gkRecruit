@@ -126,12 +126,9 @@ function loadRecords()
 }
 
 
-
 function upload() {
 
     console.log("上传文件.");
-
-
 
 
     var formData = new FormData();
@@ -188,8 +185,6 @@ function upload() {
         }
 
     })
-
-
 
 }
 
