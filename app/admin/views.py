@@ -66,7 +66,7 @@ def setfield(id):
 
     print("打开文件:",filename)
     # 获取预览数据,字典格式,键为 列名，值是数组列表
-    inputcolumns = get_columns(filename)
+    inputcolumns = get_columns(filename,previewsize=10)
     print(need_columns)
     print(inputcolumns)
 
