@@ -78,3 +78,12 @@ $('xx').val()
    ```
 
    
+
+5.设置Materialize 隐藏显示
+
+同过设置class来设置
+
+设置不可用
+$("#buttonid").addClass('hide')
+设置可用
+$("buttonid").removeClass('hide')

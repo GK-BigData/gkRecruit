@@ -1,6 +1,4 @@
-
-
-{#配置项测试#}
+{#配置项测试  echarts编辑器 #}
 {% extends 'base.html' %}
 
 
@@ -8,10 +6,11 @@
 
 {#    测试图表#}
     <div id="chart" style="width: 400px;height: 400px;">
-
     </div>
 
-    <a  href="#!"  class="button waves-red" onclick="generateConfig()">打开配置</a>
+
+<a  href="#!"  class="button waves-red" onclick="generateConfig()">打开配置</a>
+
  <div class="input-field ">
           <input id="password" type="text" class="validate">
           <label for="password">输入框测试</label>
@@ -40,11 +39,14 @@
 
 
 
-
+{#    应用按钮 ,默认隐藏 #}
+    <a href="#!"  id='apply' class="btn waves-block hide" style="z-index: 99999;position:fixed;top:0;right: 0;" >应用</a>
     <div class="sidenav" style="width: 500px" id="slide">
 
         <h4>图表配置</h4>
-    {#        配置项 #}
+
+
+            {# 配置项 #}
     <div  class="container" id="option"></div>
     </div>
 
@@ -65,13 +67,17 @@
          nowchartid:''
     };
 
-    function newinput(key,value,id) {
+    // 生成input标签  type数据类型,字符串为text,数字为number,boolean，因为在更新options时需要获取对应的类型，字符串就加入
+    function newinput(key,value,id,type) {
         var div = $('<div class="input-field"></div>');
         var input = $('<input/>',{
             id:id,
             type:'text',
-            class:'validate',
-            value:value
+            //config用于识别是不是配置的输入框，更新options时通过这个来获取
+            class:'validate config',
+            value:value,
+            'data-type':type
+
         });
         var label = $('<label></label>',{
             for:id,
@@ -83,27 +89,27 @@
         div.append(label);
 
         return div[0];
-
-
-
-
     }
-{#    option菜单 ,递归生成  , input的id为  option->series->为key#}
+        //  option菜单 ,递归生成  , input的id为  option->series->为key
     function optionMenu(option,parentDom,parentkey,level)
     {
-        {#option 为当前对象, parentDom父节点 parentkey用于构造 id title->text这样，逗号分隔 #}
+        //option 为当前对象, parentDom父节点 parentkey用于构造 id title->text这样，逗号分隔
+
 
         var ul = document.createElement('ul');
-        ul.setAttribute('class','col collapsible disable');
-        //每个子的相对于父元素缩进20
+        ul.setAttribute('class','col collapsible');
+        //每个子的相对于父元素缩进20,形成一种层级的效果
         ul.setAttribute('style','margin-left:20px;');
 
         var childrenCount = 0;
-        for (key in option)
+        //遍历键值对,即遍历options对象
+        for (var key in option)
          {
              childrenCount+=1;
+
              var value = option[key];
              var type = typeof  value;
+
              var id=parentkey+'-'+key;
 
              console.log("id:"+id);
@@ -122,21 +128,21 @@
              {
                  console.log("value :"+li);
 
-                 li.append(newinput(key,value,id))
+                 li.append(newinput(key,value,id,'text'))
              }
              else if(type==='number')
              {
-                li.append(newinput(key,value,id))
+                li.append(newinput(key,value,id,'number'))
              }
              else if(type==='boolean')
              {
-                li.append(newinput(key,value,id))
+                li.append(newinput(key,value,id,'boolean'))
              }
+             //数组和对象都属于object,数组的key是0,1,2,3...
              else if(type==='object')
              {
-
-
-                header.innerHTML=key+" ";
+                 //二级菜单,里面的内容是递归生成
+             header.innerHTML=key+" ";
              var count = optionMenu(value,body,id,level+1);
 
              $(li).append(header).append(body);
@@ -151,12 +157,14 @@
 
 
         $(parentDom).append(ul);
-    {#    返回有多少个#}
-     return childrenCount;
+        {#    返回有多少个#}
+        return childrenCount;
 
     }
-{#    生成配置#}
+
+        //生成侧滑的配置
         function generateConfig() {
+
             slide.open();
 
             var chart = echarts.getInstanceByDom(document.getElementById('chart'));
@@ -164,34 +172,83 @@
             console.log("图表配置:");
             console.log(chart.getOption());
 
-            {#容器#}
+            {# 存放配置的容器#}
             var container = document.getElementById('option');
+            $(container).empty();
 
+            //填充菜单到容器
             optionMenu(chart.getOption(),container,'',0);
 
             console.log("初始化..");
 
+            //初始化伸展菜单
             M.Collapsible.init(document.querySelectorAll('.collapsible'));
     }
 
 
 
-    function updateOption()
+    //更新echarts的options
+    function updateOption(options)
     {
-        var allInput = $('input');
+        //获取所有class有config的input标签
+        var allInput = $('input.config');
+
         console.log("所有输入框:");
         console.log(allInput);
 
         //生成的option 和图表的合并
-        var options={};
-        for(input in allInput)
-        {
-            console.log(input)
-            console.log(input.attr('id'));
-        }
+        allInput.each(function (index,element) {
+
+
+            var id=element.getAttribute('id');
+            var value =$(element).val();
+            var type = element.getAttribute('data-type');
+            var code = 'options';
+
+             var keys = id.split('-');
+
+            //一级一级的key
+             for(var i = 0;i<keys.length;i+=1)
+             {
+                 //第一个是空的
+                 if(keys[i]==='')continue;
+
+                 code+='["'+keys[i]+'"]'
+             }
+
+             //输入框是字符串的加个双引号
+            if(type==='text')value='"'+value+'"';
+
+
+            code+=('='+value);
+
+            console.log("input 类型:"+type);
+            console.log(code);
+            //生成代码来执行，如 options["markPoint"]["0"]["label"]["show"]=true
+            eval(code);
+
+        });
+            {#    根据id生成如 options['xx']['yy']=zzz这样的  #}
+        options["textStyle"]["fontSize"]=22;
+        return options;
+
 
     }
 
+    //更新图表
+    function updateChart(doc)
+    {
+         var chart = echarts.getInstanceByDom(doc);
+        //关闭后设置更新option
+          console.log("侧滑关闭，开始更新....");
+
+          var newoptions = updateOption(chart.getOption());
+
+          console.log("设置新options");
+          console.log(newoptions);
+
+          chart.setOption(newoptions);
+    }
     configTool.nowchartid='chart';
 
     {#生成测试图表#}
@@ -217,21 +274,30 @@
     {#初始化侧滑栏#}
     document.addEventListener('DOMContentLoaded',function (evt) {
         slide=M.Sidenav.init(document.getElementById('slide'),{
-        {#关闭时#}
+         preventScrolling:false,
+        //关闭时
         edge:'right',
+            onOpenEnd:function(){
+             $('#apply').removeClass('hide');
 
+            },
         onCloseEnd:function () {
-        var chart = echarts.getInstanceByDom(document.getElementById(configTool.nowchartid));
-        //关闭后设置更新option
+            $("#apply").addClass('hide');
 
-            console.log("侧滑关闭，开始更新....");
-            updateOption();
+            updateChart(document.getElementById(configTool.nowchartid));
 
         }
     });
 
 
     });
+
+    //提交按钮
+    $('#apply').click(function () {
+        updateChart(document.getElementById(configTool.nowchartid));
+
+    })
+
 
     </script>
 
