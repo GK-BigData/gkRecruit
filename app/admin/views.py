@@ -37,6 +37,8 @@ for i in range(0, len(needcolumns_name)):
     need_columns[needcolumns_fields[i]] = needcolumns_name[i]
 
 
+
+
 # 主界面，显示所有记录的界面
 @bp_admin.route("/")
 def index():
@@ -254,6 +256,7 @@ def importdata():
                 params[key] = row[ field_columns[key] ]
 
             params['zsyear']=zsyear
+            params['recordid']=record.id
             zsitem = zs(**params)
             db.session.add(zsitem)
             size+=1
@@ -288,7 +291,6 @@ def upload():
 
     # filename_py=pinyin.get_pinyin( tablefile)
     # 文件名暂时用年份来表示
-
 
 
     # --------------------------检查年的存不存在

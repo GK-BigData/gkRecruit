@@ -56,7 +56,11 @@ def excel2list(path:str,sheet_index=0,columns=None)->list:
             if col in excelColumns:
                 # 查找这个列在excel里的第几列
                 index = excelColumns.index(col)
-                item[col]=sheet.cell_value(i,index)
+                val=sheet.cell_value(i,index)
+                '''字符串的去掉两边空值'''
+                if type(val)==str:
+                    val=val.strip()
+                item[col]=val
             else:
                 item[col]=None
         result.append(item)
@@ -84,7 +88,12 @@ def excel2dict(path:str,sheet_index=0,columns=None)->dict:
 
         values = []
         for i in range(1,sheet.nrows):
-            values.append(sheet.cell_value(i,index))
+            val = sheet.cell_value(i,index)
+            '''字符串的去掉两边空值'''
+            if type(val) == str:
+                val = val.strip()
+
+            values.append(val)
         result[col]=values
 
     return result
