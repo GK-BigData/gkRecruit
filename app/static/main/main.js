@@ -41,11 +41,33 @@ function addChart(elementid)
 
 }
 
-function editChart(chart)
+
+//div 双击后 调用设置图表参数,接受元素id
+function editChart(elementid)
 {
+
+//    获取echart实例
+    var echart = echarts.getInstanceByDom(document.getElementById(elementid));
+    var option = echart.ge
+    console.log("获取echart配置：");
+    console.log(echart.getOption());
+
+//    设置配置 ,假设现在只有图表类型
+//    更新配置
+//    标题
+    $('#chart_title').val();
+
+//打开配置
+    slide_config.open();
+
+    slide_config.options.onCloseEnd=function () {
+        console.log("关闭编辑侧滑,图表id:"+elementid);
+
+    }
 
 
 }
+
 function chartTest() {
  console.log("chartTest");
 }

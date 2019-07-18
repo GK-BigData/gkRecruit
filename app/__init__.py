@@ -26,9 +26,11 @@ def create_app():
     # 导入各个模块
     from app.admin.views import  bp_admin
     from app.main.views import bp_main
+    from app.testroute.views import bp_test
 
     app.register_blueprint(bp_admin,url_prefix='/admin')
     app.register_blueprint(bp_main,url_prefix='/main')
+    app.register_blueprint(bp_test,url_prefix='/test')
     from app.admin.models import Record
     from app.main.models import zs
 
