@@ -1,12 +1,25 @@
-//图表编辑器
-
-function ChartEditor(chartid)
+//图表编辑器封装
+//生成图表配置，根据配置生成options
+function ChartEditor()
 {
-    this.chartid = chartid;
+
 }
 
+ChartEditor.prototype.setChartId=function(id)
+{
+    this.chartid=id;
+};
 
-ChartEditor.prototype.updateChart= function (doc)
+ChartEditor.prototype.updateChart=function()
+{
+    if(this.chartid===undefined)
+    {
+        console.log("图表id未设置.更新图表失败!");
+        return;
+    }
+    this.updateChartByDocument(document.getElementById(this.chartid));
+};
+ChartEditor.prototype.updateChartByDocument= function (doc)
     {
          var chart = echarts.getInstanceByDom(doc);
         //关闭后设置更新option
@@ -103,22 +116,22 @@ ChartEditor.prototype.optionMenu=function(option,parentDom,parentkey,level){
              {
                  console.log("value :"+li);
 
-                 li.append(newinput(key,value,id,'text'))
+                 li.append(this.newinput(key,value,id,'text'))
              }
              else if(type==='number')
              {
-                li.append(newinput(key,value,id,'number'))
+                li.append(this.newinput(key,value,id,'number'))
              }
              else if(type==='boolean')
              {
-                li.append(newinput(key,value,id,'boolean'))
+                li.append(this.newinput(key,value,id,'boolean'))
              }
              //数组和对象都属于object,数组的key是0,1,2,3...
              else if(type==='object')
              {
                  //二级菜单,里面的内容是递归生成
              header.innerHTML=key+" ";
-             var count = optionMenu(value,body,id,level+1);
+             var count = this.optionMenu(value,body,id,level+1);
 
              $(li).append(header).append(body);
 
@@ -135,17 +148,23 @@ ChartEditor.prototype.optionMenu=function(option,parentDom,parentkey,level){
         return childrenCount;
 };
 
+
+
 //生成配置 ,图表id和存放输入框的容器，读取option,生成容器
+ChartEditor.prototype.generateConfig=function(container)
+{
+        this.generateConfigByChartId(this.chartid,container);
+};
 
-ChartEditor.prototype.generateConfig=function(chartid,container){
+ChartEditor.prototype.generateConfigByChartId=function(chartid,container){
 
-            var chart = echarts.getInstanceByDom(document.getElementById('chart'));
+            var chart = echarts.getInstanceByDom(document.getElementById(chartid));
 
             console.log("生成图表配置,原配置:");
             console.log(chart.getOption());
 
             //{# 存放配置的容器#}
-            var container = document.getElementById('option');
+            //var container = document.getElementById('option');
             console.log('清空原容器..');
             $(container).empty();
 
@@ -153,8 +172,30 @@ ChartEditor.prototype.generateConfig=function(chartid,container){
             this.optionMenu(chart.getOption(),container,'',0);
 
             console.log("初始化..");
-
             //初始化伸展菜单
             M.Collapsible.init(document.querySelectorAll('.collapsible'));
 
 };
+// 生成input标签  type数据类型,字符串为text,数字为number,boolean，因为在更新options时需要获取对应的类型，字符串就加入
+ChartEditor.prototype.newinput=function (key,value,id,type) {
+        var div = $('<div class="input-field"></div>');
+        var input = $('<input/>',{
+            id:id,
+            type:'text',
+            //config用于识别是不是配置的输入框，更新options时通过这个来获取
+            class:'validate config',
+            value:value,
+            'data-type':type
+
+        });
+        var label = $('<label></label>',{
+            for:id,
+            class:'active'
+        });
+        label.html(key);
+
+        div.append(input);
+        div.append(label);
+
+        return div[0];
+    };

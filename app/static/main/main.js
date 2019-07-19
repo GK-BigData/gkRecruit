@@ -4,6 +4,11 @@
 //     console.log(data);
 //
 // });
+
+//图表编辑工具
+var chartEditor = new ChartEditor();
+
+
 var chart1 = echarts.init(document.getElementById('test1'),'vintage');
 
 $.ajax(
@@ -42,28 +47,27 @@ function addChart(elementid)
 }
 
 
-//div 双击后 调用设置图表参数,接受元素id
+/*
+div 双击后 调用
+1.接受div id
+2.设置chartEditor 的chartId
+3.打开侧滑配置
+4.生成配置的input等标签
+
+*/
 function editChart(elementid)
 {
+    //设置当前编辑的图表
+    chartEditor.setChartId(elementid);
 
-//    获取echart实例
-    var echart = echarts.getInstanceByDom(document.getElementById(elementid));
-    var option = echart.ge
-    console.log("获取echart配置：");
-    console.log(echart.getOption());
-
-//    设置配置 ,假设现在只有图表类型
-//    更新配置
-//    标题
-    $('#chart_title').val();
-
-//打开配置
+    //打开配置侧滑
     slide_config.open();
 
-    slide_config.options.onCloseEnd=function () {
-        console.log("关闭编辑侧滑,图表id:"+elementid);
-
-    }
+    // slide_config.options.onCloseEnd=function () {
+    //     console.log("关闭编辑侧滑,图表id:"+elementid);
+    //
+    // };
+    chartEditor.generateConfig(document.getElementById('container'));
 
 
 }
