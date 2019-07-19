@@ -12,15 +12,15 @@ import json
 from app.main.models import zs
 from app import db
 import sqlalchemy.sql.functions as func
-
+from sqlalchemy.sql.expression import *
 from sqlalchemy.sql.expression import *
 
-from sqlalchemy.sql.expression import *
-
-bp_main = Blueprint('main', __name__)
 from app.common.mycolumns import needcolumns_fields, needcolumns_name
+from . import bp_main
 
 need_columns = {}
+
+
 for i in range(0, len(needcolumns_name)):
     need_columns[needcolumns_name[i]] = needcolumns_fields[i]
 
@@ -382,15 +382,18 @@ def test():
 # 获取所有图表列表测试
 @bp_main.route("/charts2")
 def charts2():
+
     # 4个参数
     zsyear = request.args['zsyear']
     charttype = request.args['charttype']
     datatype = request.args['datatype']
     fields = request.args['fields']
 
+
     sql = zs.query.filter(zs.zsyear == zsyear)
     result = drawChart(sql, charttype, datatype, fields)
     result_dict = json.loads(result)
+
 
     # x=[]
     # y=[]

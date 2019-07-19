@@ -34,6 +34,24 @@ $('#xx').append() 添加元素到里面,可以是html字符串
 
 https://www.jb51.net/article/54815.htm
 
+
+
+添加元素，指定属性版
+
+```javascript
+ var input = $('<input/>',{
+            id:id,
+            type:'text',
+            //config用于识别是不是配置的输入框，更新options时通过这个来获取
+            class:'validate config',
+            value:value,
+            'data-type':type
+
+        });
+```
+
+
+
 ## 4.设置input输入框
 
 $('xxx').val(要设置的值)
@@ -87,3 +105,22 @@ $('xx').val()
 $("#buttonid").addClass('hide')
 设置可用
 $("buttonid").removeClass('hide')
+
+
+
+6. 设置内容和属性
+
+   ```javascript
+   $('xx').text()
+   $('xx').html()
+   $('xx').attr()
+   attr回调函数
+   $("button").click(function(){
+     $("#w3s").attr("href", function(i,origValue){
+       return origValue + "/jquery";
+     });
+   });
+   
+   ```
+
+   

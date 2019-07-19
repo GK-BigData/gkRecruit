@@ -37,6 +37,46 @@ $.ajax(
 );
 
 
+/*
+加载数据源到下拉框,即record
+*/
+function loadDataSource()
+{
+
+    $.get('/admin/records',function (data) {
+
+        console.log("获取数据源..");
+        console.log(data);
+        if(data.code===0)
+        {
+
+            //填充select
+            var select = $('#datasource');
+            data.data.forEach(function (ele,index) {
+               console.log(ele);
+               var option = $('<option></option>',{
+                   id:ele.id
+               });
+               option.text(ele.id+ " "+ele.zsyear+ " "+ ele.status);
+
+                select.append(option);
+            });
+
+
+             M.FormSelect.init(document.getElementById('datasource'));
+
+        }
+        else {
+            console.log("获取数据源失败!!");
+        }
+
+    })
+
+
+}
+
+
+
 //添加元素到列表,从baseOptions里找
 function addChart(elementid)
 {
@@ -94,4 +134,6 @@ var baseOptions = {};
 var report = new Report("report");
 console.log("初始化..");
 console.log(report);
+
+loadDataSource();
 

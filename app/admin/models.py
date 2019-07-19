@@ -4,7 +4,7 @@
 # Time  :2019/6/25 上午10:36 
 from app import db
 
-
+from sqlalchemy.orm.relationships import RelationshipProperty
 
 # 记录表，存放各年的数据
 class Record(db.Model):
