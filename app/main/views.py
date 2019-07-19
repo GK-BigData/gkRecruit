@@ -18,6 +18,7 @@ from sqlalchemy.sql.expression import *
 from sqlalchemy.sql.expression import *
 
 bp_main = Blueprint('main', __name__)
+
 from app.common.mycolumns import needcolumns_fields, needcolumns_name
 
 need_columns = {}
@@ -204,6 +205,8 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
     y = []
     series_name = []
     dataset = []
+    guangdong=['珠海', '汕头', '佛山', '韶关', '湛江', '肇庆', '江门', '茂名', '惠州', '梅州', '汕尾', '河源', '阳江', '清远', '东莞', '中山', '潮州', '揭阳', '云浮', '广州', '深圳']
+
 
     # 类型1 ,简单分组计数
     '''
@@ -223,8 +226,6 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
         for item in dataset:
             x.append(item[0])
             y.append(item[1])
-
-
 
     #类型2，两次group by
     elif datatype == 'count2':
@@ -284,6 +285,15 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
         # 外省各省总人数
         elif col_1=='':
             pass
+    elif datatype=='guangdong':
+        #传入地区名称
+        col_1=need_columns[fields[0]]
+        print(col_1)
+        all=query.with_entities(column(col_1)).all()
+        guangdong=[]
+        for a in all:
+            guangdong.append(a[0])
+
 
 
     #饼图
@@ -357,7 +367,7 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
     elif charttype=='table':
         '''
             广东省各地区男女生比例  count2,两个group by。 
-            广东省各地区文理科比例
+            广东省各地区文理科比例  
             外省各省男女比例
             各院系各地区人数
         '''

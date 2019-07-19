@@ -1,7 +1,7 @@
 
 import  requests
 import pyecharts
-result = requests.get('http://127.0.0.1:5000/main/charts2?zsyear=2018&charttype=funnel&datatype=sql&fields=院系')
+result = requests.get('http://127.0.0.1:5000/main/charts2?zsyear=2018&charttype=funnel&datatype=guangdong&fields=户口所在地')
 
 print(result.text)
 
