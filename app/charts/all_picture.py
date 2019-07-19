@@ -7,115 +7,97 @@ from pyecharts.options import ComponentTitleOpts
 
 class All_Picture():
 
-    def __init__(self,title,subtitle='',y_name='',x_name=''):
+    def __init__(self, title, subtitle='', y_name='', x_name=''):
         self.y_name = y_name
-        self.x_name=x_name
-        self.title=title
-        self.subtitle=subtitle
+        self.x_name = x_name
+        self.title = title
+        self.subtitle = subtitle
         self.init_opts = opts.InitOpts(theme=ThemeType.LIGHT)
-        self.logo=[
-                                 opts.GraphicImage(
-                                     graphic_item=opts.GraphicItem(
-                                         id_='logo',
-                                         right=20,
-                                         top=20,
-                                         z=-10,
-                                         bounding="raw",
-                                         origin=[75, 75]
-                                     ),
-                                     graphic_imagestyle_opts=opts.GraphicImageStyleOpts(
-                                         image="logo.png",
-                                         width=110,
-                                         height=110,
-                                         opacity=0.4
+        self.logo = [
+            opts.GraphicImage(
+                graphic_item=opts.GraphicItem(
+                    id_='logo',
+                    right=20,
+                    top=20,
+                    z=-10,
+                    bounding="raw",
+                    origin=[75, 75]
+                ),
+                graphic_imagestyle_opts=opts.GraphicImageStyleOpts(
+                    image="logo.png",
+                    width=110,
+                    height=110,
+                    opacity=0.4
 
-                                     )
-                                 )
-                             ]
-
-    def bar_picture(self,bar_xdata,bar_ydata):
-        b = (
-            Bar(init_opts=self.init_opts)
-            .add_xaxis(bar_xdata)
-            .add_yaxis("d", bar_ydata)
-
-            .set_global_opts(
-                title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
-                #显示下载等按钮
-                toolbox_opts=opts.ToolboxOpts(),
-                legend_opts=opts.LegendOpts(is_show=False),
-
-                #设置y轴名称和value单位
-                yaxis_opts=opts.AxisOpts(name=self.y_name,axislabel_opts=opts.LabelOpts(formatter="{value}")),
-
-                #设置x轴名称
-                xaxis_opts=opts.AxisOpts(name=self.x_name),
-
-                #设置logo
-                graphic_opts=self.logo
-            )
-            # 是否翻转
-            .reversal_axis()
-            .set_series_opts(
-                # 翻转后的位置
-                #label_opts=opts.LabelOpts(position="right"),
-                markpoint_opts=opts.MarkPointOpts(
-                    data=[
-                        opts.MarkPointItem(type_="max",name="最大值"),
-                        opts.MarkPointItem(type_="min", name="最小值"),
-                        opts.MarkPointItem(type_="average", name="平均值"),
-                    ]
                 )
             )
-        )
-        print(b)
+        ]
 
+    def bar_picture(self, series_names, bar_xdata, bar_ydatas):
+
+        b = (
+            Bar(init_opts=self.init_opts)
+                .add_xaxis(bar_xdata)
+                .set_global_opts(
+                title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+                # 显示下载等按钮
+                toolbox_opts=opts.ToolboxOpts(),
+                legend_opts=opts.LegendOpts(is_show=True),
+
+                # 设置y轴名称和value单位
+                yaxis_opts=opts.AxisOpts( axislabel_opts=opts.LabelOpts(formatter="{value}")),
+                xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=27)),
+
+                # 设置logo
+                graphic_opts=self.logo
+            )
+                # 是否翻转
+               # .reversal_axis()
+                .set_series_opts(label_opts=opts.LabelOpts(position="inside"))
+
+        )
+
+        for name, ydata in zip(series_names, bar_ydatas):
+            b.add_yaxis(name, ydata)
+        print(b)
         return b.dump_options()
 
-
-
-
-
-
-    def rose_picture(self,x_data,y_data):
-        p=(
+    def rose_picture(self,series_names, rose_xdata, rose_ydatas):
+        print(rose_ydatas)
+        print(series_names)
+        p = (
             Pie(init_opts=self.init_opts)
-            .add("",
-                 [list(p) for p in zip(x_data,y_data)],
-                 radius=["30%", "75%"],
-                 center=["25%", "50%"],
-                 rosetype="radius",
-                 label_opts=opts.LabelOpts(is_show=False),
-                 )
-                .add(
-                "",
-                [list(z) for z in zip(x_data, y_data)],
-                radius=["30%", "75%"],
-                center=["75%", "50%"],
-                rosetype="area",
-            )
+                .add(series_names[0],
+                     [list(z) for z in zip(rose_xdata, rose_ydatas)],
+                     radius=["30%", "75%"],
+                     center=["25%", "50%"],
+                     rosetype="radius",
+                     label_opts=opts.LabelOpts(is_show=True)
+                     )
 
-            .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
-                             #调整位置
-                             #legend_opts=opts.LegendOpts(pos_left="15%"),
+                .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+                                 # 调整位置
+                                 # legend_opts=opts.LegendOpts(pos_left="15%"),
 
-                             # 添加logo
-                             graphic_opts=self.logo
-                             )
-            .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
+                                 # 添加logo
+                                 graphic_opts=self.logo
+                                 )
+                .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
         )
+
+
         return p.dump_options()
 
-    def rose_picture_man_women(self,man_name,women_name,man_data,women_data):
-        p=(
+    def rose_picture_man_women(self, man_name, women_name, man_data, women_data):
+        p = (
             Pie(init_opts=self.init_opts)
-            .add("男",
-                 [list(p) for p in zip(man_name,man_data)],
-                 radius=["30%", "75%"],
-                 center=["25%", "50%"],
-                 rosetype="radius",
-                 label_opts=opts.LabelOpts(is_show=False),
-                 )
+                .add("男",
+                     [list(p) for p in zip(man_name, man_data)],
+                     radius=["30%", "75%"],
+                     center=["25%", "50%"],
+                     rosetype="radius",
+                     label_opts=opts.LabelOpts(is_show=False),
+                     )
                 .add(
                 "女",
                 [list(z) for z in zip(women_name, women_data)],
@@ -124,60 +106,59 @@ class All_Picture():
                 rosetype="area",
             )
 
-            .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
-                             #调整位置
-                             #legend_opts=opts.LegendOpts(pos_left="15%"),
+                .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+                                 # 调整位置
+                                 # legend_opts=opts.LegendOpts(pos_left="15%"),
 
-                             # 添加logo
-                             graphic_opts=self.logo
-                             )
-            .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
-        )
-        return p.dump_options()
-
-
-    def pie_picture(self,data):
-        p = (
-            Pie(init_opts=self.init_opts)
-                .add("",data)
-                .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
-                                 #添加logo
+                                 # 添加logo
                                  graphic_opts=self.logo
                                  )
                 .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
         )
         return p.dump_options()
 
-    #广东地图
-    def guangdong_map_picture(self,x_data,y_data):
+    def pie_picture(self,series_names, x, y):
+        p = (
+            Pie(init_opts=self.init_opts)
+                .add(series_names[0], [list(z) for z in zip(x, y)])
+                .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+                                 # 添加logo
+                                 graphic_opts=self.logo
+                                 )
+                .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
+        )
+        return p.dump_options()
+
+    # 广东地图
+    def guangdong_map_picture(self, x_data, y_data):
         g = (
             Map(init_opts=self.init_opts)
                 .add("标示，修改这里", [list(z) for z in zip(x_data, y_data)], "广东")
-                .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
-                                 #分段类型
-                                 visualmap_opts=opts.VisualMapOpts(max_=1000,is_piecewise=True),
+                .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+                                 # 分段类型
+                                 visualmap_opts=opts.VisualMapOpts(max_=1000, is_piecewise=True),
                                  # 添加logo
                                  graphic_opts=self.logo
                                  )
 
         )
 
-        #返回option
+        # 返回option
         return g.dump_options()
 
-    #中国地图
-    def china_map_picture(self,x_data,y_data):
+    # 中国地图
+    def china_map_picture(self, x_data, y_data):
         print(x_data)
         print(y_data)
         c = (
             Map(init_opts=self.init_opts)
                 .add("地理:人数", [list(z) for z in zip(x_data, y_data)], "china")
-                .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
+                .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
                                  # 分段类型
-                                 visualmap_opts=opts.VisualMapOpts( max_=200)
+                                 visualmap_opts=opts.VisualMapOpts(max_=200)
 
                                  # 添加logo
-                                 #graphic_opts=self.logo
+                                 # graphic_opts=self.logo
                                  )
 
         )
@@ -185,47 +166,49 @@ class All_Picture():
         # 返回option
         return c.dump_options()
 
-    #雷达图--各个学院男女比例占比
-    def radar_picture(self,value1,value2,schemanames):
-
-        maxvalue = 0
-        for value in value1+value2:
-            if value>maxvalue:
-                maxvalue=value
-
-        #各个学院男生人数占比
-        v1=[value1]
-
-        #各个学院女生人数占比
-        v2=[value2]
+    # 雷达图--各个学院男女比例占比
+    def radar_picture(self, seriesname: list, values: list, schemanames):
+        #
+        # maxvalue = 0
+        # for value in value1+value2:
+        #     if value>maxvalue:
+        #         maxvalue=value
 
         '''
         v1 = [[4300, 10000, 28000, 35000, 50000, 19000]]
         v2 = [[5000, 14000, 28000, 31000, 42000, 21000]]
         '''
 
-        schema=[]
-        for name in schemanames:
-            schema.append(opts.RadarIndicatorItem(name=name,max_=maxvalue))
-        r=(
-            Radar(init_opts=self.init_opts)
-            .add_schema(
-                schema=schema
-            )
-            .add("女",v1)
-            .add("男",v2)
-            .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
-            .set_global_opts(title_opts=opts.TitleOpts(title=self.title,subtitle=self.subtitle),
-                             # 添加logo
-                             graphic_opts=self.logo
-                             )
+        schema = []
+        print("schenames:", schemanames)
+        for index, name in enumerate(schemanames):
+
+            maxvalue = -1
+            all = []
+            # 第一个循环遍历所有series
+            for i in range(0, len(seriesname)):
+
+                if values[i][index] > maxvalue:
+                    maxvalue = values[i][index]
+                all.append(values[i][index])
+            schema.append(opts.RadarIndicatorItem(name=name, max_=maxvalue))
+            print(all)
+        r = (Radar(init_opts=self.init_opts)
+             .add_schema(
+            schema=schema
         )
+             .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+             .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+                              # 添加logo
+                              graphic_opts=self.logo
+                              ))
+        for name, value in zip(seriesname, values):
+            r.add(name, [value])
 
         return r.dump_options()
 
-
-    #表格
-    def table_picture(self,headers,data):
+    # 表格
+    def table_picture(self, headers, data):
         '''
         数据类似
          headers = ["City name", "Area", "Population", "Annual Rainfall"]
@@ -239,22 +222,22 @@ class All_Picture():
         ["Perth", 5386, 1554769, 869.4],
     ]
         '''
-        headers=[""]
-        data=[
+        headers = [""]
+        data = [
             []
         ]
-        table=(
+        table = (
             Table()
-            .add(headers=headers,rows=data)
-            .set_global_opts(title_opts=ComponentTitleOpts(title=self.title,subtitle=self.subtitle),
-                             # 添加logo
-                             graphic_opts=self.logo
-                             )
+                .add(headers=headers, rows=data)
+                .set_global_opts(title_opts=ComponentTitleOpts(title=self.title, subtitle=self.subtitle),
+                                 # 添加logo
+                                 graphic_opts=self.logo
+                                 )
         )
 
         return table
 
-    def pictorialbar_base(self,x_data,y_data):
+    def pictorialbar_base(self, x_data, y_data):
         c = (
             PictorialBar()
                 .add_xaxis(x_data)
@@ -282,25 +265,16 @@ class All_Picture():
         )
         return c.dump_options()
 
-
-    def funnel_sort_ascending(self,x_data,y_data):
+    def funnel_sort_ascending(self, x_data, y_data):
         c = (
             Funnel()
                 .add(
                 "",
                 [list(z) for z in zip(x_data, y_data)],
-                #sort_="ascending",
+                # sort_="ascending",
                 label_opts=opts.LabelOpts(position="inside"),
             )
                 .set_global_opts(title_opts=opts.TitleOpts(title=self.title))
         )
 
         return c.dump_options()
-
-
-
-
-
-
-
-
