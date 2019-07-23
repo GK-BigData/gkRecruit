@@ -24,13 +24,15 @@ def create_app():
 
 
     # 导入各个模块
-    from app.admin.views import  bp_admin
-    from app.main.views import bp_main
+    from app.admin import  bp_admin
+    from app.main import bp_main
     from app.testroute.views import bp_test
 
     app.register_blueprint(bp_admin,url_prefix='/admin')
     app.register_blueprint(bp_main,url_prefix='/main')
     app.register_blueprint(bp_test,url_prefix='/test')
+
+    # 导入model，这里似乎没用，但在migrate时，要导入才找得到model
     from app.admin.models import Record
     from app.main.models import zs
 

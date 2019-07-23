@@ -42,7 +42,10 @@ class zs(db.Model):
     Professional_5 = db.Column(db.String(225))                  # 专业5
     Professional_6 = db.Column(db.String(225))                  # 专业6
     # 这个外键指向record表的zsyear字段
-    zsyear = db.Column(db.Integer, db.ForeignKey("record.zsyear"),nullable=False)  # 年序号
+    zsyear = db.Column(db.Integer,nullable=False)
+        # db.Column(db.Integer, db.ForeignKey("record.zsyear"),nullable=False)  # 年序号
+#     记录的id ,这个对应是那个记录的
+    recordid = db.Column(db.Integer,db.ForeignKey('record.id'),nullable=False)
 
 
 
