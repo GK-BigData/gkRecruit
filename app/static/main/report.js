@@ -17,14 +17,7 @@ Report.prototype.addElement=function () {
 
 
 };
-/*
-添加图表
-1. 生成div ，添加到容器
-2. 初始化图表，设置options
-3.添加到所有成员
-4.设置div id为echart_instance属性的值
-5.设置双击事件为打开这个图表
- */
+
 Report.prototype.addChart=  function (option) {
 
     console.log('Report 添加图表:');
