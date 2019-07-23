@@ -105,9 +105,9 @@
         </div>
 
             <div class="row">
-                {#   字段选择               #}
+                {#   分组 字段选择               #}
                 <div class="col s3">
-                    <select id="field" multiple>
+                    <select id="groupfield" multiple>
                     {% for name,field in columns.items() %}
                     <option value="{{ field }}">{{ name }}</option>
                     {% endfor %}
@@ -115,12 +115,34 @@
                 <label>字段</label>
                 </div>
 
+{#            聚合字段选择 ,这里将全部字段显示出来#}
+                <div class="col s3">
+                    <select id="aggfield" multiple>
+                    {% for name,field in columns.items() %}
+
+                     <optgroup label="{{ name }}">
+                    <option value="count_{{ field }}">{{ name }} 计数</option>
+                    <option value="sum_{{ field }}">{{ name }} 总和</option>
+                    <option value="avg_{{ field }}">{{ name }} 平均值</option>
+
+                     </optgroup>
+                    {% endfor %}
+                    </select>
+                <label>字段</label>
+                </div>
+
 {#            数据类型#}
                 <div class="col s3">
+
+                {% raw %}
                 <select id="dataType">
-                    {% for key,name in dataTypes.items() %}  <option value="{{ key }}">{{ name }}</option>  {% endfor %}
+                    <template v-for="item in dataTypeFields">
+                    <option v-bind:value="item.field">{{ item.name }}</option>
+                        </template>
                 </select>
+                {% endraw %}
                 <label>数据类型</label>
+
                 </div>
 {#                图表类型 #}
                 <div class="col s3">
@@ -129,7 +151,7 @@
                 </select>
                 <label>图表类型</label>
                 </div>
-            <a class="btn col s3" id="preview" onclick="previewChart();">预览</a>
+
 
             </div>
 
@@ -143,10 +165,7 @@
                     <template v-for="item in orderByFields">
 
                     <option v-bind:value="item.field">{{ item.name }}</option>
-
                      </template>
-
-
                     </select>
                     {% endraw %}
                 <label>排序</label>
@@ -154,6 +173,7 @@
 
             <div class="col s3"><select id="order"><option value="desc">高到低</option><option value="asc">低到高</option></select></div>
             <div class="col s3"><label for="limit">Top选项</label><input value="-1" id="limit"/></div>
+            <a class="btn col s3" id="preview" onclick="previewChart();">预览</a>
         </div>
 
 
@@ -269,58 +289,92 @@
 
     });
 
-    //可以排序的字段，根据,选择的字段和数据类型推断,vue绑定
+    //可以排序的字段，根据,选择的字段和数据类型推断,vue绑定  , 更新，图表类型，可选
     var orderByFields=[{field:'null',name:'无'}];
+    //聚合数据类型的 ， 会随着字段的选择而动态变化,用与vue
+    var allDataType=['计数','平均值','总和'];
+    var dataTypeFields=[{field:'null',name:'无'}];
+
+
+    //选择字段才会更新dataType
+    function updateDataType()
+    {
+        dataTypeFields.splice(1,dataTypeFields.length-1);
+        var options = $('#field option:selected');
+          //更新聚合函数数据 ,只需要选择的最后一个字段就行,至少选择了一个元素
+         if(options.length>0)
+         {
+             //获取最后一个字段的值
+             var name = $(options[options.length-1]).text();
+             var field = $(options[options.length-1]).val();
+             console.log('最后一个:'+name+' value:'+field);
+
+             dataTypeFields.push({name:'计数',field:'count_'+field});
+             dataTypeFields.push({name: name+ ' 平均值',field:'avg_'+field});
+             dataTypeFields.push({name: name+ ' 总和',field:'sum_'+field});
+         }
+         //监听vue渲染完元素后更新select
+        v_dataType.$nextTick(function () {
+        console.log("数据类型渲染完成..重新加载");
+        M.FormSelect.init(document.getElementById('dataType'));
+
+    });
+         //监听数据类型，改变，每次更新dataType后重新设置事件
+        $('#dataType').change(function () {
+        console.log('数据类型框改变..更新排序');
+        updateOrderBy();
+
+    });
+
+    }
+    //选择dataType才会更新orderBy
     function updateOrderBy()
      {
 
 
 
-     var select_fields = M.FormSelect.init(document.getElementById('field'));
-     var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
+     //var select_fields = M.FormSelect.init(document.getElementById('field'));
+     //var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
      var  select_chartType = M.FormSelect.init(document.getElementById('chartType'));
-      var  select_order = M.FormSelect.init(document.getElementById('order'));
+     var  select_order = M.FormSelect.init(document.getElementById('order'));
 
-    var fields = select_fields.getSelectedValues();
-    var dataType = select_dataType.getSelectedValues()[0];
+        // var fields = select_fields.getSelectedValues();
+
     var chartType = select_chartType.getSelectedValues()[0];
     var order = select_order.getSelectedValues()[0];
 
 
-    //获取所有选择的,因为要获取text，不能使用getSelectedValues();
-    var options = $('#field option:selected');
+    //获取所有选择的,因为要获取text，不能使用getSelectedValues();,分组和聚合里面选择了的才能排序
+    var groupFields = $('#field option:selected');
+    var aggFields = $('#dataType option:selected');
     //先清空,除了第一个的
     orderByFields.splice(1,orderByFields.length-1);
-   console.log("更新order by,选择的字段数:"+options.length+' 数据类型:'+dataType);
-    options.each(function (index,element) {
-        console.log('遍历options:'+element);
-       //现在只有计数的, 将最后一个字段设置为可以计数的,field_count
-        if(dataType.startsWith('count'))
-        {
 
-            if( index===options.length-1)
-            orderByFields.push(
-                {
-                    field:$(element).val()+'_count'+'-'+order,
-                    name:$(element).text()+'_计数'
-                }
-            );
-            else
-                orderByFields.push(
+    groupFields.each(function (index,element) {
+        console.log('遍历分组字段:'+element);
+             orderByFields.push(
                 {
                     field:$(element).val()+'-'+order,
                     name:$(element).text()
                 }
             );
+    });
 
-        }
-
+   aggFields.each(function (index,element) {
+        console.log('遍历聚合函数:'+element);
+             orderByFields.push(
+                {
+                    field:$(element).val()+'-'+order,
+                    name:$(element).text()
+                }
+            );
     });
     //渲染完成，初始化select
     orderBy.$nextTick(function () {
         console.log("排序渲染完成..");
         M.FormSelect.init(document.getElementById('orderBy'));
-    })
+    });
+
 
 
 
@@ -328,26 +382,16 @@
 
     }
     //监听select的变化，更新排序字段，排序字段只能是选择的那几个？？
-    $('#createchart-modal select').change(function () {
-        console.log("select框改变..");
-        //this是当前这个改变的select
-        console.log(this);
-        var id = $(this).attr('id');
-        if(id!=='orderBy')
-        updateOrderBy();
-        else
-        {
-            console.log('改变的是orderBy,不需要更新');
-        }
-        //字段选择后，选择的移动到前面
-        if(id==='field')
-        {
-            var select_fields = M.FormSelect.init(document.getElementById('field'));
-            //将选择的移动到上面,选择出所有select的
-            var options_select = $('#field option:selected');
-            var options_unselect = $('#field option:not(:selected)').eq(0);
 
-            console.log('已经选择的:');
+    //分组字段是有顺序的,字段改变
+    $('#groupfield').change(function () {
+        console.log('-------------------字段选择改变-------------,更新数据类型');
+        //选择完后更新顺序
+            var select_fields = M.FormSelect.init(document.getElementById('groupfield'));
+            //将选择的移动到上面,选择出所有select的
+            var options_select = $('#groupfield option:selected');
+            var options_unselect = $('#groupfield option:not(:selected)').eq(0);
+            console.log('已经选择的和没选择的 :');
             //查找到现在在第一的option
             console.log(options_select);
             console.log(options_unselect);
@@ -359,15 +403,35 @@
                 console.log(options_unselect);
                 $(options_unselect).before(ele);
             });
+             M.FormSelect.init(document.getElementById('groupfield'));
 
-             M.FormSelect.init(document.getElementById('field'));
+             //updateDataType();
+        //分组字段改变后更新排序的字段
+            updateOrderBy();
+    });
 
-
-
-
-        }
+    $('#aggfield').change(function () {
+        updateOrderBy();
 
     });
+    {#$('#createchart-modal select').change(function () {#}
+    {#    console.log("select框改变..");#}
+    {#    //this是当前这个改变的select#}
+    {#    console.log(this);#}
+    {#    var id = $(this).attr('id');#}
+    {#    if(id==='dataType')#}
+    {#    {#}
+    {#        console.log("数据类型改变");#}
+    {#        updateOrderBy();}#}
+    {#    //字段选择后，选择的移动到前面#}
+    {#    else if(id==='field')#}
+    {#    {#}
+    {#        //更新dataType#}
+    {#        updateDataType();#}
+    {##}
+    {#    }#}
+    {##}
+
     var orderBy=new Vue({
         el:'#orderBy',
         data:{
@@ -375,6 +439,12 @@
         }
     });
 
+    var v_dataType = new Vue({
+        el:'#dataType',
+        data:{
+            dataTypeFields:dataTypeFields
+        }
+    });
     //预览图表
     {#var preview_chart = echarts.init(document.getElementById('preview_chart'));#}
     {#    var testOptions = {#}

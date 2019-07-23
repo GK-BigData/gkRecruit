@@ -45,13 +45,19 @@ var chartEditor = new ChartEditor();
 function getCreateChartParams()
 {
     //要重新init，不然获取到的是上一次的值
-      var select_fields = M.FormSelect.init(document.getElementById('field'));
-      var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
+    //分组字段
+      var select_groupfields = M.FormSelect.init(document.getElementById('groupfield'));
+      //聚合字段
+      var select_aggfields = M.FormSelect.init(document.getElementById('aggfield'));
+
+      //var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
      var  select_chartType = M.FormSelect.init(document.getElementById('chartType'));
      var  select_orderBy = M.FormSelect.init(document.getElementById('orderBy'));
 
-    var fields = select_fields.getSelectedValues();
-    var dataType = select_dataType.getSelectedValues();
+    var groupfield = select_groupfields.getSelectedValues();
+    var aggfield = select_aggfields.getSelectedValues();
+
+   // var dataType = select_dataType.getSelectedValues();
     var chartType = select_chartType.getSelectedValues();
     var orderBy = select_orderBy.getSelectedValues();
 
@@ -59,13 +65,16 @@ function getCreateChartParams()
     var limit = $('#limit').val();
     console.log("获取创建图表参数..");
 
-    console.log(fields);
-    console.log(dataType);
+    console.log(groupfield);
+    console.log(aggfield);
+
+   // console.log(dataType);
     console.log(chartType);
 
     return {
-        fields:fields.join(','),
-        dataType:dataType[0],
+        aggfield:aggfield.join(','),
+        groupfield:groupfield.join(','),
+        //dataType:dataType[0],
         chartType:chartType[0],
         orderBy:orderBy[0],
         limit:limit,

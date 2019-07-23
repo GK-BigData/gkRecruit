@@ -14,6 +14,7 @@ from app import db
 import sqlalchemy.sql.functions as func
 from sqlalchemy.sql.expression import *
 from sqlalchemy.sql.expression import *
+import  sqlalchemy.sql.sqltypes   as sqltype
 
 from app.common.mycolumns import needcolumns_fields, needcolumns_name
 from . import bp_main
@@ -206,53 +207,88 @@ def charts():
 
 
 # 获取各个数据类型对应的sql
-def get_sql(query, charttype: str, datatype: str, fields: list):
-
-    if datatype == 'count':
-        col = fields[0]
-
-        # count最后只有一个series,先初始化
-        # 计数给另外的名字
-        query = query.with_entities(column(col), func.count().label(col+'_count')).group_by(column(col))
+def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
 
 
-    # 类型2，两次group by
-    elif datatype == 'count2':
-        if len(fields) < 2:
-            return ('字段数最少需要两个', 2)
+    # 计数类型,字段数只能是 一个或者两个,
+
+    # 判断聚合函数,最后一列作为聚合列
+    # 聚合的列
+    #----------------select 段
+    #先选择,要的字段，即group 字段 ，和 聚合字段 组成
+    entities=[]
+    # 分组字段直接用列名
+    for group in groupfield:
+        entities.append(column(group))
+    #聚合字段要分割出聚合函数和字段
+    for agg in aggfield:
+
+        # sum_xxx,限制只能分割一次，因为有些字段名可能有_ ,label设置别名为传进来的原始参数，因为orderby是根据这个的
+        aggtype_field=agg.split('_',1)
+        print("处理聚合函数:")
+        print(aggtype_field)
+        if aggtype_field[0]=='count':
+            entities.append(func.count(column(aggtype_field[1])).label(agg)  )
+        if aggtype_field[0]=='sum':
+            entities.append(func.sum(column(aggtype_field[1])).label(agg)  )
+        if aggtype_field[0]=='avg':
+            entities.append(func.avg(column(aggtype_field[1])).cast(sqltype.Float).label(agg) )
+
+    # 选择,with_entites是变长参数，这里解包列表进去
+    query = query.with_entities(*entities)
+
+    #-------------------group by 分组字段处理 ------------
+    group_columns = []
+
+    for group in groupfield:
+        group_columns.append(column(group))
 
 
-        col_1 = fields[0]
-        col_2 = fields[1]
-        query = query.with_entities(column(col_1), column(col_2),func.count().label(col_2+'_count')).group_by(column(col_1),
-                                                                                           column(col_2))
-    # 总人数
-    elif datatype == 'sum':
-        # 传入所需要计数的字段，将其转换为英文
-        col_1 = fields[0]
+    query = query.group_by(*group_columns)
 
-        # 全校招生总人数 -- 传入考生号
-        if col_1 == 'education_number':
-            all_school = db.query_expression(func.count(col_1))
+    # # 分组聚合
+    # if len(fields)==1:
+    #     col = fields[0]
+    #     query = query.with_entities(column(col), aggcol).group_by(column(col))
+    # else:
+    #     col_1 = fields[0]
+    #     col_2 = fields[1]
+    #     query = query.with_entities(column(col_1), column(col_2),aggcol).group_by(
+    #         column(col_1),column(col_2))
+    # count最后只有一个series,先初始化
+    # 计数给另外的名字
 
-        # 广东省各地区招生总人数
-        elif col_1 == '':
-            pass
 
-            # 广东省各地区招生总人数
 
-        # 外省各省总人数
-        elif col_1 == '':
-            pass
+    # # 总人数
+    # elif datatype == 'sum':
+    #     # 传入所需要计数的字段，将其转换为英文
+    #     col_1 = fields[0]
+    #
+    #     # 全校招生总人数 -- 传入考生号
+    #     if col_1 == 'education_number':
+    #         all_school = db.query_expression(func.count(col_1))
+    #
+    #     # 广东省各地区招生总人数
+    #     elif col_1 == '':
+    #         pass
+    #
+    #         # 广东省各地区招生总人数
+    #
+    #     # 外省各省总人数
+    #     elif col_1 == '':
+    #         pass
+    print(query)
     return query
 
-def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', limit=-1):
+def drawChart(query, charttype: str, groupfield: str,aggfield:str, orderby='', limit=-1):
 
-    fields = fields.split(",")
+    groupfield = groupfield.split(",")
+    aggfield = aggfield.split(",")
     #处理fields
 
-    title = ','.join(fields)+'-'+datatype+'-'+charttype
-    select = All_Picture(fields, title, '', '', '地区名称')  # 设置标题等
+    title = ','.join(groupfield)+'-'+'-'+charttype
+    select = All_Picture(groupfield, title, '', '', '地区名称')  # 设置标题等
 
     x = []
     y = []
@@ -268,11 +304,12 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
     全校全国各个地区人数
     '''
     # 获取sql
-    sql = get_sql(query,charttype,datatype,fields)
+    sql = get_sql(query,charttype,groupfield,aggfield)
 
     # 元组表示错误
     if type(sql)==tuple:
         return sql
+
     if orderby!='null':
         field_order = orderby.split('-')
         col = column(field_order[0])
@@ -291,33 +328,26 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
 
     print("请求sql:",sql)
     # 计数类型的
-    if datatype == 'count':
-        col = fields[0]
 
+    if len(groupfield)==1:
         # count最后只有一个series,先初始化
         x.append([])
         y.append([])
+        print('一个分组:')
         dataset = sql.all()
+        print(dataset)
 
         # 传递过来的是英文，装换为中文字段名字，作为图例
-        series_name=[ field_name[ fields[0]] ]
+        series_name=[ field_name[ groupfield[0]] ]
         for item in dataset:
             x[0].append(item[0])
             y[0].append(item[1])
-
-
-
-    #类型2，两次group by
-    elif datatype == 'count2':
-        if len(fields)<2:
-            return ('字段数最少需要两个',2)
+    #两个分组
+    else:
         x.append([])
-
-        col_1 = fields[0]
-        col_2 = fields[1]
         dataset = sql.all()
-
-
+        print('两个分组，结果:')
+        print(dataset)
         for item in dataset:
             if item[0] not in series_name:
                 series_name.append(item[0])
@@ -334,40 +364,47 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
             if len(y[index]) != len(x[0]):
                 need_len = len(x[0]) - len(y[index])
                 y[index].extend(need_len * [0])
+    # #特殊的图表
+    # # 自定义sql -- 分数区段->指向漏斗图
+    # elif datatype == 'sql':
+    #     x = ['450以上', '400-450', '350-400', '300-350', '200-300', '200以下']
+    #     y = []
+    #     # sql=sql.with_entities(zs.total_score_of_filing)
+    #     dataset = db.session.execute(
+    #         "select sex_name,count(case when total_score_of_filing> 450 then 1 end) as `[450分以上]`, count(case when total_score_of_filing between 400 and 450 then 1 end) as `[400-450分]`, count(case when total_score_of_filing between 350 and 400 then 1 end) as `[350-400分]`, count(case when total_score_of_filing between 300 and 350 then 1 end) as `[300-350分]`, count(case when total_score_of_filing between 200 and 300 then 1 end) as `[200-300分]`, count(case when total_score_of_filing <200 then 1 end) as `[200分以下]` from zs group by sex_name;").fetchall()
+    #     for item in dataset:
+    #         for i in item:
+    #             y.append(i)
+    #
+    #     return  select.funnel_sort_ascending(x_data=x, y_data=y)
+    #
+    # #总人数
+    # elif datatype == 'sum':
+    #     #传入所需要计数的字段，将其转换为英文
+    #     col_1 = fields[0]
+    #
+    #
+    #     #全校招生总人数 -- 传入考生号
+    #     if col_1=='education_number':
+    #         all_school=db.query_expression(func.count(col_1))
+    #
+    #     # 广东省各地区招生总人数
+    #     elif col_1=='':
+    #         pass
+    #
+    #         #广东省各地区招生总人数
+    #
+    #     # 外省各省总人数
+    #     elif col_1=='':
+    #         pass
 
-    #特殊的图表
-    # 自定义sql -- 分数区段->指向漏斗图
-    elif datatype == 'sql':
-        x = ['450以上', '400-450', '350-400', '300-350', '200-300', '200以下']
-        y = []
-        # sql=sql.with_entities(zs.total_score_of_filing)
-        dataset = db.session.execute(
-            "select sex_name,count(case when total_score_of_filing> 450 then 1 end) as `[450分以上]`, count(case when total_score_of_filing between 400 and 450 then 1 end) as `[400-450分]`, count(case when total_score_of_filing between 350 and 400 then 1 end) as `[350-400分]`, count(case when total_score_of_filing between 300 and 350 then 1 end) as `[300-350分]`, count(case when total_score_of_filing between 200 and 300 then 1 end) as `[200-300分]`, count(case when total_score_of_filing <200 then 1 end) as `[200分以下]` from zs group by sex_name;").fetchall()
-        for item in dataset:
-            for i in item:
-                y.append(i)
-
-        return  select.funnel_sort_ascending(x_data=x, y_data=y)
-
-    #总人数
-    elif datatype == 'sum':
-        #传入所需要计数的字段，将其转换为英文
-        col_1 = fields[0]
 
 
-        #全校招生总人数 -- 传入考生号
-        if col_1=='education_number':
-            all_school=db.query_expression(func.count(col_1))
-
-        # 广东省各地区招生总人数
-        elif col_1=='':
-            pass
-
-            #广东省各地区招生总人数
-
-        # 外省各省总人数
-        elif col_1=='':
-            pass
+    # ----------数据处理后
+    print("查询处理后数据:")
+    print("series:", series_name)
+    print("x:",x)
+    print("y:", y)
 
 
     #饼图
@@ -475,19 +512,23 @@ def charts2():
         return rjson('recordid 没有选择',1)
 
     # 4个参数
-    recordid = request.form['recordid']
-    charttype = request.form['chartType']
-    datatype = request.form['dataType']
-    fields = request.form['fields']
+    try:
+        recordid = request.form['recordid']
+        charttype = request.form['chartType']
+        # datatype = request.form['dataType']
+        groupfield = request.form['groupfield']
+        aggfield = request.form['aggfield']
 
+    except Exception as e:
 
+        return rjson(str(e)+" "+str(e.args),1)
     orderBy = request.form['orderBy']
     limit = request.form['limit']
 
 
 
     sql = zs.query.filter(zs.recordid == recordid)
-    result = drawChart(sql, charttype, datatype, fields,orderBy,limit)
+    result = drawChart(sql, charttype,groupfield,aggfield,orderBy,limit)
     # 如果返回的是元组，则表示返回的是错误信息
     if type(result)==tuple:
         return rjson(result[0],result[1])
