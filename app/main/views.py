@@ -19,10 +19,14 @@ from app.common.mycolumns import needcolumns_fields, needcolumns_name
 from . import bp_main
 
 need_columns = {}
-
-
 for i in range(0, len(needcolumns_name)):
+    # 性别名称=sexname
     need_columns[needcolumns_name[i]] = needcolumns_fields[i]
+# 字段对应的名字
+field_name= {}
+for i in range(0, len(needcolumns_name)):
+    # sexname = 性别名称
+    field_name[needcolumns_fields[i]] = needcolumns_name[i]
 
 allcharts = ["各学院男女人数占比雷达图",
              "各学院人数占比",
@@ -35,9 +39,13 @@ allcharts = ["各学院男女人数占比雷达图",
              ]
 
 
+dataTypes={'count':'计数','count2':'两个字段分组计算'}
+chartTypes={'bar':'柱状图','pie':'饼图','rose':'玫瑰图','stackbar':'堆叠柱状图'}
+
 @bp_main.route("/")
 def index():
-    return render_template('main/main.html')
+
+    return render_template('main/main.html',columns = need_columns,dataTypes=dataTypes,chartTypes=chartTypes)
 
 
 @bp_main.route("/charts")
@@ -197,9 +205,55 @@ def charts():
     return rjson(result_dict, 0)
 
 
+# 获取各个数据类型对应的sql
+def get_sql(query, charttype: str, datatype: str, fields: list):
+
+    if datatype == 'count':
+        col = fields[0]
+
+        # count最后只有一个series,先初始化
+        # 计数给另外的名字
+        query = query.with_entities(column(col), func.count().label(col+'_count')).group_by(column(col))
+
+
+    # 类型2，两次group by
+    elif datatype == 'count2':
+        if len(fields) < 2:
+            return ('字段数最少需要两个', 2)
+
+
+        col_1 = fields[0]
+        col_2 = fields[1]
+        query = query.with_entities(column(col_1), column(col_2),func.count().label(col_2+'_count')).group_by(column(col_1),
+                                                                                           column(col_2))
+    # 总人数
+    elif datatype == 'sum':
+        # 传入所需要计数的字段，将其转换为英文
+        col_1 = fields[0]
+
+        # 全校招生总人数 -- 传入考生号
+        if col_1 == 'education_number':
+            all_school = db.query_expression(func.count(col_1))
+
+        # 广东省各地区招生总人数
+        elif col_1 == '':
+            pass
+
+            # 广东省各地区招生总人数
+
+        # 外省各省总人数
+        elif col_1 == '':
+            pass
+    return query
+
 def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', limit=-1):
+
     fields = fields.split(",")
-    select = All_Picture('', '', '', '地区名称')  # 设置标题等
+    #处理fields
+
+    title = ','.join(fields)+'-'+datatype+'-'+charttype
+    select = All_Picture(fields, title, '', '', '地区名称')  # 设置标题等
+
     x = []
     y = []
     series_name = []
@@ -213,40 +267,72 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
     全校各学院人数占比
     全校全国各个地区人数
     '''
-    if datatype == 'count':
-        col = need_columns[fields[0]]
-        print(col)
-        dataset = query.with_entities(column(col), func.count()).group_by(column(col)).all()
-        print(dataset)
+    # 获取sql
+    sql = get_sql(query,charttype,datatype,fields)
 
-        series_name=['']
+    # 元组表示错误
+    if type(sql)==tuple:
+        return sql
+    if orderby!='null':
+        field_order = orderby.split('-')
+        col = column(field_order[0])
+        # 降序
+        if field_order[1]=='desc':
+            col = desc(col)
+        #     升序
+        else:
+            col=asc(col)
+
+
+        sql = sql.order_by(col)
+
+    if limit!='-1':
+        sql=sql.limit(int(limit))
+
+    print("请求sql:",sql)
+    # 计数类型的
+    if datatype == 'count':
+        col = fields[0]
+
+        # count最后只有一个series,先初始化
+        x.append([])
+        y.append([])
+        dataset = sql.all()
+
+        # 传递过来的是英文，装换为中文字段名字，作为图例
+        series_name=[ field_name[ fields[0]] ]
         for item in dataset:
-            x.append(item[0])
-            y.append(item[1])
+            x[0].append(item[0])
+            y[0].append(item[1])
 
 
 
     #类型2，两次group by
     elif datatype == 'count2':
-        col_1 = need_columns[fields[0]]
-        col_2 = need_columns[fields[1]]
-        dataset = query.with_entities(column(col_1), column(col_2), func.count()).group_by(column(col_1),column(col_2)).all()
+        if len(fields)<2:
+            return ('字段数最少需要两个',2)
+        x.append([])
+
+        col_1 = fields[0]
+        col_2 = fields[1]
+        dataset = sql.all()
+
 
         for item in dataset:
             if item[0] not in series_name:
                 series_name.append(item[0])
-                y.append([0] * len(x))
+                y.append([0] * len(x[0]))
             index = series_name.index(item[0])
-            if item[1] not in x:
-                x.append(item[1])
+            if item[1] not in x[0]:
+                x[0].append(item[1])
                 y[index].append(0)
-            xindex = x.index(item[1])
+            xindex = x[0].index(item[1])
             y[index][xindex] = item[2]
 
         # 填充系列长度到x轴的长度
         for index in range(0, len(y)):
-            if len(y[index]) != len(x):
-                need_len = len(x) - len(y[index])
+            if len(y[index]) != len(x[0]):
+                need_len = len(x[0]) - len(y[index])
                 y[index].extend(need_len * [0])
 
     #特殊的图表
@@ -260,16 +346,14 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
         for item in dataset:
             for i in item:
                 y.append(i)
-        print(x)
-        print(y)
 
         return  select.funnel_sort_ascending(x_data=x, y_data=y)
 
     #总人数
     elif datatype == 'sum':
         #传入所需要计数的字段，将其转换为英文
-        col_1 = need_columns[fields[0]]
-        print(col_1)
+        col_1 = fields[0]
+
 
         #全校招生总人数 -- 传入考生号
         if col_1=='education_number':
@@ -312,11 +396,12 @@ def drawChart(query, charttype: str, datatype: str, fields: str, orderby='', lim
             广东省各地区招生人数TOP10
             外省招生人数TOP10
             按专业报考志愿排序人数TOP10
-            
         '''
-        print(series_name,x,y)
-        return select.bar_picture(series_name, x, y)
-
+        # 只要一个x轴
+        return select.bar_picture(series_name, x[0], y,stack=False)
+    # 堆叠柱状图
+    elif charttype == 'stackbar':
+        return select.bar_picture(series_name, x[0], y, stack=True)
     #条形图
     elif charttype == 'pictorialbar':
         '''
@@ -380,18 +465,34 @@ def test():
 
 
 # 获取所有图表列表测试
-@bp_main.route("/charts2")
+@bp_main.route("/charts2",methods=['POST'])
 def charts2():
 
+    print('表单:',request.form)
+    print('args:',request.args)
+
+    if 'recordid' not in request.form:
+        return rjson('recordid 没有选择',1)
+
     # 4个参数
-    zsyear = request.args['zsyear']
-    charttype = request.args['charttype']
-    datatype = request.args['datatype']
-    fields = request.args['fields']
+    recordid = request.form['recordid']
+    charttype = request.form['chartType']
+    datatype = request.form['dataType']
+    fields = request.form['fields']
 
 
-    sql = zs.query.filter(zs.zsyear == zsyear)
-    result = drawChart(sql, charttype, datatype, fields)
+    orderBy = request.form['orderBy']
+    limit = request.form['limit']
+
+
+
+    sql = zs.query.filter(zs.recordid == recordid)
+    result = drawChart(sql, charttype, datatype, fields,orderBy,limit)
+    # 如果返回的是元组，则表示返回的是错误信息
+    if type(result)==tuple:
+        return rjson(result[0],result[1])
+    if result==None:
+        return rjson("返回null", 1)
     result_dict = json.loads(result)
 
 

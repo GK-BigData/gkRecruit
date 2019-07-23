@@ -9,7 +9,10 @@
 from . import bp_main
 from app.main.models import zs
 
+zs={
+    ('')
 
+}
 # 招生的基本配置
 @bp_main.route('/baseOptions')
 def base_options():

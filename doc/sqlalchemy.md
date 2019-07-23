@@ -31,3 +31,29 @@ update
 delete
 删除所有数据
  zss = zs.query.delete()
+
+
+
+
+
+
+
+字符串转列名
+
+column函数
+
+需要导入
+
+```python
+from sqlalchemy.sql.expression import *
+
+```
+
+修改列名
+
+xx.label(列名)
+
+排序
+
+order_by
+

@@ -1,7 +1,14 @@
 
 import  requests
 import pyecharts
-result = requests.get('http://127.0.0.1:5000/main/charts2?zsyear=2018&charttype=funnel&datatype=sql&fields=院系')
+import json
+result = requests.post('http://127.0.0.1:5000/main/charts2?zsyear=2018&charttype=funnel&datatype=sql&fields=院系',
+                       data={
+                           'fields':'sex_name',
+                           'dataType':'count',
+                           'chartType':'bar',
+                           'recordid':1
+                       })
 
 print(result.text)
 
@@ -11,7 +18,7 @@ html='''<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <title>Awesome-pyecharts</title>
-            <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+            <script type="text/javascript" src="echarts.js"></script>
 
 </head>
 <body>
@@ -28,4 +35,5 @@ html='''<!DOCTYPE html>
 
 
 with open('a.html','w') as file:
+    obj = json.loads(result.text)
     file.write(html.replace('配置',result.text))

@@ -27,6 +27,8 @@ Report.prototype.addElement=function () {
  */
 Report.prototype.addChart=  function (option) {
 
+    console.log('Report 添加图表:');
+    console.log(option);
     //添加图表,
     var element = $('<div   style="background-color: blue; width: 800px;height: 400px">xxx </div>');
     // element.attr('id','1223');

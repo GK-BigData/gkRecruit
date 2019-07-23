@@ -124,3 +124,16 @@ $("buttonid").removeClass('hide')
    ```
 
    
+
+7. POST表单数据
+
+   $.post(url,data,callback)
+
+8. 监听select时间改变
+
+   $('#xx').change(function (){
+
+   ​	console.log(this);
+
+   });
+

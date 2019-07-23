@@ -5,6 +5,15 @@
 
 from app import db
 
+class Report(db.Model):
+
+    id = db.Column(db.Integer,primary_key=True)
+
+    data = db.Column(db.JSON)
+
+
+
+
 class zs(db.Model):
     __tablename__='zs'
     id = db.Column(db.Integer(), autoincrement=True, primary_key=True)  # 总序号

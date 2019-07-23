@@ -30,6 +30,7 @@ class Record(db.Model):
 
     # record表和zs表外键关联,这里的zss 代表这一年的所有zs 数据
     zss = db.relationship('zs',backref='record',lazy='dynamic',foreign_keys='zs.recordid')
-
-
+#
+# class Chart(db.Model):
+#
 

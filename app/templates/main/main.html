@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{% block head %}
+    <link  type="text/css"  rel="stylesheet" href="{{ url_for('static',filename='main/main.css') }}"/>
+{% endblock %}
+
+
 {% block container  %}
 
 
@@ -7,30 +12,32 @@
 {# 第一个侧滑  素材栏 #}
 <div class="sidenav row" id="slide-raw">
 {#        数据源选择框 #}
-        <select id="datasource">
+
+<h4>可选元素 <a class="btn" id="newchart">+</a></h4>
 
 
-        </select>
-        <label for="datasource">选择数据源</label>
-<h4>可选元素</h4>
-
-    <div></div>
+<div id="chartlist">
+{#    解决vue和jinja2模板冲突#}
+    {% raw %}
 {# 图表列表 #}
+    <template  v-for="option in options">
 <div class="charts s12 col">
 
-{#    测试#}
     <div class="card s12 col"><div class="card-image" >
-
-     <div  id="test1" style="width: 200px;height: 200px;"></div>
-     <span class="card-title">12345</span>
+     <div  v-bind:id="option.id" style="width: 200px;height: 200px;"></div>
+     <span class="card-title">{{ option.id }}</span>
 
     </div>
     <div class="card-content"><p>1234567</p></div>
-        <div  class="card-action"><a href="#!" onclick="addChart('男女人数排三的专业')">添加到列表</a></div>
+        <div  class="card-action"><a href="#!" v-bind:onclick="'addChart(\''+ option.id +'\')'">添加到列表</a></div>
     </div>
 
-
 </div>
+</template>
+    {% endraw %}
+</div>
+
+
 
 
 </div>
@@ -87,20 +94,79 @@
 
 {#添加图表模态框#}
 
-    <div id="createchart-modal" class="modal">
+    <div id="createchart-modal" class="modal modal-fixed-footer">
 
         <div class="modal-content">
 
-            <div class="row">
-                <div class="col s4">
+        <div class="row">
+        <a class="dropdown-trigger btn col s12 " id="datasource-trigger" href="#" data-target="datasource">选择数据源</a>
+        <ul id="datasource" class="dropdown-content">
+        </ul>
+        </div>
 
+            <div class="row">
+                {#   字段选择               #}
+                <div class="col s3">
+                    <select id="field" multiple>
+                    {% for name,field in columns.items() %}
+                    <option value="{{ field }}">{{ name }}</option>
+                    {% endfor %}
+                    </select>
+                <label>字段</label>
                 </div>
+
+{#            数据类型#}
+                <div class="col s3">
+                <select id="dataType">
+                    {% for key,name in dataTypes.items() %}  <option value="{{ key }}">{{ name }}</option>  {% endfor %}
+                </select>
+                <label>数据类型</label>
+                </div>
+{#                图表类型 #}
+                <div class="col s3">
+                <select id="chartType">
+                    {% for key,name in chartTypes.items() %}  <option value="{{ key }}">{{ name }}</option>  {% endfor %}
+                </select>
+                <label>图表类型</label>
+                </div>
+            <a class="btn col s3" id="preview" onclick="previewChart();">预览</a>
+
             </div>
+
+{#        第二行选择#}
+        <div class="row">
+{#            限制多少条 #}
+                  <div class="col s3">
+
+                    {% raw %}
+                    <select id="orderBy">
+                    <template v-for="item in orderByFields">
+
+                    <option v-bind:value="item.field">{{ item.name }}</option>
+
+                     </template>
+
+
+                    </select>
+                    {% endraw %}
+                <label>排序</label>
+                </div>
+
+            <div class="col s3"><select id="order"><option value="desc">高到低</option><option value="asc">低到高</option></select></div>
+            <div class="col s3"><label for="limit">Top选项</label><input value="-1" id="limit"/></div>
+        </div>
+
+
+
+{#        图表预览#}
+        <div class="row">
+            <div id="preview_chart" ></div>
+        </div>
 
         </div>
         <div class="modal-footer">
-            <a class="btn-flat modal-close">创建</a>
-            <a class="btn-flat modal-close">关闭</a>
+            <a href="#!" class="btn-flat modal-close waves-effect" onclick="createChart();">创建</a>
+            <a href="#!" class="btn-flat modal-close">关闭</a>
         </div>
     </div>
 
@@ -123,9 +189,14 @@
 
     <script src="{{ url_for('static',filename='js/vintage.js') }}"></script>
 
+    {#  通用工具类  #}
+    <script type="text/javascript"  src="{{ url_for('static',filename='js/zs.js') }}"></script>
+
     <script type="text/javascript"  src="{{ url_for('static',filename='main/report.js') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='chart/chartEditor.js') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='main/main.js') }}"></script>
+
+
 
 
 
@@ -135,6 +206,16 @@
 {#    侧滑对象#}
      var slide_config;
      var slide_raw;
+     var createchart_modal;
+
+     //各个select
+     var select_fields;
+     var select_dataType;
+     var select_chartType;
+     var select_orderBy;
+
+     //当前的记录id
+     var recordid;
 
 
 {#    初始化侧滑 #}
@@ -167,6 +248,11 @@
         console.log("页面加载完成,侧滑:");
         slide_config.open();
 
+        //初始化其他
+        createchart_modal =  M.Modal.init(document.getElementById('createchart-modal'));
+
+
+
 
     });
 
@@ -175,7 +261,136 @@
     $('#apply').click(function () {
         chartEditor.updateChart();
 
+    });
+
+    $('#newchart').click(function(){
+
+            createchart_modal.open();
+
+    });
+
+    //可以排序的字段，根据,选择的字段和数据类型推断,vue绑定
+    var orderByFields=[{field:'null',name:'无'}];
+    function updateOrderBy()
+     {
+
+
+
+     var select_fields = M.FormSelect.init(document.getElementById('field'));
+     var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
+     var  select_chartType = M.FormSelect.init(document.getElementById('chartType'));
+      var  select_order = M.FormSelect.init(document.getElementById('order'));
+
+    var fields = select_fields.getSelectedValues();
+    var dataType = select_dataType.getSelectedValues()[0];
+    var chartType = select_chartType.getSelectedValues()[0];
+    var order = select_order.getSelectedValues()[0];
+
+
+    //获取所有选择的,因为要获取text，不能使用getSelectedValues();
+    var options = $('#field option:selected');
+    //先清空,除了第一个的
+    orderByFields.splice(1,orderByFields.length-1);
+   console.log("更新order by,选择的字段数:"+options.length+' 数据类型:'+dataType);
+    options.each(function (index,element) {
+        console.log('遍历options:'+element);
+       //现在只有计数的, 将最后一个字段设置为可以计数的,field_count
+        if(dataType.startsWith('count'))
+        {
+
+            if( index===options.length-1)
+            orderByFields.push(
+                {
+                    field:$(element).val()+'_count'+'-'+order,
+                    name:$(element).text()+'_计数'
+                }
+            );
+            else
+                orderByFields.push(
+                {
+                    field:$(element).val()+'-'+order,
+                    name:$(element).text()
+                }
+            );
+
+        }
+
+    });
+    //渲染完成，初始化select
+    orderBy.$nextTick(function () {
+        console.log("排序渲染完成..");
+        M.FormSelect.init(document.getElementById('orderBy'));
     })
+
+
+
+
+
+    }
+    //监听select的变化，更新排序字段，排序字段只能是选择的那几个？？
+    $('#createchart-modal select').change(function () {
+        console.log("select框改变..");
+        //this是当前这个改变的select
+        console.log(this);
+        var id = $(this).attr('id');
+        if(id!=='orderBy')
+        updateOrderBy();
+        else
+        {
+            console.log('改变的是orderBy,不需要更新');
+        }
+        //字段选择后，选择的移动到前面
+        if(id==='field')
+        {
+            var select_fields = M.FormSelect.init(document.getElementById('field'));
+            //将选择的移动到上面,选择出所有select的
+            var options_select = $('#field option:selected');
+            var options_unselect = $('#field option:not(:selected)').eq(0);
+
+            console.log('已经选择的:');
+            //查找到现在在第一的option
+            console.log(options_select);
+            console.log(options_unselect);
+
+            //移动到第一个没有选择的前面
+            options_select.each(function (index,ele) {
+                console.log("移动:");
+                console.log(ele);
+                console.log(options_unselect);
+                $(options_unselect).before(ele);
+            });
+
+             M.FormSelect.init(document.getElementById('field'));
+
+
+
+
+        }
+
+    });
+    var orderBy=new Vue({
+        el:'#orderBy',
+        data:{
+            orderByFields:orderByFields
+        }
+    });
+
+    //预览图表
+    {#var preview_chart = echarts.init(document.getElementById('preview_chart'));#}
+    {#    var testOptions = {#}
+    {#    title:{#}
+    {#        text:"测试图表"#}
+    {#    },#}
+    {#    series:{#}
+    {#        type:'pie',#}
+    {#        data:[#}
+    {#            {name:"Android",value:40},#}
+    {#            {name:"Linux",value:30},#}
+    {#            {name:"Windows",value:3}#}
+    {#        ]#}
+    {#    }#}
+
+    {#preview_chart.setOption(testOptions);#}
     </script>
 {#  <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>#}
 {#        <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/china.js"></script>#}

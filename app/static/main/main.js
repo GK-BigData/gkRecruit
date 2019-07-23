@@ -1,3 +1,4 @@
+"use strict";
 // $.get("chart1",function (data) {
 //
 //     console.log("图表数据:");
@@ -9,34 +10,218 @@
 var chartEditor = new ChartEditor();
 
 
-var chart1 = echarts.init(document.getElementById('test1'),'vintage');
+// var chart1 = echarts.init(document.getElementById('test1'),'vintage');
+//
+// $.ajax(
+//     {
+//
+//         url:"charts?zsyear=2018&chartid=男女人数排三的专业",
+//         dataType:"json",
+//         type:"GET",
+//         success:function (data) {
+//
+//             console.log("数据");
+//             console.log(data);
+//             chart1.setOption(data.data);
+//
+//
+//             baseOptions['男女人数排三的专业']=data.data;
+//
+//             console.log('基本配置');
+//             console.log(baseOptions);
+//         },
+//         error:function (data) {
+//             console.log("请求失败!");
+//             console.log(data)
+//         }
+//     }
+//
+// );
 
-$.ajax(
-    {
+/*
+请求图表数据的参数
+返回 要提交的参数
+ */
+function getCreateChartParams()
+{
+    //要重新init，不然获取到的是上一次的值
+      var select_fields = M.FormSelect.init(document.getElementById('field'));
+      var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
+     var  select_chartType = M.FormSelect.init(document.getElementById('chartType'));
+     var  select_orderBy = M.FormSelect.init(document.getElementById('orderBy'));
 
-        url:"charts?zsyear=2018&chartid=男女人数排三的专业",
-        dataType:"json",
-        type:"GET",
-        success:function (data) {
+    var fields = select_fields.getSelectedValues();
+    var dataType = select_dataType.getSelectedValues();
+    var chartType = select_chartType.getSelectedValues();
+    var orderBy = select_orderBy.getSelectedValues();
 
-            console.log("数据");
-            console.log(data);
-            chart1.setOption(data.data);
 
-            baseOptions['男女人数排三的专业']=data.data;
+    var limit = $('#limit').val();
+    console.log("获取创建图表参数..");
 
-            console.log('基本配置');
-            console.log(baseOptions);
-        },
-        error:function (data) {
-            console.log("请求失败!");
-            console.log(data)
-        }
+    console.log(fields);
+    console.log(dataType);
+    console.log(chartType);
+
+    return {
+        fields:fields.join(','),
+        dataType:dataType[0],
+        chartType:chartType[0],
+        orderBy:orderBy[0],
+        limit:limit,
+        //当前的数据的ID
+        recordid:recordid
     }
 
-);
+}
+/*
+这个是预览按钮的点击时间
+在创建图表之前预览
+//请求数据，返回option ,设置在chart上
+ */
+ var preview_chart ;
+function previewChart()
+{
+
+    //初始化图表
+    if(preview_chart===undefined) preview_chart= echarts.init(document.getElementById('preview_chart'));
+    console.log("创建图表之预览图表");
+
+    //设置为黑色
+    Zs.prototype.disable('#preview');
+
+    var params = getCreateChartParams();
+    console.log("获取提交参数:");
+    console.log(params);
 
 
+    $.ajax({
+        url:'charts2',
+        type:'POST',
+        data:params,
+        dataType:"json",
+        success:function (data,status) {
+
+        console.log("图表返回结果:");
+        console.log(data);
+            if(data.code===0) {
+
+               preview_chart.clear();
+                preview_chart.setOption(data.data);
+            }
+             else
+             {
+                    showJsonResult(data);
+              }
+
+        },
+        error:function (data) {
+            console.log("请求失败");
+        }
+
+
+    });
+
+    // $.post('charts2',params,function(data){
+    //
+    //      var preview_chart = echarts.init(document.getElementById('preview_chart'));
+    //
+    //     console.log("图表返回结果:");
+    //
+    //     console.log(data);
+    //     console.log(data.data);
+    //
+    //     if(data.code===0)
+    //         preview_chart.setOption(data.data);
+    //     else
+    //     {
+    //
+    //     }
+    //
+    //
+    // });
+    Zs.prototype.enable('#preview');
+
+
+}
+/*
+创建图表到侧滑栏，
+点击创建按钮的时间
+ */
+
+function createChart()
+{
+
+    var params = getCreateChartParams();
+    createChartByParams(params);
+
+
+}
+//更新侧滑的基本元素 的图表
+function updataBaseOptions()
+{
+       //加载基本后更新
+
+}
+
+/*
+在左边侧滑创建一个图表 , 需要传入图表的参数
+ */
+function createChartByParams(params)
+{
+     console.log("创建图表，参数:");
+    console.log(params);
+    $.post('charts2',params, function (data) {
+         if(data.code===0) {
+
+                 //将标题作为id
+             var id = data.data.title[0].text.replace(' ','-');
+             baseOptions.push(
+                 {
+                     id:id,
+                     option:data.data
+                 }
+             );
+
+             // vue 监听渲染完成还有，更新对应的图表
+            chartlist.$nextTick(function () {
+            console.log("更新数据后 渲染完成!,开始渲染图表..");
+            console.log(data);
+             var chart = echarts.init(document.getElementById(id));
+             chart.setOption(data.data);
+
+         });
+
+
+
+
+            }
+             else
+             {
+                    showJsonResult(data);
+              }
+
+    });
+}
+
+/*
+
+选择指定数据源后的ajax更新
+//1. 请求record记录，设置新建图表的可选字段
+字段只有固定的
+2.
+*/
+
+function selectDataSource(id)
+{
+    console.log("选择数据源:"+id);
+
+    //字段
+    recordid = id;
+
+
+
+}
 /*
 加载数据源到下拉框,即record
 */
@@ -52,18 +237,22 @@ function loadDataSource()
 
             //填充select
             var select = $('#datasource');
-            data.data.forEach(function (ele,index) {
-               console.log(ele);
-               var option = $('<option></option>',{
-                   id:ele.id
-               });
-               option.text(ele.id+ " "+ele.zsyear+ " "+ ele.status);
 
-                select.append(option);
+            data.data.forEach(function (ele,index) {
+
+               var li = $('<li></li>',{
+
+                   //设置点击事件为选择指定数据源，
+                   onclick:'selectDataSource("'+ele.id+'");'
+               });
+               li.text(ele.id+ " "+ele.zsyear+ " "+ ele.status);
+
+                select.append(li);
             });
 
+            console.log(select);
 
-             M.FormSelect.init(document.getElementById('datasource'));
+             M.Dropdown.init(document.getElementById('datasource-trigger'));
 
         }
         else {
@@ -77,12 +266,20 @@ function loadDataSource()
 
 
 
-//添加元素到列表,从baseOptions里找
+// 左边图表元素的点击时间 ，elementid 是图表id (显示是默认标题 ) 添加元素到列表,从baseOptions里找
 function addChart(elementid)
 {
     console.log('添加图表,id:'+elementid);
     console.log(report);
-    report.addChart(baseOptions[elementid]);
+
+    baseOptions.forEach(function (value,index) {
+       if(value.id===elementid)
+       {
+            report.addChart(value.option);
+
+       }
+    });
+
 
 }
 
@@ -112,28 +309,46 @@ function editChart(elementid)
 
 }
 
-function chartTest() {
- console.log("chartTest");
-}
 
-//加载模板
+
+//加载一开始的 模板
 function loadBaseOption()
 {
 
+    createChartByParams({
+        fields:'sex_name',
+        chartType:'bar',
+        dataType:'count',
+        recordid:'1',
+        orderBy:'null',
+        limit:'-1'
+    });
 
 
 
 }
 
 
-//所有模板的options
-var baseOptions = {};
-
+//所有模板的options,侧滑那边的
+var baseOptions = [];
 
 
 var report = new Report("report");
 console.log("初始化..");
 console.log(report);
 
-loadDataSource();
 
+
+
+loadDataSource();
+loadBaseOption();
+
+// vue 绑定数据和标签
+ var chartlist = new Vue({
+        el:'#chartlist',
+        data:{
+            options:baseOptions
+        }
+    });
+
+//选择数据源后的可选字段,现在是招生的，暂时不会有变化，如果有其他数据，要动态切换，先保留

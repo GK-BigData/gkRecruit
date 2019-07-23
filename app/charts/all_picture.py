@@ -7,7 +7,9 @@ from pyecharts.options import ComponentTitleOpts
 
 class All_Picture():
 
-    def __init__(self, title, subtitle='', y_name='', x_name=''):
+    def __init__(self,fields, title, subtitle='', y_name='', x_name=''):
+        # 加入字段为了用来指定stack时的值
+        self.fields=fields
         self.y_name = y_name
         self.x_name = x_name
         self.title = title
@@ -33,8 +35,9 @@ class All_Picture():
             )
         ]
 
-    def bar_picture(self, series_names, bar_xdata, bar_ydatas):
-
+    def bar_picture(self, series_names, bar_xdata, bar_ydatas,stack=False):
+        print('饼图,数组:')
+        print(bar_xdata)
         b = (
             Bar(init_opts=self.init_opts)
                 .add_xaxis(bar_xdata)
@@ -58,7 +61,11 @@ class All_Picture():
         )
 
         for name, ydata in zip(series_names, bar_ydatas):
-            b.add_yaxis(name, ydata)
+            # 堆叠暂时使用最后一个字段的名字来堆叠
+            if stack:
+                b.add_yaxis(name,ydata,stack=self.fields[-1])
+            else:
+                b.add_yaxis(name, ydata)
         print(b)
         return b.dump_options()
 
@@ -118,15 +125,22 @@ class All_Picture():
         return p.dump_options()
 
     def pie_picture(self,series_names, x, y):
+        print("系列")
+        print(series_names)
+        print(x)
+        print(y)
         p = (
             Pie(init_opts=self.init_opts)
-                .add(series_names[0], [list(z) for z in zip(x, y)])
                 .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
                                  # 添加logo
                                  graphic_opts=self.logo
                                  )
                 .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
         )
+        # 传进来的,x,y都是列表的列表，每个是一个series
+        for series_name ,item_x , item_y in zip(series_names, x,y):
+            print('add series:',series_name)
+            p.add(series_name, [list(z) for z in zip(item_x, item_y)])
         return p.dump_options()
 
     # 广东地图
