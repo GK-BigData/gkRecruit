@@ -26,7 +26,29 @@
 
 
     <div class="container">
-        <h1>Test</h1>
+   {#上面的导航#}
+    <nav>
+    <div class="nav-wrapper teal">
+        {#   Logo      #}
+        <a href="#" class="brand-logo center">A</a>
+{#        <ul class="left hide-on-med-and-down">#}
+{#            <li></li>#}
+{#            <li><a>首页</a></li>#}
+{#        </ul>#}
+        <ul class="right hide-on-med-and-down">
+            <li><a>其他</a></li>
+{#        导航菜单，子页面需要继承添加自定义的项的话#}
+            {% block navmenu %}
+{#                自定义的选项 #}
+            {% endblock %}
+        </ul>
+    </div>
+    </nav>
+
+
+
+
+{#    通用导航 头#}
 
         {% block container %}
 

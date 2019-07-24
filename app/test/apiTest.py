@@ -4,8 +4,8 @@ import pyecharts
 import json
 result = requests.post('http://127.0.0.1:5000/main/charts2?zsyear=2018&charttype=funnel&datatype=sql&fields=院系',
                        data={
-                           'fields':'sex_name',
-                           'dataType':'count',
+                           'aggfield':'count_sex_name',
+                            'groupfield':'interval_total_score_of_filing',
                            'chartType':'bar',
                            'recordid':1
                        })

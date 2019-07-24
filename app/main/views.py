@@ -237,11 +237,26 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     # 选择,with_entites是变长参数，这里解包列表进去
     query = query.with_entities(*entities)
 
-    #-------------------group by 分组字段处理 ------------
+    #-------------------group by 分组字段处理 ----------------,普通分组和整数分段分组
+
     group_columns = []
 
     for group in groupfield:
-        group_columns.append(column(group))
+
+        # 检查分组类型,限制最多分组2次
+        field_type_param = group.split('_',2)
+        # 普通分组
+        if len(field_type_param)==1:
+            group_columns.append(column(group))
+        else:
+    #         判断分组类型,
+            if field_type_param[1]=='interval':
+                # 整数分组,获取分组参数
+                interval_param = [column(field_type_param[0])]
+                for item in field_type_param[2].split('_'):
+                    interval_param.append(int(item))
+                group_columns.append(func.interval(*interval_param))
+                pass
 
 
     query = query.group_by(*group_columns)
