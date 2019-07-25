@@ -9,24 +9,17 @@ from app.admin.models import Record
 from app.main.models import zs
 from app import db
 from app.common.restful import rjson
-
 from app import upload_tables
 from xpinyin import Pinyin
-
 import csv
 import json
 from app.common.excel_utils  import  get_columns,excel2dict,excel2list
-
 import  sqlalchemy.sql.functions as func
 from  sqlalchemy.sql.expression import *
 #  这里使用 restful api http://www.pythondoc.com/flask-restful/first.html
 
 from . import bp_admin,need_columns,needcolumns_fields
 pinyin = Pinyin()
-
-
-
-
 
 
 # 主界面，显示所有记录的界面

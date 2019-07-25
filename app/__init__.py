@@ -11,8 +11,7 @@ from flask_uploads import UploadSet,configure_uploads,DOCUMENTS,IMAGES
 
 db = SQLAlchemy()
 
-upload_tables = UploadSet('TABLE',IMAGES+DOCUMENTS+('pdf','csv'
-                                                    ))
+upload_tables = UploadSet('TABLE',IMAGES+DOCUMENTS+('pdf','csv'))
 
 def create_app():
 
@@ -27,10 +26,12 @@ def create_app():
     from app.admin import  bp_admin
     from app.main import bp_main
     from app.testroute.views import bp_test
+    from app.report import report_admin
 
     app.register_blueprint(bp_admin,url_prefix='/admin')
     app.register_blueprint(bp_main,url_prefix='/main')
     app.register_blueprint(bp_test,url_prefix='/test')
+    app.register_blueprint(report_admin,url_prefix='/report')
 
     # 导入model，这里似乎没用，但在migrate时，要导入才找得到model
     from app.admin.models import Record
