@@ -1,0 +1,41 @@
+测试表
+create table score(id int,score int);
+insert into score values(0,10);
+insert into score values(1,100);
+insert into score values(2,101);
+insert into score values(3,1025);
+select interval(score,0,100,200) i,count(*) from score group by i;
+小于0,索引 0
+大于0 索引 1
+大于等于 100 索引2
+大于等于100
+各分数段的
+100
+
+mysql> select * from score;
++------+-------+
+| id   | score |
++------+-------+
+|    1 |   100 |
+|    2 |   101 |
+|    3 |  1025 |
+|    0 |    10 |
++------+-------+
+4 rows in set (0.00 sec)
+
+
+mysql> select interval(score,0,100,200) i,count(*) from score group by i;
++---+----------+
+| i | count(*) |
++---+----------+
+| 1 |        1 | 大于等于0的
+| 2 |        2 |大于等于100的
+| 3 |        1 |大于200的
++---+----------+
+3 rows in set (0.00 sec)
+
+https://www.cnblogs.com/lazyx/p/5577105.html
+mysql>
+
+etl函数, 来给个别名 elt函数，1,对于第一个，2对于第二个
+select elt(interval(score,0,100,200),'>0','>100','>200') i,count(*) from score group by i;

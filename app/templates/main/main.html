@@ -9,6 +9,9 @@
 
 
 
+
+
+
 {# 第一个侧滑  素材栏 #}
 <div class="sidenav row" id="slide-raw">
 {#        数据源选择框 #}
@@ -345,8 +348,8 @@
 
 
     //获取所有选择的,因为要获取text，不能使用getSelectedValues();,分组和聚合里面选择了的才能排序
-    var groupFields = $('#field option:selected');
-    var aggFields = $('#dataType option:selected');
+    var groupFields = $('#groupfield option:selected');
+    var aggFields = $('#aggfield option:selected');
     //先清空,除了第一个的
     orderByFields.splice(1,orderByFields.length-1);
          
@@ -359,6 +362,7 @@
                 }
             );
     });
+
 
    aggFields.each(function (index,element) {
         console.log('遍历聚合函数:'+element);
@@ -411,6 +415,11 @@
     });
 
     $('#aggfield').change(function () {
+        updateOrderBy();
+
+    });
+    //排序改变
+    $('#order').change(function () {
         updateOrderBy();
 
     });

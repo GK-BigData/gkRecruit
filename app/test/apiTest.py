@@ -4,11 +4,29 @@ import pyecharts
 import json
 result = requests.post('http://127.0.0.1:5000/main/charts2?zsyear=2018&charttype=funnel&datatype=sql&fields=院系',
                        data={
-                           'fields':'sex_name',
-                           'dataType':'count',
-                           'chartType':'bar',
-                           'recordid':1
+                           'aggfield':'count_sex_name',
+                            'groupfield':'interval-total_score_of_filing-0-100-200',
+                           'chartType':'funnel',
+                           'recordid':1,
+                           'orderBy':'null',
+                           'limit':-1,
+                           # 'filter':'sex_name-like-男',
+                           'filter':'null',
+                           'dataType':'group'
+
                        })
+
+# 整数分组测试
+# result = requests.post('http://127.0.0.1:5000/main/charts2?zsyear=2018&charttype=funnel&datatype=sql&fields=院系',
+#                        data={
+#                            'aggfield':'count_sex_name',
+#                             'groupfield':'interval-total_score_of_filing-0-100-200',
+#                            'chartType':'bar',
+#                            'recordid':1,
+#                            'orderBy':'null',
+#                            'limit':-1
+#                        })
+
 
 print(result.text)
 

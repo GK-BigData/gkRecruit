@@ -74,13 +74,6 @@ class All_Picture():
         print(series_names)
         p = (
             Pie(init_opts=self.init_opts)
-                .add(series_names[0],
-                     [list(z) for z in zip(rose_xdata, rose_ydatas)],
-                     radius=["30%", "75%"],
-                     center=["25%", "50%"],
-                     rosetype="radius",
-                     label_opts=opts.LabelOpts(is_show=True)
-                     )
 
                 .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
                                  # 调整位置
@@ -91,6 +84,12 @@ class All_Picture():
                                  )
                 .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
         )
+        for series_name, item_x, item_y in zip(series_names, rose_xdata, rose_ydatas):
+            print('add series:', series_name)
+            p.add(series_name, [list(z) for z in zip(item_x, item_y)],  radius=["30%", "75%"],
+                     center=["25%", "50%"],
+                     rosetype="radius",
+                     label_opts=opts.LabelOpts(is_show=True))
 
 
         return p.dump_options()
@@ -279,11 +278,12 @@ class All_Picture():
         )
         return c.dump_options()
 
-    def funnel_sort_ascending(self, x_data, y_data):
+    def funnel_sort_ascending(self,series_name,  x_data, y_data):
+        print('funel:',x_data,y_data)
         c = (
             Funnel()
                 .add(
-                "",
+                series_name[0],
                 [list(z) for z in zip(x_data, y_data)],
                 # sort_="ascending",
                 label_opts=opts.LabelOpts(position="inside"),
