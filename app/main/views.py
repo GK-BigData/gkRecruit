@@ -250,6 +250,7 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
                 pass
 
         # entities.append(column(group))
+    print('处理完聚合函数前', query)
     #聚合字段要分割出聚合函数和字段
     for agg in aggfield:
 
@@ -263,10 +264,10 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
             entities.append(func.sum(column(aggtype_field[1])).label(agg)  )
         if aggtype_field[0]=='avg':
             entities.append(func.avg(column(aggtype_field[1])).cast(sqltype.Float).label(agg) )
-
+    print('处理完聚合函数后',query,entities)
     # 选择,with_entites是变长参数，这里解包列表进去
     query = query.with_entities(*entities)
-
+    print('处理完聚合函数后2', query)
     #-------------------group by 分组字段处理 ----------------,普通分组和整数分段分组
 
     group_columns = []
@@ -360,7 +361,7 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
 
 
 
-        if limit != '-1':
+        if int(limit) != -1:
             sql = sql.limit(int(limit))
 
         print("请求sql:", sql)
@@ -607,7 +608,7 @@ def charts2():
         return rjson(result[0],result[1])
     if result==None:
         return rjson("返回null", 1)
-    result_dict = json.loads(result)
+    result_dict = json.loads(result.dump_options())
 
 
     # x=[]
@@ -629,3 +630,21 @@ def charts2():
     # print(test)
     # print(dir(test))
     return rjson(result_dict, 0)
+
+from app.charts.zscharts import zschart
+
+# 获取基本的图
+@bp_main.route('/options/<type>')
+def options(type):
+
+
+    # 招生数据
+    if type=='zs':
+        sql = zs.query.filter(zs.recordid==1)
+        chart = zschart(sql)
+        options = chart.options()
+        # chart1 = drawChart(sql, 'bar', 'group', 'sex_name,departments', 'count_total_score_of_filing', 'null',
+        #                    'null', -1)
+        print("返回option",options)
+        print(options)
+        return rjson(options,0)

@@ -327,14 +327,35 @@ function editChart(elementid)
 function loadBaseOption()
 {
 
-    createChartByParams({
-        fields:'sex_name',
-        chartType:'bar',
-        dataType:'count',
-        recordid:'1',
-        orderBy:'null',
-        limit:'-1'
+    //加载基本的图标
+    $.get('options/zs?recordid=1',function(data){
+        console.log('------------------------创建基本optons,--------------------------');
+        console.log(data);
+    //    data的键值是id和option
+        for(var key in data.data)
+        {
+            console.log(key);
+            console.log(data.data[key]);
+            baseOptions.push({
+                id:key,
+                option:data.data[key]
+            });
+        }
+              // vue 监听渲染完成还有，更新对应的图表
+            chartlist.$nextTick(function () {
+         for(var i = 0;i<baseOptions.length;i+=1) {
+             console.log('初始化侧话图表:'+key);
+             var chart = echarts.init(document.getElementById(baseOptions[i].id));
+             chart.setOption(baseOptions[i].option);
+         }
+         });
+
     });
+
+
+    // createChartByParams({
+    //
+    // });
 
 
 
@@ -353,7 +374,7 @@ console.log(report);
 
 
 loadDataSource();
-loadBaseOption();
+
 
 // vue 绑定数据和标签
  var chartlist = new Vue({
@@ -362,5 +383,5 @@ loadBaseOption();
             options:baseOptions
         }
     });
-
+loadBaseOption();
 //选择数据源后的可选字段,现在是招生的，暂时不会有变化，如果有其他数据，要动态切换，先保留

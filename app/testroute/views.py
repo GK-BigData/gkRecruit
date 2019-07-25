@@ -15,6 +15,14 @@ def test(template:str):
     print('获取测试模板:',template)
 
     return render_template('test/'+template)
+@bp_test.route('/option/<type>')
+def option(type):
+    """
+    options测试
+    :param type:
+    """
+
+    return render_template('test/optionsTest.html')
 
 
 

@@ -67,7 +67,7 @@ class All_Picture():
             else:
                 b.add_yaxis(name, ydata)
         print(b)
-        return b.dump_options()
+        return b
 
     def rose_picture(self,series_names, rose_xdata, rose_ydatas):
         print(rose_ydatas)
@@ -92,7 +92,7 @@ class All_Picture():
                      label_opts=opts.LabelOpts(is_show=True))
 
 
-        return p.dump_options()
+        return p
 
     def rose_picture_man_women(self, man_name, women_name, man_data, women_data):
         p = (
@@ -121,7 +121,7 @@ class All_Picture():
                                  )
                 .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
         )
-        return p.dump_options()
+        return p
 
     def pie_picture(self,series_names, x, y):
         print("系列")
@@ -140,7 +140,7 @@ class All_Picture():
         for series_name ,item_x , item_y in zip(series_names, x,y):
             print('add series:',series_name)
             p.add(series_name, [list(z) for z in zip(item_x, item_y)])
-        return p.dump_options()
+        return p
 
     # 广东地图
     def guangdong_map_picture(self, x_data, y_data):
@@ -157,7 +157,7 @@ class All_Picture():
         )
 
         # 返回option
-        return g.dump_options()
+        return g
 
     # 中国地图
     def china_map_picture(self, x_data, y_data):
@@ -177,7 +177,7 @@ class All_Picture():
         )
 
         # 返回option
-        return c.dump_options()
+        return c
 
     # 雷达图--各个学院男女比例占比
     def radar_picture(self, seriesname: list, values: list, schemanames):
@@ -218,7 +218,7 @@ class All_Picture():
         for name, value in zip(seriesname, values):
             r.add(name, [value])
 
-        return r.dump_options()
+        return r
 
     # 表格
     def table_picture(self, headers, data):
@@ -276,7 +276,7 @@ class All_Picture():
                 ),
             )
         )
-        return c.dump_options()
+        return c
 
     def funnel_sort_ascending(self,series_name,  x_data, y_data):
         print('funel:',x_data,y_data)
@@ -291,4 +291,4 @@ class All_Picture():
                 .set_global_opts(title_opts=opts.TitleOpts(title=self.title))
         )
 
-        return c.dump_options()
+        return c
