@@ -36,6 +36,7 @@ def create_app():
     # 导入model，这里似乎没用，但在migrate时，要导入才找得到model
     from app.admin.models import Record
     from app.main.models import zs
+    from app.report.models import Report
 
     # 配置上传插件
     configure_uploads(app,upload_tables)
