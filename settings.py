@@ -23,7 +23,7 @@ class DevelopmentConfig(Config):
     pass
 class TestConfig(Config):
 
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@172.16.248.128:3306/recruit'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@192.168.3.7:3306/recruit'
 
 
 

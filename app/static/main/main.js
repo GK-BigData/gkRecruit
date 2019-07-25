@@ -79,7 +79,10 @@ function getCreateChartParams()
         orderBy:orderBy[0],
         limit:limit,
         //当前的数据的ID
-        recordid:recordid
+        recordid:recordid,
+        dataType:'group',
+        //filter:'total_score_of_filing->=-200'
+        filter:'null'
     }
 
 }

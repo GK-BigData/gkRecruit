@@ -219,7 +219,37 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     entities=[]
     # 分组字段直接用列名
     for group in groupfield:
-        entities.append(column(group))
+
+        # 检查分组类型,限制最多分组2次
+        field_type_param = group.split('-',2)
+        print('分组字段：')
+        print(field_type_param)
+        # 普通分组
+        if len(field_type_param) == 1:
+            entities.append(column(group))
+        else:
+            #         判断分组类型,
+            if field_type_param[0] == 'interval':
+                # elt函数参数,elt函数用于改成对于的>100这样
+                elt_params = []
+                # 整数分组,获取分组参数
+                interval_param = [column(field_type_param[1])]
+                all = field_type_param[2].split('-')
+                for index,item in enumerate( all):
+                    interval_param.append(int(item))
+                #     添加elt的参数
+                    if index!=len(all)-1:
+                        elt_params.append(item+','+all[index+1])
+                    else:
+                        elt_params.append(item + ',')
+                # interval作为elt的第一个参数
+
+                print(elt_params)
+
+                entities.append(func.elt(func.interval(*interval_param),*elt_params).label(group))
+                pass
+
+        # entities.append(column(group))
     #聚合字段要分割出聚合函数和字段
     for agg in aggfield:
 
@@ -242,21 +272,9 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     group_columns = []
 
     for group in groupfield:
+        group_columns.append(column(group))
 
-        # 检查分组类型,限制最多分组2次
-        field_type_param = group.split('_',2)
-        # 普通分组
-        if len(field_type_param)==1:
-            group_columns.append(column(group))
-        else:
-    #         判断分组类型,
-            if field_type_param[1]=='interval':
-                # 整数分组,获取分组参数
-                interval_param = [column(field_type_param[0])]
-                for item in field_type_param[2].split('_'):
-                    interval_param.append(int(item))
-                group_columns.append(func.interval(*interval_param))
-                pass
+
 
 
     query = query.group_by(*group_columns)
@@ -296,11 +314,66 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     print(query)
     return query
 
-def drawChart(query, charttype: str, groupfield: str,aggfield:str, orderby='', limit=-1):
+def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str,  filter:str,orderby='', limit=-1):
 
-    groupfield = groupfield.split(",")
-    aggfield = aggfield.split(",")
-    #处理fields
+    print('数据类型:',dataType)
+    if dataType=='group':
+        groupfield = groupfield.split(",")
+        aggfield = aggfield.split(",")
+        #处理fields
+        sql = get_sql(query, charttype, groupfield, aggfield)
+        # 元组表示错误
+        if type(sql) == tuple:
+            return sql
+        if filter!='null':
+            filter = filter.split(',')
+            # --------------处理过滤----------
+            for fil in filter:
+                field_op_value=fil.split('-')
+                print('处理过滤:',field_op_value)
+                if field_op_value[1]=='==':
+                    sql = sql.filter(column(field_op_value[0]).cast(sqltype.Integer)==int(field_op_value[2]))
+                if field_op_value[1]=='>=':
+                    sql = sql.filter(column(field_op_value[0]).cast(sqltype.Integer)>=int(field_op_value[2]))
+                if field_op_value[1] == '<=':
+                    sql = sql.filter(column(field_op_value[0]).cast(sqltype.Integer) <= int(field_op_value[2]))
+                if field_op_value[1] == '>':
+                    sql = sql.filter(column(field_op_value[0]).cast(sqltype.Integer) > int(field_op_value[2]))
+                if field_op_value[1] == '<':
+                    sql = sql.filter(column(field_op_value[0]).cast(sqltype.Integer) >= int(field_op_value[2]))
+                if field_op_value[1] == '!=':
+                    sql = sql.filter(column(field_op_value[0]).cast(sqltype.Integer) != int(field_op_value[2]))
+                if field_op_value[1] == 'like':
+                    sql = sql.filter(column(field_op_value[0]).like('%'+field_op_value[2]))
+
+        if orderby != 'null':
+            field_order = orderby.split('-')
+            col = column(field_order[0])
+            # 降序
+            if field_order[1] == 'desc':
+                col = desc(col)
+            #     升序
+            else:
+                col = asc(col)
+
+            sql = sql.order_by(col)
+
+
+
+        if limit != '-1':
+            sql = sql.limit(int(limit))
+
+        print("请求sql:", sql)
+
+
+
+        dataset = sql.all()
+    #     不是分组，默认为sql语句
+    else:
+        result = db.session.execute()
+        dataset = result.fetchall()
+        pass
+
 
     title = ','.join(groupfield)+'-'+'-'+charttype
     select = All_Picture(groupfield, title, '', '', '地区名称')  # 设置标题等
@@ -308,7 +381,6 @@ def drawChart(query, charttype: str, groupfield: str,aggfield:str, orderby='', l
     x = []
     y = []
     series_name = []
-    dataset = []
 
     # 类型1 ,简单分组计数
     '''
@@ -319,50 +391,34 @@ def drawChart(query, charttype: str, groupfield: str,aggfield:str, orderby='', l
     全校全国各个地区人数
     '''
     # 获取sql
-    sql = get_sql(query,charttype,groupfield,aggfield)
-
-    # 元组表示错误
-    if type(sql)==tuple:
-        return sql
-
-    if orderby!='null':
-        field_order = orderby.split('-')
-        col = column(field_order[0])
-        # 降序
-        if field_order[1]=='desc':
-            col = desc(col)
-        #     升序
-        else:
-            col=asc(col)
 
 
-        sql = sql.order_by(col)
 
-    if limit!='-1':
-        sql=sql.limit(int(limit))
 
-    print("请求sql:",sql)
-    # 计数类型的
 
     if len(groupfield)==1:
         # count最后只有一个series,先初始化
         x.append([])
         y.append([])
         print('一个分组:')
-        dataset = sql.all()
+
         print(dataset)
 
-        # 传递过来的是英文，装换为中文字段名字，作为图例
-        series_name=[ field_name[ groupfield[0]] ]
+        # 传递过来的是英文，装换为中文字段名字，作为图例,如果没有就算了
+
+        if groupfield[0] in field_name:
+            series_name=[ field_name[ groupfield[0]] ]
+        else:
+            series_name = [groupfield[0]]
         for item in dataset:
             x[0].append(item[0])
             y[0].append(item[1])
     #两个分组
     else:
         x.append([])
-        dataset = sql.all()
         print('两个分组，结果:')
         print(dataset)
+        # 要求不能排序
         for item in dataset:
             if item[0] not in series_name:
                 series_name.append(item[0])
@@ -372,6 +428,7 @@ def drawChart(query, charttype: str, groupfield: str,aggfield:str, orderby='', l
                 x[0].append(item[1])
                 y[index].append(0)
             xindex = x[0].index(item[1])
+            print(y,index,xindex)
             y[index][xindex] = item[2]
 
         # 填充系列长度到x轴的长度
@@ -488,7 +545,7 @@ def drawChart(query, charttype: str, groupfield: str,aggfield:str, orderby='', l
             全校广东学生文理科分数区间人数 -- 使用datatype == 'sql'
             
         '''
-        return select.funnel_sort_ascending(x_data=x, y_data=y)
+        return select.funnel_sort_ascending(x_data=x[0], y_data=y[0])
 
     #表格
     elif charttype=='table':
@@ -530,9 +587,10 @@ def charts2():
     try:
         recordid = request.form['recordid']
         charttype = request.form['chartType']
-        # datatype = request.form['dataType']
+  #      datatype = request.form['dataType']
         groupfield = request.form['groupfield']
         aggfield = request.form['aggfield']
+        filter = request.form['filter']
 
     except Exception as e:
 
@@ -543,7 +601,7 @@ def charts2():
 
 
     sql = zs.query.filter(zs.recordid == recordid)
-    result = drawChart(sql, charttype,groupfield,aggfield,orderBy,limit)
+    result = drawChart(sql, charttype,'group', groupfield,aggfield,filter, orderBy,limit)
     # 如果返回的是元组，则表示返回的是错误信息
     if type(result)==tuple:
         return rjson(result[0],result[1])

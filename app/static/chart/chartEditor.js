@@ -3,6 +3,16 @@
 function ChartEditor()
 {
 
+    //图表配置项字典
+    this.dict={
+     'color':'颜色',
+  'title':'标题',
+  'series':'序列',
+  'markArea':'标记区域',
+  'markLine':'标记线',
+
+    }
+
 }
 
 ChartEditor.prototype.setChartId=function(id)
@@ -78,6 +88,7 @@ ChartEditor.prototype.updateOption=  function (options)
         return options;
 
 
+
     };
 
 //生成Options菜单，循环调用
@@ -130,7 +141,7 @@ ChartEditor.prototype.optionMenu=function(option,parentDom,parentkey,level){
              else if(type==='object')
              {
                  //二级菜单,里面的内容是递归生成
-             header.innerHTML=key+" ";
+             header.innerHTML= this.translate( key)+" ";
              var count = this.optionMenu(value,body,id,level+1);
 
              $(li).append(header).append(body);
@@ -176,6 +187,17 @@ ChartEditor.prototype.generateConfigByChartId=function(chartid,container){
             M.Collapsible.init(document.querySelectorAll('.collapsible'));
 
 };
+ChartEditor.prototype.translate=function(key)
+{
+         if( key in this.dict)
+        {
+           return  this.dict[ key] +"("+key+")";
+        }
+        else
+        {
+            return key;
+        }
+};
 // 生成input标签  type数据类型,字符串为text,数字为number,boolean，因为在更新options时需要获取对应的类型，字符串就加入
 ChartEditor.prototype.newinput=function (key,value,id,type) {
         var div = $('<div class="input-field"></div>');
@@ -188,11 +210,13 @@ ChartEditor.prototype.newinput=function (key,value,id,type) {
             'data-type':type
 
         });
+        //label可以翻译为正常的文字
         var label = $('<label></label>',{
             for:id,
             class:'active'
         });
-        label.html(key);
+        label.html(this.translate(key));
+
 
         div.append(input);
         div.append(label);
