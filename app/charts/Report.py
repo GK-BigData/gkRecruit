@@ -3,6 +3,7 @@
 # Project :zs
 # Time  :2019/7/25 上午9:28 
 # 单个元素
+paramKeys = ['chartType', 'groupfield', 'aggfield', 'orderBy', 'filter', 'limit', 'dataType']
 class ReportItem(object):
 
     def __init__(self,type,index,width,height,recordid,groupfield='',aggfield='',orderBy='null',limit='-1',filter='null',chartType='',option='',dataType='',text=''):

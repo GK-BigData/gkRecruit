@@ -119,7 +119,7 @@ function previewChart()
             if(data.code===0) {
 
                preview_chart.clear();
-                preview_chart.setOption(data.data);
+                preview_chart.setOption(data.data.option);
             }
              else
              {
@@ -181,17 +181,17 @@ function updataBaseOptions()
  */
 function createChartByParams(params)
 {
-     console.log("创建图表，参数:");
+    console.log("创建图表，参数:");
     console.log(params);
     $.post('charts2',params, function (data) {
          if(data.code===0) {
 
                  //将标题作为id
-             var id = data.data.title[0].text.replace(' ','-');
+             var id = data.data.option.title[0].text.replace(' ','-');
              baseOptions.push(
                  {
                      id:id,
-                     option:data.data
+                     data:data.data
                  }
              );
 
@@ -200,7 +200,7 @@ function createChartByParams(params)
             console.log("更新数据后 渲染完成!,开始渲染图表..");
             console.log(data);
              var chart = echarts.init(document.getElementById(id));
-             chart.setOption(data.data);
+             chart.setOption(data.data.option);
 
          });
 
@@ -287,7 +287,9 @@ function addChart(elementid)
     baseOptions.forEach(function (value,index) {
        if(value.id===elementid)
        {
-            report.addChart(value.option);
+           console.log("找到对应id的option:");
+           console.log(value);
+            report.addElement(value.data);
 
        }
     });
@@ -338,7 +340,7 @@ function loadBaseOption()
             console.log(data.data[key]);
             baseOptions.push({
                 id:key,
-                option:data.data[key]
+                data:data.data[key]
             });
         }
               // vue 监听渲染完成还有，更新对应的图表
@@ -346,7 +348,7 @@ function loadBaseOption()
          for(var i = 0;i<baseOptions.length;i+=1) {
              console.log('初始化侧话图表:'+key);
              var chart = echarts.init(document.getElementById(baseOptions[i].id));
-             chart.setOption(baseOptions[i].option);
+             chart.setOption(baseOptions[i].data.option);
          }
          });
 
@@ -362,7 +364,7 @@ function loadBaseOption()
 }
 
 
-//所有模板的options,侧滑那边的
+//所有模板的options,侧滑那边的,结构为ReportItem结构
 var baseOptions = [];
 
 
