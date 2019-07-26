@@ -7,11 +7,6 @@
 
 {% block container  %}
 
-
-
-
-
-
 {# 第一个侧滑  素材栏 #}
 <div class="sidenav row" id="slide-raw">
 {#        数据源选择框 #}
@@ -193,15 +188,6 @@
         </div>
     </div>
 
-
-
-
-
-
-
-
-
-
 {% endblock %}
 
 {% block script %}
@@ -218,12 +204,6 @@
     <script type="text/javascript"  src="{{ url_for('static',filename='main/report.js') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='chart/chartEditor.js') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='main/main.js') }}"></script>
-
-
-
-
-
-
     <script type="text/javascript">
 
 {#    侧滑对象#}
@@ -273,9 +253,6 @@
 
         //初始化其他
         createchart_modal =  M.Modal.init(document.getElementById('createchart-modal'));
-
-
-
 
     });
 
@@ -334,8 +311,6 @@
     function updateOrderBy()
      {
 
-
-
      //var select_fields = M.FormSelect.init(document.getElementById('field'));
      //var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
      var  select_chartType = M.FormSelect.init(document.getElementById('chartType'));
@@ -378,10 +353,6 @@
         console.log("排序渲染完成..");
         M.FormSelect.init(document.getElementById('orderBy'));
     });
-
-
-
-
 
 
     }
