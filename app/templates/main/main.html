@@ -5,13 +5,32 @@
 {% endblock %}
 
 
-{% block container  %}
+{#自定义导航菜单#}
+{% block navmenu %}
+<li><a onclick="saveReport();">保存</a></li>
+{% endblock %}
 
-{# 第一个侧滑  素材栏 #}
+{% block navtitle %}{{ report.title }}{% endblock %}
+
+
+
+{% block body  %}
+
+
+<div class="row">
+
+<div class="col s3">
+    {# 第一个侧滑  素材栏 #}
 <div class="sidenav row" id="slide-raw">
 {#        数据源选择框 #}
 
-<h4>可选元素 <a class="btn" id="newchart">+</a></h4>
+{#    创建元素下拉框   #}
+    <ul id="add_menu" class="dropdown-content">
+        <li><a href="#!" onclick="openChartEdit()">图表</a></li>
+        <li><a href="#!" onclick="openTextEdit()">文字</a></li>
+
+    </ul>
+<h4>可选元素 <a class="btn dropdown-trigger"  id='add_menu_trigger' data-target="add_menu"  >+</a></h4>
 
 
 <div id="chartlist">
@@ -39,11 +58,9 @@
 
 
 </div>
+</div>
 
-
-
-
-
+<div class="col s9">
 {# 右边的配置界面 #}
 {#    #}
     <a href="#!"  id='apply' class="btn waves-block hide" style="z-index: 99999;position:fixed;top:0;right: 0;" >应用</a>
@@ -66,7 +83,8 @@
 
 
 
-
+{#进度条 ,保存等用 #}
+    <div class="progress" id="saveprogress" style="display: none;"> <div class="indeterminate"></div></div>
 <a href="#!" class="sidenav-trigger" data-target="slide-raw"> <i>Trigger</i> </a>
 
 
@@ -97,24 +115,35 @@
         <div class="modal-content">
 
         <div class="row">
-        <a class="dropdown-trigger btn col s12 " id="datasource-trigger" href="#" data-target="datasource">选择数据源</a>
+        <a class="dropdown-trigger btn col s6 " id="datasource-trigger" href="#" data-target="datasource">选择数据源</a>
+
         <ul id="datasource" class="dropdown-content">
         </ul>
         </div>
 
-            <div class="row">
+{#        tabs#}
+        <ul class="tabs" id="createchart_tabs">
+            <li class="tab col s3"><a href="#base">基本</a></li>
+            <li class="tab col s3"><a href="#sort">排序</a></li>
+            <li class="tab col s3 disabled"><a href="#filter">过滤</a></li>
+        </ul>
+
+
+
+
+            <div class="row" id="base">
                 {#   分组 字段选择               #}
-                <div class="col s3">
+                <div class="col s3 input-field">
                     <select id="groupfield" multiple>
                     {% for name,field in columns.items() %}
                     <option value="{{ field }}">{{ name }}</option>
                     {% endfor %}
                     </select>
-                <label>字段</label>
+                <label>按字段分组</label>
                 </div>
 
 {#            聚合字段选择 ,这里将全部字段显示出来#}
-                <div class="col s3">
+                <div class="col s3 input-field">
                     <select id="aggfield" multiple>
                     {% for name,field in columns.items() %}
 
@@ -122,28 +151,27 @@
                     <option value="count_{{ field }}">{{ name }} 计数</option>
                     <option value="sum_{{ field }}">{{ name }} 总和</option>
                     <option value="avg_{{ field }}">{{ name }} 平均值</option>
-
                      </optgroup>
                     {% endfor %}
                     </select>
-                <label>字段</label>
+                <label>统计</label>
                 </div>
 
 {#            数据类型#}
-                <div class="col s3">
-
-                {% raw %}
-                <select id="dataType">
-                    <template v-for="item in dataTypeFields">
-                    <option v-bind:value="item.field">{{ item.name }}</option>
-                        </template>
-                </select>
-                {% endraw %}
-                <label>数据类型</label>
-
-                </div>
+{#                <div class="col s3">#}
+{##}
+{#                {% raw %}#}
+{#                <select id="dataType">#}
+{#                    <template v-for="item in dataTypeFields">#}
+{#                    <option v-bind:value="item.field">{{ item.name }}</option>#}
+{#                        </template>#}
+{#                </select>#}
+{#                {% endraw %}#}
+{#                <label>数据类型</label>#}
+{##}
+{#                </div>#}
 {#                图表类型 #}
-                <div class="col s3">
+                <div class="col s3 input-field">
                 <select id="chartType">
                     {% for key,name in chartTypes.items() %}  <option value="{{ key }}">{{ name }}</option>  {% endfor %}
                 </select>
@@ -154,7 +182,7 @@
             </div>
 
 {#        第二行选择#}
-        <div class="row">
+        <div class="row" id="sort">
 {#            限制多少条 #}
                   <div class="col s3">
 
@@ -171,8 +199,14 @@
 
             <div class="col s3"><select id="order"><option value="desc">高到低</option><option value="asc">低到高</option></select></div>
             <div class="col s3"><label for="limit">Top选项</label><input value="-1" id="limit"/></div>
-            <a class="btn col s3" id="preview" onclick="previewChart();">预览</a>
+
         </div>
+
+
+
+
+
+
 
 
 
@@ -183,17 +217,64 @@
 
         </div>
         <div class="modal-footer">
+            <a class="btn-flat waves-effect" id="preview" onclick="previewChart();">预览</a>
             <a href="#!" class="btn-flat modal-close waves-effect" onclick="createChart();">创建</a>
             <a href="#!" class="btn-flat modal-close">关闭</a>
         </div>
     </div>
+
+
+
+
+
+
+{#    添加文字对话框 #}
+    <div class="modal modal-fixed-footer" id="createtext-modal">
+
+        <div class="modal-content">
+
+            <div class="row">
+                <div class="col s4 input-field"><select id="paragraph"><option value="p">段落</option>
+                <option value="h1">标题一</option>
+                <option value="h2">标题二</option>
+                <option value="h3">标题三</option>
+                <option value="h4">标题四</option>
+                </select><label for="textStyle">文字格式</label></div>
+            </div>
+
+            <div class="input-field col s12">
+                <input id="text" type="text"/>
+                <label for="text">插入文本内容</label>
+            </div>
+
+
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="btn-flat modal-close waves-effect" onclick="createText();">创建</a>
+            <a href="#!" class="btn-flat modal-close">关闭</a>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+</div>
+
 
 {% endblock %}
 
 {% block script %}
 
 
+
     <script type="text/javascript" src="{{ url_for('static',filename='js/echarts.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/china.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='js/Sortable.min.js') }}"></script>
 
     <script src="{{ url_for('static',filename='js/vintage.js') }}"></script>
@@ -201,15 +282,22 @@
     {#  通用工具类  #}
     <script type="text/javascript"  src="{{ url_for('static',filename='js/zs.js') }}"></script>
 
-    <script type="text/javascript"  src="{{ url_for('static',filename='main/report.js') }}"></script>
+    <script type="text/javascript"  src="{{ url_for('static',filename='main/Report.js') }}"></script>
+    <script type="text/javascript"  src="{{ url_for('static',filename='main/Report.css') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='chart/chartEditor.js') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='main/main.js') }}"></script>
+
+
+
+
+
+
     <script type="text/javascript">
 
 {#    侧滑对象#}
      var slide_config;
      var slide_raw;
-     var createchart_modal;
+     var createchart_modal,createtext_modal;
 
      //各个select
      var select_fields;
@@ -219,6 +307,10 @@
 
      //当前的记录id
      var recordid;
+
+    //当前report的id
+    var reportid={{ report.id }};
+
 
 
 {#    初始化侧滑 #}
@@ -253,6 +345,16 @@
 
         //初始化其他
         createchart_modal =  M.Modal.init(document.getElementById('createchart-modal'));
+        createtext_modal = M.Modal.init(document.getElementById('createtext-modal'));
+
+        //创建图表tab
+        M.Tabs.init(document.getElementById('createchart_tabs'));
+
+        //下拉框
+        M.Dropdown.init(document.getElementById('add_menu_trigger'));
+
+
+
 
     });
 
@@ -260,12 +362,6 @@
     //应用点击事件
     $('#apply').click(function () {
         chartEditor.updateChart();
-
-    });
-
-    $('#newchart').click(function(){
-
-            createchart_modal.open();
 
     });
 
@@ -310,7 +406,6 @@
     //选择dataType才会更新orderBy
     function updateOrderBy()
      {
-
      //var select_fields = M.FormSelect.init(document.getElementById('field'));
      //var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
      var  select_chartType = M.FormSelect.init(document.getElementById('chartType'));
@@ -355,7 +450,20 @@
     });
 
 
+
+
+
+
     }
+
+
+    {# 更新提示 ,如 根据xx分组，统计xxx的平均值，结果以xx排序,结果以xx展示 #}
+    function updateTip()
+    {
+
+
+    }
+
     //监听select的变化，更新排序字段，排序字段只能是选择的那几个？？
 
     //分组字段是有顺序的,字段改变
@@ -394,6 +502,8 @@
         updateOrderBy();
 
     });
+
+
     {#$('#createchart-modal select').change(function () {#}
     {#    console.log("select框改变..");#}
     {#    //this是当前这个改变的select#}

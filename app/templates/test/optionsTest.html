@@ -1,14 +1,39 @@
 {% extends 'base.html' %}
 
 {% block container %}
+
+{#    报告容器#}
+    <div id="report"></div>
+
 {% endblock %}
 
 {% block script %}
+{#    报告工具#}
+    <script type="text/javascript" src="{{ url_for('static',filename='js/echarts.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/Sortable.min.js') }}"></script>
+    <script type="text/javascript"  src="{{ url_for('static',filename='main/Report.js') }}"></script>
     <script type="text/javascript">
 
+    var report = new Report('report');
+{#    模板数据预览 #}
         $.get('../../main/options/zs',function (data) {
            console.log(data);
+           if(data.code===0)
+           {
+               var report_data = data.data;
+
+
+               for(var key in report_data)
+               {
+                   console.log('添加:'+key);
+                   report.addElement(report_data[key]);
+               }
+           }
+           else {
+               console.log('加载失败...');
+           }
         });
+
 
     </script>
 {% endblock %}

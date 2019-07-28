@@ -15,6 +15,7 @@ def test(template:str):
     print('获取测试模板:',template)
 
     return render_template('test/'+template)
+# http://127.0.0.1:5000/test/option/zs
 @bp_test.route('/option/<type>')
 def option(type):
     """

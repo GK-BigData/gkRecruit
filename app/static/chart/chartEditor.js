@@ -169,7 +169,15 @@ ChartEditor.prototype.generateConfig=function(container)
 
 ChartEditor.prototype.generateConfigByChartId=function(chartid,container){
 
-            var chart = echarts.getInstanceByDom(document.getElementById(chartid));
+            var d = document.getElementById(chartid);
+
+            if(d===null)
+            {
+                showDialog('错误','生成配置菜单时，找不到对于的div,id为:'+chartid);
+                return;
+            }
+
+            var chart = echarts.getInstanceByDom(d);
 
             console.log("生成图表配置,原配置:");
             console.log(chart.getOption());

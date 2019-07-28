@@ -38,6 +38,12 @@ var chartEditor = new ChartEditor();
 //
 // );
 
+function openChartEdit() {
+    createchart_modal.open();
+}
+function openTextEdit() {
+    createtext_modal.open();
+}
 /*
 请求图表数据的参数
 返回 要提交的参数
@@ -96,7 +102,7 @@ function previewChart()
 {
 
     //初始化图表
-    if(preview_chart===undefined) preview_chart= echarts.init(document.getElementById('preview_chart'));
+   preview_chart= echarts.init(document.getElementById('preview_chart'));
     console.log("创建图表之预览图表");
 
     //设置为黑色
@@ -113,13 +119,28 @@ function previewChart()
         data:params,
         dataType:"json",
         success:function (data,status) {
-
+        //预览表格和图表
         console.log("图表返回结果:");
         console.log(data);
             if(data.code===0) {
 
+                var item = data.data;
+
+                if(item.type==='table')
+                {
+                //    清空原本的
+                    preview_chart.dispose();
+                    $('#preview_chart').empty();
+                    report.createTable(item.rows,$('#preview_chart'))
+
+                }
+                else {
+
                preview_chart.clear();
-                preview_chart.setOption(data.data);
+                preview_chart.setOption(data.data.option);
+                }
+
+
             }
              else
              {
@@ -169,6 +190,29 @@ function createChart()
 
 
 }
+/*
+创建text,暂时只有一个参数
+ */
+
+function createText()
+{
+    var select_style= M.FormSelect.init(document.getElementById('paragraph'));
+
+    var text = $('#text').val();
+    var style = select_style.getSelectedValues()[0];
+    report.addElement({
+        type:'text',
+        paragraph:style,
+        index:0,
+        width:400,
+        height:400,
+        text:text
+    });
+
+
+}
+
+
 //更新侧滑的基本元素 的图表
 function updataBaseOptions()
 {
@@ -181,17 +225,17 @@ function updataBaseOptions()
  */
 function createChartByParams(params)
 {
-     console.log("创建图表，参数:");
+    console.log("创建图表，参数:");
     console.log(params);
     $.post('charts2',params, function (data) {
          if(data.code===0) {
 
                  //将标题作为id
-             var id = data.data.title[0].text.replace(' ','-');
+             var id = data.data.option.title[0].text.replace(' ','-');
              baseOptions.push(
                  {
                      id:id,
-                     option:data.data
+                     data:data.data
                  }
              );
 
@@ -200,7 +244,7 @@ function createChartByParams(params)
             console.log("更新数据后 渲染完成!,开始渲染图表..");
             console.log(data);
              var chart = echarts.init(document.getElementById(id));
-             chart.setOption(data.data);
+             chart.setOption(data.data.option);
 
          });
 
@@ -230,8 +274,6 @@ function selectDataSource(id)
 
     //字段
     recordid = id;
-
-
 
 }
 /*
@@ -287,7 +329,9 @@ function addChart(elementid)
     baseOptions.forEach(function (value,index) {
        if(value.id===elementid)
        {
-            report.addChart(value.option);
+           console.log("找到对应id的option:");
+           console.log(value);
+            report.addElement(value.data);
 
        }
     });
@@ -338,7 +382,7 @@ function loadBaseOption()
             console.log(data.data[key]);
             baseOptions.push({
                 id:key,
-                option:data.data[key]
+                data:data.data[key]
             });
         }
               // vue 监听渲染完成还有，更新对应的图表
@@ -346,9 +390,12 @@ function loadBaseOption()
          for(var i = 0;i<baseOptions.length;i+=1) {
              console.log('初始化侧话图表:'+key);
              var chart = echarts.init(document.getElementById(baseOptions[i].id));
-             chart.setOption(baseOptions[i].option);
+             chart.setOption(baseOptions[i].data.option);
          }
          });
+
+
+        loadPreData();
 
     });
 
@@ -360,13 +407,47 @@ function loadBaseOption()
 
 
 }
+function loadPreData()
+{
+    Zs.prototype.display('#saveprogress');
+    $.get('../report/reports/'+reportid,function(data){
+        console.log('加载报告数据');
+        console.log(data.data.data);
+        var jsonData = JSON.parse(data.data.data);
+        jsonData.forEach(function (item) {
+            report.addElement(item);
+        });
+        Zs.prototype.hide('#saveprogress');
+    });
+
+}
+//保存报告
+function saveReport()
+{
+    Zs.prototype.disable('#saveprogress');
 
 
-//所有模板的options,侧滑那边的
+    var temp = report.generateJSON();
+    console.log('保存报告,数据');
+    console.log(temp);
+
+    $.post('../report/reports',{
+        id:reportid,
+        data:JSON.stringify(temp)
+    },function(data){
+
+        Zs.prototype.hide('#saveprogress');
+        showJsonResult(data);
+    });
+
+}
+
+//所有模板的options,侧滑那边的,结构为ReportItem结构
 var baseOptions = [];
 
 
 var report = new Report("report");
+//echarts.registerMap('china');
 console.log("初始化..");
 console.log(report);
 
@@ -383,5 +464,8 @@ loadDataSource();
             options:baseOptions
         }
     });
+
 loadBaseOption();
 //选择数据源后的可选字段,现在是招生的，暂时不会有变化，如果有其他数据，要动态切换，先保留
+
+//一开始加载之前的图表数据

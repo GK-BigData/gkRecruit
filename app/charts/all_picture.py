@@ -143,7 +143,7 @@ class All_Picture():
         return p
 
     # 广东地图
-    def guangdong_map_picture(self, x_data, y_data):
+    def guangdong_map_picture(self,  x_data, y_data):
         g = (
             Map(init_opts=self.init_opts)
                 .add("标示，修改这里", [list(z) for z in zip(x_data, y_data)], "广东")
@@ -160,12 +160,12 @@ class All_Picture():
         return g
 
     # 中国地图
-    def china_map_picture(self, x_data, y_data):
+    def china_map_picture(self,seriesname:list,  x_data, y_data):
         print(x_data)
         print(y_data)
         c = (
             Map(init_opts=self.init_opts)
-                .add("地理:人数", [list(z) for z in zip(x_data, y_data)], "china")
+                .add(seriesname[0], [list(z) for z in zip(x_data, y_data)], "china")
                 .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
                                  # 分段类型
                                  visualmap_opts=opts.VisualMapOpts(max_=200)

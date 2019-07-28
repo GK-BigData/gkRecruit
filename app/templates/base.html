@@ -21,18 +21,19 @@
 </head>
 <body>
 
-    <div class="container" >
    {#上面的导航#}
+   {#    通用导航 头#}
     <nav>
-    <div class="nav-wrapper" >
+    <div class="nav-wrapper teal" >
         {#   Logo      #}
         <a href="#" class="brand-logo left" >Logo</a>
+        <a href="#" class="brand-logo center" >{% block navtitle %}{% endblock %}</a>
 {#        <ul class="left hide-on-med-and-down">#}
 {#            <li></li>#}
 {#            <li><a>首页</a></li>#}
 {#        </ul>#}
         <ul class="right hide-on-med-and-down">
-            <li><a>其他</a></li>
+{#            <li><a>其他</a></li>#}
 {#        导航菜单，子页面需要继承添加自定义的项的话#}
             {% block navmenu %}
 {#                自定义的选项 #}
@@ -42,9 +43,12 @@
     </nav>
 
 
+{#    对于不想70%居中的，就重写body段#}
+   {% block body %}
+   {% endblock %}
+    <div class="container" >
 
 
-{#    通用导航 头#}
 
         {% block container %}
 

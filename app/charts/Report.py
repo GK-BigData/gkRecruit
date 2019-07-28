@@ -3,9 +3,10 @@
 # Project :zs
 # Time  :2019/7/25 上午9:28 
 # 单个元素
+paramKeys = ['chartType', 'groupfield', 'aggfield', 'orderBy', 'filter', 'limit', 'dataType']
 class ReportItem(object):
 
-    def __init__(self,type,index,width,height,recordid,groupfield='',aggfield='',orderBy='null',limit='-1',filter='null',chartType='',option='',dataType='',text=''):
+    def __init__(self,type,index,width,height,recordid,groupfield='',aggfield='',orderBy='null',limit='-1',filter='null',chartType='',option='',dataType='',text='',rows=None):
         """
 
         :param type: 元素类型,chart,text,table
@@ -22,6 +23,7 @@ class ReportItem(object):
         :param option: echarts option
         :param dataType: 数据类型
         :param text: 文字的text
+        :param rows: 表格数据
         """
         self.type=type
         self.index=index
@@ -37,6 +39,7 @@ class ReportItem(object):
         self.option = option
         self.dataType=dataType
         self.text=text
+        self.rows=rows
         pass
     def to_dict(self):
         return {
@@ -66,6 +69,7 @@ class ReportItem(object):
             'dataType': self.dataType,
             # 文字配置
             'text': self.text,
+            'rows':self.rows
             # 表格配置
         }
 

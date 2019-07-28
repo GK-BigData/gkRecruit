@@ -17,6 +17,8 @@ class Report(db.Model):
     title=db.Column(db.String(45))
     #报告生成的时间
     time = db.Column(db.DateTime(),nullable=False)
+    # 报告数据 
+    data = db.Column(db.JSON())
 
     # report表和zs表外键关联,这里的report 代表这一年的所有zs 数据
     # report = db.relationship('zs', backref='record', lazy='dynamic', foreign_keys='zs.recordid')

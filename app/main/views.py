@@ -10,6 +10,7 @@ from app.charts.all_picture import All_Picture
 from app.common.restful import rjson
 import json
 from app.main.models import zs
+from app.report.models import Report
 from app import db
 import sqlalchemy.sql.functions as func
 from sqlalchemy.sql.expression import *
@@ -18,6 +19,8 @@ import  sqlalchemy.sql.sqltypes   as sqltype
 
 from app.common.mycolumns import needcolumns_fields, needcolumns_name
 from . import bp_main
+
+from app.charts.Report import ReportItem
 
 need_columns = {}
 for i in range(0, len(needcolumns_name)):
@@ -41,12 +44,16 @@ allcharts = ["各学院男女人数占比雷达图",
 
 
 dataTypes={'count':'计数','count2':'两个字段分组计算'}
-chartTypes={'bar':'柱状图','pie':'饼图','rose':'玫瑰图','stackbar':'堆叠柱状图'}
+chartTypes={'bar':'柱状图','pie':'饼图','rose':'玫瑰图','stackbar':'堆叠柱状图','table':'表格','china_map':'中国地图'}
 
-@bp_main.route("/")
-def index():
+# 需要传入报告id
+@bp_main.route("/<reportid>")
+def index(reportid):
 
-    return render_template('main/main.html',columns = need_columns,dataTypes=dataTypes,chartTypes=chartTypes)
+    # 查询报告记录
+    report = Report.query.filter(Report.id==reportid).first_or_404()
+
+    return render_template('main/main.html',columns = need_columns,dataTypes=dataTypes,chartTypes=chartTypes,report=report)
 
 
 @bp_main.route("/charts")
@@ -219,7 +226,6 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     entities=[]
     # 分组字段直接用列名
     for group in groupfield:
-
         # 检查分组类型,限制最多分组2次
         field_type_param = group.split('-',2)
         print('分组字段：')
@@ -264,8 +270,8 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
             entities.append(func.sum(column(aggtype_field[1])).label(agg)  )
         if aggtype_field[0]=='avg':
             entities.append(func.avg(column(aggtype_field[1])).cast(sqltype.Float).label(agg) )
-    print('处理完聚合函数后',query,entities)
     # 选择,with_entites是变长参数，这里解包列表进去
+
     query = query.with_entities(*entities)
     print('处理完聚合函数后2', query)
     #-------------------group by 分组字段处理 ----------------,普通分组和整数分段分组
@@ -313,19 +319,26 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     #     elif col_1 == '':
     #         pass
     print(query)
-    return query
+    return {
+        'sql':query,
+        'entities':list(map(lambda x:x.name, entities))
+    }
 
-def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str,  filter:str,orderby='', limit=-1):
+def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', aggfield:str= '', filter:str= '', orderBy='', limit=-1):
 
     print('数据类型:',dataType)
     if dataType=='group':
         groupfield = groupfield.split(",")
         aggfield = aggfield.split(",")
-        #处理fields
-        sql = get_sql(query, charttype, groupfield, aggfield)
+        #返回sql和选择的字段
+        sql_entites = get_sql(query, chartType, groupfield, aggfield)
         # 元组表示错误
-        if type(sql) == tuple:
-            return sql
+        if type(sql_entites) == tuple:
+            return sql_entites
+        sql = sql_entites['sql']
+        entities = sql_entites['entities']
+
+        print(sql_entites)
         if filter!='null':
             filter = filter.split(',')
             # --------------处理过滤----------
@@ -347,8 +360,8 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
                 if field_op_value[1] == 'like':
                     sql = sql.filter(column(field_op_value[0]).like('%'+field_op_value[2]))
 
-        if orderby != 'null':
-            field_order = orderby.split('-')
+        if orderBy != 'null':
+            field_order = orderBy.split('-')
             col = column(field_order[0])
             # 降序
             if field_order[1] == 'desc':
@@ -360,10 +373,12 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
             sql = sql.order_by(col)
 
 
+        try:
 
-        if int(limit) != -1:
-            sql = sql.limit(int(limit))
-
+            if int(limit) != -1:
+                sql = sql.limit(int(limit))
+        except Exception as e:
+            print('limit 异常:',limit)
         print("请求sql:", sql)
 
 
@@ -376,7 +391,15 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
         pass
 
 
-    title = ','.join(groupfield)+'-'+'-'+charttype
+    print('图表类型:',chartType)
+    # 表格的直接返回dataset
+    if chartType=='table':
+        print(dataset)
+        dataset.insert(0,tuple(entities))
+        print(dataset)
+        return dataset
+
+    title = ','.join(groupfield) +'-' +'-' + chartType
     select = All_Picture(groupfield, title, '', '', '地区名称')  # 设置标题等
 
     x = []
@@ -413,7 +436,12 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
             series_name = [groupfield[0]]
         for item in dataset:
             x[0].append(item[0])
+            # # y这些聚合的可能有几种，如一个平均，一个总和
+            # for i in range(1,len(item)):
+            #     y[0].append(item[i])
             y[0].append(item[1])
+
+
     #两个分组
     else:
         x.append([])
@@ -429,7 +457,6 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
                 x[0].append(item[1])
                 y[index].append(0)
             xindex = x[0].index(item[1])
-            print(y,index,xindex)
             y[index][xindex] = item[2]
 
         # 填充系列长度到x轴的长度
@@ -481,7 +508,7 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
 
 
     #饼图
-    if charttype == 'pie':
+    if chartType == 'pie':
         '''
             男女比例
             学年制比例      
@@ -490,7 +517,7 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
 
 
     #玫瑰图
-    elif charttype=='rose':
+    elif chartType== 'rose':
         '''
             政治面貌比例
         '''
@@ -499,7 +526,7 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
 
     #柱状图
 
-    elif charttype == 'bar':
+    elif chartType == 'bar':
         '''
             院系招生人数TOP10
             专业招生人数TOP10
@@ -510,27 +537,28 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
         # 只要一个x轴
         return select.bar_picture(series_name, x[0], y,stack=False)
     # 堆叠柱状图
-    elif charttype == 'stackbar':
+    elif chartType == 'stackbar':
         return select.bar_picture(series_name, x[0], y, stack=True)
     #条形图
-    elif charttype == 'pictorialbar':
+    elif chartType == 'pictorialbar':
         '''
             全校各学院人数占比
         '''
         return select.pictorialbar_base(x,y)
 
 
+
     #地图
-    elif charttype == 'china_map':
+    elif chartType == 'china_map':
         '''
             全国各地区人数比例
             
         '''
-        return select.china_map_picture(x,y)
+        return select.china_map_picture(series_name, x,y)
 
 
     #雷达图
-    elif charttype == 'radar':
+    elif chartType == 'radar':
         '''
             各院系男女人数、比例
             各院系文理科人数、比例
@@ -541,7 +569,7 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
         return select.radar_picture(series_name, y, x)
 
     #漏斗图
-    elif charttype=='funnel':
+    elif chartType== 'funnel':
         '''
             全校广东学生文理科分数区间人数 -- 使用datatype == 'sql'
             
@@ -549,7 +577,7 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
         return select.funnel_sort_ascending(x_data=x[0], y_data=y[0])
 
     #表格
-    elif charttype=='table':
+    elif chartType== 'table':
         '''
             广东省各地区男女生比例  count2,两个group by。 
             广东省各地区文理科比例
@@ -560,7 +588,7 @@ def drawChart(query, charttype: str, dataType:str,groupfield: str,aggfield:str, 
 
 
     #HTML返回总人数
-    elif charttype=='html':
+    elif chartType== 'html':
         pass
 
 
@@ -602,13 +630,47 @@ def charts2():
 
 
     sql = zs.query.filter(zs.recordid == recordid)
-    result = drawChart(sql, charttype,'group', groupfield,aggfield,filter, orderBy,limit)
+
+
+    result = drawChart(sql, charttype, 'group', groupfield, aggfield, filter, orderBy, limit)
+
     # 如果返回的是元组，则表示返回的是错误信息
-    if type(result)==tuple:
-        return rjson(result[0],result[1])
+    if type(result) == tuple:
+        return rjson(result[0], result[1])
     if result==None:
         return rjson("返回null", 1)
-    result_dict = json.loads(result.dump_options())
+
+    # 如果是画图
+    if charttype!='table':
+
+        # option装字典
+        result_dict = json.loads(result.dump_options())
+        params = {}
+        for key in ['chartType', 'groupfield', 'aggfield', 'orderBy', 'filter', 'limit', 'dataType']:
+            if key in request.form:
+                params[key] = request.form[key]
+        # 要返回报告的数据结构
+        item = ReportItem('chart', 0, 400, 400, 1, **params)
+        # 设置生成的option
+        item.option = result_dict
+
+        pass
+    elif charttype=='table':
+        # 直接是返回dataset
+        print('表格类型:')
+        print(result)
+        params = {}
+        for key in ['chartType', 'groupfield', 'aggfield', 'orderBy', 'filter', 'limit', 'dataType']:
+            if key in request.form:
+                params[key] = request.form[key]
+        # 要返回报告的数据结构
+        item = ReportItem('table', 0, 400, 400, 1, **params)
+        # 设置生成的option
+        item.rows = result
+
+        pass
+
+
 
 
     # x=[]
@@ -629,7 +691,7 @@ def charts2():
     #
     # print(test)
     # print(dir(test))
-    return rjson(result_dict, 0)
+    return rjson(item.to_dict(), 0)
 
 from app.charts.zscharts import zschart
 
@@ -637,11 +699,10 @@ from app.charts.zscharts import zschart
 @bp_main.route('/options/<type>')
 def options(type):
 
-
     # 招生数据
     if type=='zs':
         sql = zs.query.filter(zs.recordid==1)
-        chart = zschart(sql)
+        chart = zschart(sql,1)
         options = chart.options()
         # chart1 = drawChart(sql, 'bar', 'group', 'sex_name,departments', 'count_total_score_of_filing', 'null',
         #                    'null', -1)

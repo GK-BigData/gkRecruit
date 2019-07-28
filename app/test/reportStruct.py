@@ -36,6 +36,10 @@ report = [
         'text':'',
         # 表格配置
 
+    },
+    {
+'type':'chart',
+        text:ff
     }
 
 ]
