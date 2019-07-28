@@ -46,8 +46,6 @@ class zschart():
         self.charts['各学院男女人数，男女比例']= json.loads( self.chart1())
 
 
-
-
         return self.charts
 
 
