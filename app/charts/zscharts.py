@@ -14,7 +14,7 @@ from app.main.views import drawChart
 from app.charts.Report import ReportItem
 # 加载招生数据的默认图表
 '''
- 招生所有 图表
+ 招生报告模板
     
 
  '''
@@ -35,31 +35,28 @@ class zschart():
 
     def chart1(self):
         data = {
-                'chartType':'bar',
+                'chartType':'table',
                 'groupfield':'sex_name,departments',
                 'aggfield':'count_total_score_of_filing',
                 'orderBy':'null',
                 'filter':'null',
                 'limit':-1,
                 'dataType':'group'}
-        item = ReportItem('chart',0,400,400,self.recordid,**data)
+        item = ReportItem('table',0,400,400,self.recordid,**data)
 
         chart1 = drawChart(self.query,**data)
-        option = json.loads( chart1.dump_options())
-
-        item.option=option
+        # option = json.loads( chart1.dump_options())
+        # item.option=option
+        item.rows=chart1
         return item.to_dict()
+
 
     # 获取所有options
     def options(self):
         # 基本情况
 
-
         # 测试，各学院男女人数和男女比例,返回完整结构
         self.charts['各学院男女人数，男女比例']= self.chart1()
-
-
-
 
         return self.charts
 

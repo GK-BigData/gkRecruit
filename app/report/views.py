@@ -30,3 +30,37 @@ def data():
         result.append({'title':item.title,'id':item.id,'time':item.time})
 
     return rjson(result,0)
+
+# 获取所有报告
+@report_admin.route('/reports',methods=['GET'])
+def reports():
+    pass
+#获取单个报告
+@report_admin.route('/reports/<id>')
+def get_reports(id):
+    report = Report.query.filter(Report.id == id).first_or_404()
+    return rjson({
+        'id':report.id,
+        'data':report.data
+    })
+
+# 更新或者添加报告
+@report_admin.route('/reports',methods=['POST'])
+def update_report():
+
+
+    # 报告id
+    id = request.form['id']
+    data = request.form['data']
+
+    print('更新报告,id:', id)
+
+    report = Report.query.filter(Report.id==id).first_or_404()
+
+    report.data = data
+
+    db.session.add(report)
+    db.session.commit()
+
+
+    return rjson('更新数据成功',1)
