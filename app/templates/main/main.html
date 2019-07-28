@@ -60,14 +60,18 @@
 </div>
 </div>
 
+{#前面准备用于固定显示左边侧滑，将界面分成3:9的比例用#}
 <div class="col s9">
 {# 右边的配置界面 #}
 {#    #}
+
+
+{#    应用修改按钮#}
     <a href="#!"  id='apply' class="btn waves-block hide" style="z-index: 99999;position:fixed;top:0;right: 0;" >应用</a>
+
+
     <div class="sidenav" id="slide-config">
     <h4>图表配置</h4>
-
-
 
     <div class="row ">
         <div class="input-field col">
@@ -75,10 +79,14 @@
         </div>
     </div>
 
-    {#        图表配置 选项 #}
+    {#        图表配置 ，分为常规和高级 选项 #}
+
     <div id="container"></div>
 
     </div>
+
+
+
 
 
 
@@ -218,7 +226,7 @@
         </div>
         <div class="modal-footer">
             <a class="btn-flat waves-effect" id="preview" onclick="previewChart();">预览</a>
-            <a href="#!" class="btn-flat modal-close waves-effect" onclick="createChart();">创建</a>
+            <a href="#!" class="btn-flat modal-close waves-effect" onclick="createChartOrTable();">创建</a>
             <a href="#!" class="btn-flat modal-close">关闭</a>
         </div>
     </div>
