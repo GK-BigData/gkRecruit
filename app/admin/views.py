@@ -85,6 +85,11 @@ def caculateFields(need_columns:dict,inputcolumns:dict)->list:
         if col in inputcolumns.keys():
             result.append(col)
         else:
+
+            # 招生字段推测
+
+            # if col=='民族'
+
             result.append( '')
     return result
 

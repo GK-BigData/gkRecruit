@@ -102,7 +102,9 @@ class All_Picture():
                      radius=["30%", "75%"],
                      center=["25%", "50%"],
                      rosetype="radius",
-                     label_opts=opts.LabelOpts(is_show=False),
+
+                     label_opts=opts.LabelOpts(
+                         is_show=False),
                      )
                 .add(
                 "女",
@@ -132,10 +134,12 @@ class All_Picture():
             Pie(init_opts=self.init_opts)
                 .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
                                  # 添加logo
-                                 graphic_opts=self.logo
+                                 graphic_opts=self.logo,
+                                 legend_opts=opts.LegendOpts(type_='scroll'),
                                  )
                 .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
         )
+
         # 传进来的,x,y都是列表的列表，每个是一个series
         for series_name ,item_x , item_y in zip(series_names, x,y):
             print('add series:',series_name)

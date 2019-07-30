@@ -49,13 +49,55 @@ class zschart():
         # item.option=option
         item.rows=chart1
         return item.to_dict()
+    def chart2(self):
+        data = {
+            'chartType':'pie',
+            'aggfield': 'count_student_name',
+            'groupfield': 'student_type',
+            'orderBy': 'null',
+            'filter': 'null',
+            'limit': -1,
+            'dataType':'group'
+        }
+        item = ReportItem('chart',0,400,400,self.recordid,**data)
+        chart2 = drawChart(self.query,**data)
+        option = json.loads(chart2.dump_options())
 
+        item.option=option
+
+        return item.to_dict()
+
+    def chart(self,data,title=None):
+        item = ReportItem('chart', 0, 400, 400, self.recordid, **data)
+        chart2 = drawChart(self.query, **data,title=title)
+        option = json.loads(chart2.dump_options())
+
+        item.option = option
+
+        return item.to_dict()
 
     # 获取所有options
     def options(self):
         # 基本情况
+        '''
+        1.全校招生总人数，报到率。分男女生比例，人数，报到率；分文、理科生比例、人数、报到率
+        全校男女比例的人数 报到率 饼图
+        全校文科理科的人数 报到率 饼图
 
+        :return:
+        '''
         # 测试，各学院男女人数和男女比例,返回完整结构
+        self.charts['男女比例'] = self.chart({
+            'chartType':'pie',
+            'aggfield': 'count_student_name',
+            'groupfield': 'sex_name',
+            'orderBy': 'null',
+            'filter': 'null',
+            'limit': -1,
+            'dataType':'group'
+        },title='男女比例')
+
+        self.charts['文科理科比例']=self.chart2()
         self.charts['各学院男女人数，男女比例']= self.chart1()
 
         return self.charts

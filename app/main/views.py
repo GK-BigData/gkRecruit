@@ -324,7 +324,7 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
         'entities':list(map(lambda x:x.name, entities))
     }
 
-def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', aggfield:str= '', filter:str= '', orderBy='', limit=-1):
+def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', aggfield:str= '', filter:str= '', orderBy='', limit=-1,title='None'):
 
     print('数据类型:',dataType)
     if dataType=='group':
@@ -398,8 +398,9 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
         dataset.insert(0,tuple(entities))
         print(dataset)
         return dataset
-
-    title = ','.join(groupfield) +'-' +'-' + chartType
+    # 不提供标题就默认
+    if title==None:
+        title = ','.join(groupfield) +'-' +'-' + chartType
     select = All_Picture(groupfield, title, '', '', '地区名称')  # 设置标题等
 
     x = []
