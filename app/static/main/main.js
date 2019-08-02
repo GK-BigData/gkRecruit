@@ -427,6 +427,7 @@ function editChart(elementid)
 
 
 
+
     $('#createChart').attr('onclick','createChartOrTable("'+elementid+'")');
     createchart_modal.open();
 }
@@ -516,7 +517,8 @@ function loadPreData()
 //保存报告
 function saveReport()
 {
-    Zs.prototype.disable('#saveprogress');
+    Zs.prototype.display('#saveprogress');
+    Zs.prototype.disable('#save');
 
 
     var temp = report.generateJSON();
@@ -529,6 +531,8 @@ function saveReport()
     },function(data){
 
         Zs.prototype.hide('#saveprogress');
+        Zs.prototype.enable('#save');
+
         showJsonResult(data);
     });
 

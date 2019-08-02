@@ -57,3 +57,15 @@ xx.label(列名)
 
 order_by
 
+- contains
+
+  最后转换为like函数..
+
+  ```mysql
+   SELECT sex_name, count(student_name) AS count_student_name 
+  FROM zs 
+  WHERE zs.recordid = %(recordid_1)s AND (source_provinces LIKE concat(concat('%%', %(source_provinces_1)s), '%%')) GROUP BY sex_name
+  
+  ```
+
+  

@@ -35,7 +35,7 @@ class All_Picture():
             )
         ]
 
-    def bar_picture(self, series_names, bar_xdata, bar_ydatas,stack=False):
+    def bar_picture(self, series_names, bar_xdata, bar_ydatas,stack=False,reverse=False):
         print('饼图,数组:')
         print(bar_xdata)
         b = (
@@ -66,7 +66,8 @@ class All_Picture():
                 b.add_yaxis(name,ydata,stack=self.fields[-1])
             else:
                 b.add_yaxis(name, ydata)
-        print(b)
+        if reverse:
+            b.reversal_axis()
         return b
 
     def rose_picture(self,series_names, rose_xdata, rose_ydatas):
@@ -132,18 +133,19 @@ class All_Picture():
         print(y)
         p = (
             Pie(init_opts=self.init_opts)
-                .set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
-                                 # 添加logo
-                                 graphic_opts=self.logo,
-                                 legend_opts=opts.LegendOpts(type_='scroll'),
-                                 )
-                .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
+
         )
 
         # 传进来的,x,y都是列表的列表，每个是一个series
         for series_name ,item_x , item_y in zip(series_names, x,y):
             print('add series:',series_name)
             p.add(series_name, [list(z) for z in zip(item_x, item_y)])
+            p.set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+                             # 添加logo
+                             graphic_opts=self.logo,
+                             legend_opts=opts.LegendOpts(type_='scroll'),
+                             )
+        p.set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
         return p
 
     # 广东地图

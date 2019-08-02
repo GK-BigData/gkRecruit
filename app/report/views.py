@@ -11,6 +11,7 @@ from xpinyin import Pinyin
 from . import report_admin,need_columns,needcolumns_fields
 from app.report.models import Report
 from app.common.restful import rjson
+import time
 # 主界面，显示所有记录的界面
 @report_admin.route("/")
 def index():
@@ -38,6 +39,7 @@ def reports():
 #获取单个报告
 @report_admin.route('/reports/<id>')
 def get_reports(id):
+    time.sleep(5)
     report = Report.query.filter(Report.id == id).first_or_404()
     return rjson({
         'id':report.id,
@@ -48,6 +50,7 @@ def get_reports(id):
 @report_admin.route('/reports',methods=['POST'])
 def update_report():
 
+    time.sleep(10)
 
     # 报告id
     id = request.form['id']

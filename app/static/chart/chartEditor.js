@@ -84,7 +84,7 @@ ChartEditor.prototype.updateOption=  function (options)
 
         });
        // 根据id生成如 options['xx']['yy']=zzz这样的
-        options["textStyle"]["fontSize"]=22;
+      //  options["textStyle"]["fontSize"]=22;
         return options;
 
 
@@ -112,7 +112,7 @@ ChartEditor.prototype.optionMenu=function(option,parentDom,parentkey,level){
 
              var id=parentkey+'-'+key;
 
-             console.log("id:"+id);
+             // console.log("id:"+id);
 
              var li = document.createElement('li');
 

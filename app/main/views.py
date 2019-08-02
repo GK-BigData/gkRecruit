@@ -18,7 +18,7 @@ from sqlalchemy.sql.expression import *
 import  sqlalchemy.sql.sqltypes   as sqltype
 
 from app.common.mycolumns import needcolumns_fields, needcolumns_name
-from . import bp_main
+from . import bp_main,logger
 
 from app.charts.Report import ReportItem
 
@@ -42,9 +42,10 @@ allcharts = ["各学院男女人数占比雷达图",
              "学年制",
              ]
 
+# 聚合类型
+aggType={'count':'计数','sum':'总和','avg':'平均值'}
 
-dataTypes={'count':'计数','count2':'两个字段分组计算'}
-chartTypes={'bar':'柱状图','pie':'饼图','rose':'玫瑰图','stackbar':'堆叠柱状图','table':'表格','china_map':'中国地图'}
+chartTypes={'bar':'柱状图','horizontal_bar':'水平柱状图','pie':'饼图','rose':'玫瑰图','stackbar':'堆叠柱状图','horizontal_stackbar':'水平堆叠柱状图','table':'表格','china_map':'中国地图'}
 
 # 需要传入报告id
 @bp_main.route("/<reportid>")
@@ -53,7 +54,7 @@ def index(reportid):
     # 查询报告记录
     report = Report.query.filter(Report.id==reportid).first_or_404()
 
-    return render_template('main/main.html',columns = need_columns,dataTypes=dataTypes,chartTypes=chartTypes,report=report)
+    return render_template('main/main.html',columns = need_columns,chartTypes=chartTypes,report=report)
 
 
 @bp_main.route("/charts")
@@ -232,7 +233,7 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
         print(field_type_param)
         # 普通分组
         if len(field_type_param) == 1:
-            entities.append(column(group))
+            entities.append(column(group.strip()))
         else:
             #         判断分组类型,
             if field_type_param[0] == 'interval':
@@ -265,11 +266,11 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
         print("处理聚合函数:")
         print(aggtype_field)
         if aggtype_field[0]=='count':
-            entities.append(func.count(column(aggtype_field[1])).label(agg)  )
+            entities.append(func.count(column(aggtype_field[1].strip())).label(agg)  )
         if aggtype_field[0]=='sum':
-            entities.append(func.sum(column(aggtype_field[1])).label(agg)  )
+            entities.append(func.sum(column(aggtype_field[1].strip())).cast(sqltype.Float).label(agg)  )
         if aggtype_field[0]=='avg':
-            entities.append(func.avg(column(aggtype_field[1])).cast(sqltype.Float).label(agg) )
+            entities.append(func.avg(column(aggtype_field[1].strip())).cast(sqltype.Float).label(agg) )
     # 选择,with_entites是变长参数，这里解包列表进去
 
     query = query.with_entities(*entities)
@@ -279,7 +280,7 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     group_columns = []
 
     for group in groupfield:
-        group_columns.append(column(group))
+        group_columns.append(column(group.strip()))
 
 
 
@@ -324,12 +325,41 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
         'entities':list(map(lambda x:x.name, entities))
     }
 
-def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', aggfield:str= '', filter:str= '', orderBy='', limit=-1,title='None'):
+def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', aggfield:str= '', filter:str= '', orderBy='', limit=-1,title=None,sql=None):
 
     print('数据类型:',dataType)
+
+
+
+    groupfield_name = []
+    aggfield_name = []
+
+    dataset = None
     if dataType=='group':
         groupfield = groupfield.split(",")
         aggfield = aggfield.split(",")
+
+        # 将分组字段和聚合字段转换为中文，如果可以的话
+        for group in groupfield:
+            if group in field_name.keys():
+                groupfield_name.append(field_name[group])
+            else:
+                groupfield_name.append(group)
+        for agg in aggfield:
+            type_field = agg.split('_',1)
+            aggname = ''
+            if type_field[0] in aggType:
+                aggname+=aggType[type_field[0]]
+            else:
+                aggname += type_field[0]
+
+            if type_field[1] in field_name.keys():
+                aggname+=field_name[type_field[1]]
+            else:
+                aggname += type_field[1]
+            aggfield_name.append( aggname)
+
+
         #返回sql和选择的字段
         sql_entites = get_sql(query, chartType, groupfield, aggfield)
         # 元组表示错误
@@ -359,6 +389,9 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
                     sql = sql.filter(column(field_op_value[0]).cast(sqltype.Integer) != int(field_op_value[2]))
                 if field_op_value[1] == 'like':
                     sql = sql.filter(column(field_op_value[0]).like('%'+field_op_value[2]))
+                if field_op_value[1] == 'contains':
+                    sql = sql.filter(column(field_op_value[0]).contains('%' + field_op_value[2]))
+
 
         if orderBy != 'null':
             field_order = orderBy.split('-')
@@ -385,8 +418,8 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
 
         dataset = sql.all()
     #     不是分组，默认为sql语句
-    else:
-        result = db.session.execute()
+    elif dataType=='sql':
+        result = db.session.execute(sql)
         dataset = result.fetchall()
         pass
 
@@ -398,9 +431,12 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
         dataset.insert(0,tuple(entities))
         print(dataset)
         return dataset
-    # 不提供标题就默认
+
+
+    # 不提供标题就根据字段生成默认标题
     if title==None:
-        title = ','.join(groupfield) +'-' +'-' + chartType
+        # 需要转换为中文
+        title =   '按%s 分组,%s'%(''.join(groupfield_name),''.join(aggfield_name))
     select = All_Picture(groupfield, title, '', '', '地区名称')  # 设置标题等
 
     x = []
@@ -417,9 +453,13 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
     '''
     # 获取sql
 
+    if dataset==None:
+        logger.warning('dataset 数据集是None,图表类型:%s,数据类型:%s,标题:%s',chartType,dataType,title)
+        raise Exception('dataset 数据集是None,图表类型:%s,数据类型:%s,标题:%s'%(chartType,dataType,title))
 
 
-
+    logger.debug('获取图表%s,sql结果:'%title)
+    logger.debug(dataset)
 
     if len(groupfield)==1:
         # count最后只有一个series,先初始化
@@ -540,6 +580,11 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
     # 堆叠柱状图
     elif chartType == 'stackbar':
         return select.bar_picture(series_name, x[0], y, stack=True)
+    elif chartType=='horizontal_bar':
+        return select.bar_picture(series_name, x[0], y, stack=False,reverse=True)
+
+    elif chartType=='horizontal_stackbar':
+        return select.bar_picture(series_name, x[0], y, stack=True,reverse=True)
     #条形图
     elif chartType == 'pictorialbar':
         '''
@@ -628,8 +673,8 @@ def charts2():
     orderBy = request.form['orderBy']
     limit = request.form['limit']
 
-
-
+    logger.debug(dir(request.form))
+    logger.debug('charts2 参数:%s'%request.form.to_dict())
     sql = zs.query.filter(zs.recordid == recordid)
 
 
@@ -700,6 +745,7 @@ from app.charts.zscharts import zschart
 @bp_main.route('/options/<type>')
 def options(type):
 
+    logger.debug('获取内置options,类型:%s'%type)
     # 招生数据
     if type=='zs':
         sql = zs.query.filter(zs.recordid==1)
@@ -707,6 +753,5 @@ def options(type):
         options = chart.options()
         # chart1 = drawChart(sql, 'bar', 'group', 'sex_name,departments', 'count_total_score_of_filing', 'null',
         #                    'null', -1)
-        print("返回option",options)
-        print(options)
+        # print("返回option",options)
         return rjson(options,0)
