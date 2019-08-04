@@ -12,7 +12,7 @@ from app.main.views import drawChart
 
 from app.charts.Report import ReportItem
 import logging
-
+from app import db
 logger = logging.getLogger('main.zscharts')
 # 加载招生数据的默认图表
 '''
@@ -63,6 +63,7 @@ class zschart():
             'dataType': 'group'
         }
         item = ReportItem('chart', 0, 400, 400, self.recordid, **data)
+
         chart2 = drawChart(self.query, **data)
         option = json.loads(chart2.dump_options())
 
@@ -73,6 +74,7 @@ class zschart():
     def chart(self,  data,type='chart', title=None):
         item = ReportItem(type, 0, 400, 400, self.recordid, **data)
         try:
+
             chart2 = drawChart(self.query, **data, title=title)
         except Exception as e:
             logger.error('zs画图失败,标题:%s' % title)

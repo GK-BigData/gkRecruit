@@ -11,7 +11,7 @@
         {% if record.status=='未导入数据' %}
      <td><a href="!#" onclick="action_import('{{ record.id }}')">未导入数据,点击导入</a></td>
             {% else %}
-    <td>aa{{record.status }}</td>
+    <td>{{record.status }}</td>
         {% endif %}
     <td>
         <a class="dropdown-trigger btn" data-target="action{{ record.id }}">操作</a>

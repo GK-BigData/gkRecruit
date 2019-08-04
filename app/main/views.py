@@ -10,7 +10,7 @@ from app.charts.all_picture import All_Picture
 from app.common.restful import rjson
 import json
 from app.main.models import zs
-from app.report.models import Report
+
 from app import db
 import sqlalchemy.sql.functions as func
 from sqlalchemy.sql.expression import *
@@ -50,10 +50,10 @@ chartTypes={'bar':'柱状图','horizontal_bar':'水平柱状图','pie':'饼图',
 # 需要传入报告id
 @bp_main.route("/<reportid>")
 def index(reportid):
-
+    # report要引用到这个views的drawChart方法,如果在上面引用，report里又用到drawChart，就会找不到
+    from app.report.models import Report
     # 查询报告记录
     report = Report.query.filter(Report.id==reportid).first_or_404()
-
     return render_template('main/main.html',columns = need_columns,chartTypes=chartTypes,report=report)
 
 
@@ -755,3 +755,11 @@ def options(type):
         #                    'null', -1)
         # print("返回option",options)
         return rjson(options,0)
+
+# 导出报告
+@bp_main.route('/export')
+def export(id):
+
+    
+
+    pass

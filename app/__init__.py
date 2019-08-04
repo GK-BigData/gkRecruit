@@ -51,8 +51,9 @@ def create_app():
 
 
     # 导入各个模块
-    from app.admin import  bp_admin
     from app.main import bp_main
+    from app.admin import  bp_admin
+
     from app.testroute.views import bp_test
     from app.report import report_admin
 

@@ -504,16 +504,31 @@ function loadPreData()
 {
     Zs.prototype.display('#saveprogress');
     $.get('../report/reports/'+reportid,function(data){
+           Zs.prototype.hide('#saveprogress');
         console.log('加载报告数据');
         console.log(data.data.data);
         var jsonData = JSON.parse(data.data.data);
+        if(jsonData==null)
+        {
+            console.log('报告数据为空.');
+            return;
+        }
         jsonData.forEach(function (item) {
             report.addElement(item);
         });
-        Zs.prototype.hide('#saveprogress');
+
     });
 
 }
+
+//导出报告
+function exportReport()
+{
+
+
+
+}
+
 //保存报告
 function saveReport()
 {
