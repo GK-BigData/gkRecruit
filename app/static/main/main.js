@@ -525,7 +525,34 @@ function loadPreData()
 function exportReport()
 {
 
+    Zs.prototype.display('#saveprogress');
+    Zs.prototype.disable('#export');
+    $.ajax(
+        {
+            url:'export/'+reportid,
+            method:'GET',
+            success:function (data,err) {
+                  Zs.prototype.hide('#saveprogress');
+                Zs.prototype.enable('#export');
 
+                console.log('导出成功');
+                if(data.code===0)
+                window.open('download/'+reportid);
+                else
+                {
+                    showJsonResult(data,'导出结果');
+                }
+            },
+            error:function(data)
+            {
+                  Zs.prototype.hide('#saveprogress');
+        Zs.prototype.enable('#save');
+
+                console.log('导出失败')
+            }
+        }
+    );
+    //打开导出路由,导出当前文档
 
 }
 

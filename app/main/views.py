@@ -2,9 +2,9 @@
 
 # Project :zs
 # Time  :2019/6/25 上午10:28 
-
-
-from flask import Blueprint, render_template, request
+import time
+import os
+from flask import Blueprint, render_template, request,send_from_directory,send_file
 
 from app.charts.all_picture import All_Picture
 from app.common.restful import rjson
@@ -756,10 +756,36 @@ def options(type):
         # print("返回option",options)
         return rjson(options,0)
 
-# 导出报告
-@bp_main.route('/export')
+# 导出的目录
+export_dir=os.path.abspath('../download')
+
+# 根据报告id , 导出报告,返回导出是否成功
+@bp_main.route('/export/<int:id>')
 def export(id):
 
-    
+    time.sleep(4)
+    from app.report.models import Report
+    report = Report.query.with_entities(Report.id,Report.data,Report.title,func.unix_timestamp(Report.title).label('time')).filter(Report.id==id).first()
+    filename = '%s-%s-%s.docx' % (report.id,report.title,report.time)
 
-    pass
+    path = os.path.join(export_dir,filename)
+
+    # 报告的数据
+    jsondata = report.data
+
+    if os.path.exists(path):
+        return rjson('导出成功',0)
+    else:
+        return rjson('导出失败',1)
+
+
+
+@bp_main.route('/download/<int:id>')
+def download(id):
+    from app.report.models import Report
+    report = Report.query.with_entities(Report.id, Report.title,
+                                        func.unix_timestamp(Report.title).label('time')).filter(Report.id == id).first()
+    filename = '%s-%s-%s.docx' % (report.id, report.title, report.time)
+    path = os.path.join(export_dir, filename)
+
+    return send_file(path)

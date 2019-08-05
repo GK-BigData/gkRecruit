@@ -10,6 +10,42 @@
 
 
 <a  href="#!"  class="button waves-red" onclick="openConfig()">打开配置</a>
+{#    宽高修改#}
+    {#    基本的 常用的 图表编辑模块#}
+    {% raw %}
+    <div id="chartEdit" >
+        图表高度: {{ chart.width }}px <input   v-on:input="changeSize('width')" v-model="chart.height" id="chart_height" type="range" min="300" max="1000" name="test"/>
+       <!-- 暂时只修改高度，框高都变 图表宽度: {{ chart.width }}px <input  v-model="chart.width" v-on:change="changeSize('width')" id="chart_width" type="range" min="300" max="1000" name="test"/> -->
+
+        <div class="divider"></div>
+        <div class="section">
+            <h5>标题设置</h5>
+            <!--循环生成标题修改-->
+            <div class="row" v-for="(title,index) in option.title">
+            <div class="col s6">
+                <label><input type="checkbox"  v-on:change="changeOption()"  v-model="title.show"/><span>标题 {{ index }}</span></label>
+                <input  id="chart_title"  v-on:change="changeOption()" v-model="title.text"/>
+            </div>
+            <div class="col s6">副标题{{ index }}:<input  v-on:change="changeOption()" v-model="title.subtext"/></div>
+            </div>
+
+        </div>
+
+        <div class="divider"></div>
+        <div class="section">
+            <h5>图表位置设置</h5>
+
+
+        </div>
+    </div>
+
+{% endraw %}
+
+{#    高级的修改 ,option编辑器 #}
+    <div id="optionEdit">
+
+    </div>
+
 
  <div class="input-field ">
           <input id="password" type="text" class="validate">
@@ -47,7 +83,25 @@
 
 
             {# 配置项 #}
-    <div  class="container" id="option"></div>
+    <div  class="container" ></div>
+{#        容器配置#}
+
+        {% raw %}
+    <div id="option">
+
+        <nav class="teal nav-wrapper">
+            <div class="col s12">
+                <a href="#!" class="breadcrumb" v-for="name in path">{{ name }}</a>
+            </div>
+        </nav>
+
+        <ul>
+            <li v-for="(value,key) in nowObject">{{ key }}</li>
+        </ul>
+
+    </div>
+        {% endraw %}
+
     </div>
 
 
@@ -62,6 +116,8 @@
 
      <script type="text/javascript" src="{{ url_for('static',filename='js/echarts.js') }}"></script>
      <script type="text/javascript" src="{{ url_for('static',filename='chart/chartEditor.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='chart/EChartEditor.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='chart/OptionEditor.js') }}"></script>
 
     <script type="text/javascript">
 
@@ -75,7 +131,8 @@
 
             slide.open();
 
-            //var chart = echarts.getInstanceByDom(document.getElementById('chart'));
+            var optionEdit = new OptionEditor(chartDom);
+
 
             console.log("图表配置:");
             console.log(chart.getOption());
@@ -83,18 +140,14 @@
             {# 存放配置的容器#}
             var container = document.getElementById('option');
 
-            //$(container).empty();
-
-            //填充菜单到容器
-            //optionMenu(chart.getOption(),container,'',0);
 
             console.log("初始化..");
 
-            //初始化伸展菜单
-           // M.Collapsible.init(document.querySelectorAll('.collapsible'));
 
-            chartEditor.setChartId('chart');
-            chartEditor.generateConfig(container);
+            //旧版编辑器...全部显示的
+            //chartEditor.setChartId('chart');
+            //chartEditor.generateConfig(container);
+
 
     }
 
@@ -109,6 +162,10 @@
     var options = {
         title:{
             text:"测试图表"
+        },
+        grid:{
+            top:40,
+            show:true
         },
         series:{
             type:'pie',
@@ -149,7 +206,11 @@
     $('#apply').click(function () {
         chartEditor.updateChart();
 
-    })
+    });
+
+
+    var chartDom = document.getElementById('chart');
+    var echartEdit = new EChartEditor(chartDom);
 
 
     </script>
