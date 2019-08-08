@@ -3,7 +3,8 @@ from pyecharts.charts import Bar, Pie, Map, Radar, PictorialBar, Funnel
 from pyecharts.globals import ThemeType, SymbolType
 from pyecharts.components import Table
 from pyecharts.options import ComponentTitleOpts
-
+import logging
+logger = logging.getLogger('app.all_picture')
 
 class All_Picture():
 
@@ -36,8 +37,7 @@ class All_Picture():
         ]
 
     def bar_picture(self, series_names, bar_xdata, bar_ydatas,stack=False,reverse=False):
-        print('饼图,数组:')
-        print(bar_xdata)
+        logger.debug('draw bar...')
         b = (
             Bar(init_opts=self.init_opts)
                 .add_xaxis(bar_xdata)
@@ -54,9 +54,6 @@ class All_Picture():
                 # 设置logo
                 graphic_opts=self.logo
             )
-                # 是否翻转
-               # .reversal_axis()
-                .set_series_opts(label_opts=opts.LabelOpts(position="inside"))
 
         )
 
@@ -66,8 +63,13 @@ class All_Picture():
                 b.add_yaxis(name,ydata,stack=self.fields[-1])
             else:
                 b.add_yaxis(name, ydata)
+        b.set_series_opts(label_opts=opts.LabelOpts(position="top"))
+        #如果是水平的设置label的位置在右边
         if reverse:
             b.reversal_axis()
+            b.set_series_opts(label_opts=opts.LabelOpts(position="right"))
+        #
+
         return b
 
     def rose_picture(self,series_names, rose_xdata, rose_ydatas):
@@ -145,7 +147,7 @@ class All_Picture():
                              graphic_opts=self.logo,
                              legend_opts=opts.LegendOpts(type_='scroll'),
                              )
-        p.set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}"))
+        p.set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}\n({d}%)"))
         return p
 
     # 广东地图

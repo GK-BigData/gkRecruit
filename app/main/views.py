@@ -2,6 +2,7 @@
 
 # Project :zs
 # Time  :2019/6/25 上午10:28 
+
 import time
 import os
 from flask import Blueprint, render_template, request,send_from_directory,send_file
@@ -17,10 +18,11 @@ from sqlalchemy.sql.expression import *
 from sqlalchemy.sql.expression import *
 import  sqlalchemy.sql.sqltypes   as sqltype
 
-from app.common.mycolumns import needcolumns_fields, needcolumns_name
+from app.common.mycolumns import needcolumns_fields, needcolumns_name,chartTypes,aggType,aggfield2name
 from . import bp_main,logger
 
 from app.charts.Report import ReportItem
+
 
 need_columns = {}
 for i in range(0, len(needcolumns_name)):
@@ -43,9 +45,6 @@ allcharts = ["各学院男女人数占比雷达图",
              ]
 
 # 聚合类型
-aggType={'count':'计数','sum':'总和','avg':'平均值'}
-
-chartTypes={'bar':'柱状图','horizontal_bar':'水平柱状图','pie':'饼图','rose':'玫瑰图','stackbar':'堆叠柱状图','horizontal_stackbar':'水平堆叠柱状图','table':'表格','china_map':'中国地图'}
 
 # 需要传入报告id
 @bp_main.route("/<reportid>")
@@ -57,161 +56,161 @@ def index(reportid):
     return render_template('main/main.html',columns = need_columns,chartTypes=chartTypes,report=report)
 
 
-@bp_main.route("/charts")
-def charts():
-    zsyear = request.args['zsyear']
-    chartid = request.args['chartid']
-
-    a = All_Picture(chartid, '', '', '地区名称')
-
-    sql = zs.query.filter(zs.zsyear == zsyear)
-    result = None
-
-    if chartid == '男女比例':
-        x = []
-        y = []
-        # dataset = db.session.execute("select sex_name,count(1) from zs group by sex_name;").fetchall()
-        sql = sql.with_entities(zs.sex_name, func.count()).group_by(zs.sex_name)
-        print("sql语句:", sql)
-        dataset = sql.all()
-        for item in dataset:
-            x.append(item[0])
-            y.append(item[1])
-        print("查询结果")
-        print(x)
-        print(y)
-        result = a.pie_picture(x, y)
-
-    elif chartid == '全国各个地区人数':
-        x = []
-        y = []
-
-        # sql = sql.with_entities(zs.source_provinces, func.count()).group_by(zs.source_provinces).order_by(desc(column( 'count_1')))
-
-        sql = sql.with_entities(zs.source_provinces, func.count()).group_by(zs.source_provinces)
-        print('全国各个地区人数', sql)
-
-        dataset = sql.all()
-        # dataset=db.session.execute("select student_address ,count(1) as counts from zs group by student_address order by counts desc limit 10;")
-
-        for item in dataset:
-            x.append(item[0][:2])
-            y.append(item[1])
-
-        print("全国各个地区人数")
-        print(x)
-        print(y)
-        result = a.china_map_picture(x, y)
-
-    elif chartid == '各学院男女人数占比雷达图':
-        women_data = []
-        man_data = []
-        departments = []
-        sql = sql.with_entities(zs.departments, zs.sex_name, func.count()).group_by(zs.departments, zs.sex_name)
-        dataset = sql.all()
-        print(sql)
-
-        for item in dataset:
-            print(item)
-            if item[0] not in departments:
-                departments.append(item[0])
-
-            if item[1] == '男':
-                man_data.append(item[2])
-
-            if item[1] == '女':
-                women_data.append(item[2])
-
-        print(departments)
-        print(man_data)
-        print(women_data)
-        result = a.radar_picture(women_data, man_data, departments)
-
-    elif chartid == '学年制':
-        x = []
-        y = []
-        # dataset = db.session.execute("select sex_name,count(1) from zs group by sex_name;").fetchall()
-        sql = sql.with_entities(zs.education__time, func.count()).group_by(zs.education__time)
-        print("sql语句:", sql)
-        dataset = sql.all()
-        for item in dataset:
-            x.append(item[0])
-            y.append(item[1])
-        print("查询结果")
-        print(x)
-        print(y)
-        result = a.rose_picture(x, y)
-
-    elif chartid == '男女人数排三的专业':
-        x = []
-        y = []
-        man_data = []
-        women_data = []
-        dataset = db.session.execute(
-            "(select major_name,sex_name,count(major_name) as counts from zs  where sex_name='男' group by major_name order by counts desc limit 3) UNION ALL (select major_name,sex_name,count(major_name) as counts from zs  where sex_name='女' group by major_name order by counts desc limit 3);")
-
-        for item in dataset:
-            if item[1] == '男':
-                x.append(item[0])
-                man_data.append(item[2])
-
-            if item[1] == '女':
-                y.append(item[0])
-                women_data.append(item[2])
-        print(man_data)
-        print(women_data)
-        print(x)
-        result = a.rose_picture_man_women(x, y, man_data, women_data)
-
-        # result =a.bar_base(x,man_data=man_data,women_data=women_data)
-
-    elif chartid == '各学院人数占比':
-        x = []
-        y = []
-        sql = sql.with_entities(zs.departments, func.count()).group_by(zs.departments)
-        dataset = sql.all()
-        print("department", sql)
-        for item in dataset:
-            x.append(item[0])
-            y.append(item[1])
-        result = a.pictorialbar_base(x, y)
-
-
-
-    elif chartid == '各个投档分区段的人数':
-        x = ['450以上', '400-450', '350-400', '300-350', '200-300', '200以下']
-        y = []
-        # sql=sql.with_entities(zs.total_score_of_filing)
-        dataset = db.session.execute(
-            "select count(case when total_score_of_filing> 450 then 1 end) as `[450分以上]`, count(case when total_score_of_filing between 400 and 450 then 1 end) as `[400-450分]`, count(case when total_score_of_filing between 350 and 400 then 1 end) as `[350-400分]`, count(case when total_score_of_filing between 300 and 350 then 1 end) as `[300-350分]`, count(case when total_score_of_filing between 200 and 300 then 1 end) as `[200-300分]`, count(case when total_score_of_filing <200 then 1 end) as `[200分以下]` from zs;").fetchall()
-        for item in dataset:
-            for i in item:
-                y.append(i)
-        print(x)
-        print(y)
-
-        result = a.funnel_sort_ascending(x_data=x, y_data=y)
-
-    # x=[]
-    # y=[]
-    # a = All_Picture()
-    # options = a.getchart( db,zsyear,chartid)
-    #
-    # sql = zs.query.with_entities(zs.sex_name,func.count()).group_by(zs.sex_name)
-    # print(sql)
-    # dataset = sql.all()
-    # for item in dataset:
-    #     x.append(item[0])
-    #     y.append(item[1])
-    #
-    # result = a.bar_picture(x, y)
-    # result_dict = json.loads(result)
-    # test = db.session.execute("select sex_name,count(1) from zs group by sex_name;").fetchall()
-    #
-    # print(test)
-    # print(dir(test))
-    result_dict = json.loads(result)
-    return rjson(result_dict, 0)
+# @bp_main.route("/charts")
+# def charts():
+#     zsyear = request.args['zsyear']
+#     chartid = request.args['chartid']
+#
+#     a = All_Picture(chartid, '', '', '地区名称')
+#
+#     sql = zs.query.filter(zs.zsyear == zsyear)
+#     result = None
+#
+#     if chartid == '男女比例':
+#         x = []
+#         y = []
+#         # dataset = db.session.execute("select sex_name,count(1) from zs group by sex_name;").fetchall()
+#         sql = sql.with_entities(zs.sex_name, func.count()).group_by(zs.sex_name)
+#         print("sql语句:", sql)
+#         dataset = sql.all()
+#         for item in dataset:
+#             x.append(item[0])
+#             y.append(item[1])
+#         print("查询结果")
+#         print(x)
+#         print(y)
+#         result = a.pie_picture(x, y)
+#
+#     elif chartid == '全国各个地区人数':
+#         x = []
+#         y = []
+#
+#         # sql = sql.with_entities(zs.source_provinces, func.count()).group_by(zs.source_provinces).order_by(desc(column( 'count_1')))
+#
+#         sql = sql.with_entities(zs.source_provinces, func.count()).group_by(zs.source_provinces)
+#         print('全国各个地区人数', sql)
+#
+#         dataset = sql.all()
+#         # dataset=db.session.execute("select student_address ,count(1) as counts from zs group by student_address order by counts desc limit 10;")
+#
+#         for item in dataset:
+#             x.append(item[0][:2])
+#             y.append(item[1])
+#
+#         print("全国各个地区人数")
+#         print(x)
+#         print(y)
+#         result = a.china_map_picture(x, y)
+#
+#     elif chartid == '各学院男女人数占比雷达图':
+#         women_data = []
+#         man_data = []
+#         departments = []
+#         sql = sql.with_entities(zs.departments, zs.sex_name, func.count()).group_by(zs.departments, zs.sex_name)
+#         dataset = sql.all()
+#         print(sql)
+#
+#         for item in dataset:
+#             print(item)
+#             if item[0] not in departments:
+#                 departments.append(item[0])
+#
+#             if item[1] == '男':
+#                 man_data.append(item[2])
+#
+#             if item[1] == '女':
+#                 women_data.append(item[2])
+#
+#         print(departments)
+#         print(man_data)
+#         print(women_data)
+#         result = a.radar_picture(women_data, man_data, departments)
+#
+#     elif chartid == '学年制':
+#         x = []
+#         y = []
+#         # dataset = db.session.execute("select sex_name,count(1) from zs group by sex_name;").fetchall()
+#         sql = sql.with_entities(zs.education__time, func.count()).group_by(zs.education__time)
+#         print("sql语句:", sql)
+#         dataset = sql.all()
+#         for item in dataset:
+#             x.append(item[0])
+#             y.append(item[1])
+#         print("查询结果")
+#         print(x)
+#         print(y)
+#         result = a.rose_picture(x, y)
+#
+#     elif chartid == '男女人数排三的专业':
+#         x = []
+#         y = []
+#         man_data = []
+#         women_data = []
+#         dataset = db.session.execute(
+#             "(select major_name,sex_name,count(major_name) as counts from zs  where sex_name='男' group by major_name order by counts desc limit 3) UNION ALL (select major_name,sex_name,count(major_name) as counts from zs  where sex_name='女' group by major_name order by counts desc limit 3);")
+#
+#         for item in dataset:
+#             if item[1] == '男':
+#                 x.append(item[0])
+#                 man_data.append(item[2])
+#
+#             if item[1] == '女':
+#                 y.append(item[0])
+#                 women_data.append(item[2])
+#         print(man_data)
+#         print(women_data)
+#         print(x)
+#         result = a.rose_picture_man_women(x, y, man_data, women_data)
+#
+#         # result =a.bar_base(x,man_data=man_data,women_data=women_data)
+#
+#     elif chartid == '各学院人数占比':
+#         x = []
+#         y = []
+#         sql = sql.with_entities(zs.departments, func.count()).group_by(zs.departments)
+#         dataset = sql.all()
+#         print("department", sql)
+#         for item in dataset:
+#             x.append(item[0])
+#             y.append(item[1])
+#         result = a.pictorialbar_base(x, y)
+#
+#
+#
+#     elif chartid == '各个投档分区段的人数':
+#         x = ['450以上', '400-450', '350-400', '300-350', '200-300', '200以下']
+#         y = []
+#         # sql=sql.with_entities(zs.total_score_of_filing)
+#         dataset = db.session.execute(
+#             "select count(case when total_score_of_filing> 450 then 1 end) as `[450分以上]`, count(case when total_score_of_filing between 400 and 450 then 1 end) as `[400-450分]`, count(case when total_score_of_filing between 350 and 400 then 1 end) as `[350-400分]`, count(case when total_score_of_filing between 300 and 350 then 1 end) as `[300-350分]`, count(case when total_score_of_filing between 200 and 300 then 1 end) as `[200-300分]`, count(case when total_score_of_filing <200 then 1 end) as `[200分以下]` from zs;").fetchall()
+#         for item in dataset:
+#             for i in item:
+#                 y.append(i)
+#         print(x)
+#         print(y)
+#
+#         result = a.funnel_sort_ascending(x_data=x, y_data=y)
+#
+#     # x=[]
+#     # y=[]
+#     # a = All_Picture()
+#     # options = a.getchart( db,zsyear,chartid)
+#     #
+#     # sql = zs.query.with_entities(zs.sex_name,func.count()).group_by(zs.sex_name)
+#     # print(sql)
+#     # dataset = sql.all()
+#     # for item in dataset:
+#     #     x.append(item[0])
+#     #     y.append(item[1])
+#     #
+#     # result = a.bar_picture(x, y)
+#     # result_dict = json.loads(result)
+#     # test = db.session.execute("select sex_name,count(1) from zs group by sex_name;").fetchall()
+#     #
+#     # print(test)
+#     # print(dir(test))
+#     result_dict = json.loads(result)
+#     return rjson(result_dict, 0)
 
 
 # 获取各个数据类型对应的sql
@@ -229,8 +228,8 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     for group in groupfield:
         # 检查分组类型,限制最多分组2次
         field_type_param = group.split('-',2)
-        print('分组字段：')
-        print(field_type_param)
+        logger.debug('处理分组字段：%s',field_type_param)
+
         # 普通分组
         if len(field_type_param) == 1:
             entities.append(column(group.strip()))
@@ -257,13 +256,13 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
                 pass
 
         # entities.append(column(group))
-    print('处理完聚合函数前', query)
+    logger.debug('处理完聚合函数前', query)
     #聚合字段要分割出聚合函数和字段
     for agg in aggfield:
 
         # sum_xxx,限制只能分割一次，因为有些字段名可能有_ ,label设置别名为传进来的原始参数，因为orderby是根据这个的
-        aggtype_field=agg.split('_',1)
-        print("处理聚合函数:")
+        aggtype_field=agg.split('-',1)
+        logger.debug("处理聚合函数:,分割结果:%s"%aggtype_field)
         print(aggtype_field)
         if aggtype_field[0]=='count':
             entities.append(func.count(column(aggtype_field[1].strip())).label(agg)  )
@@ -274,7 +273,7 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     # 选择,with_entites是变长参数，这里解包列表进去
 
     query = query.with_entities(*entities)
-    print('处理完聚合函数后2', query)
+    logger.debug('处理完聚合函数后2', query)
     #-------------------group by 分组字段处理 ----------------,普通分组和整数分段分组
 
     group_columns = []
@@ -346,8 +345,9 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
             else:
                 groupfield_name.append(group)
         for agg in aggfield:
-            type_field = agg.split('_',1)
+            type_field = agg.split('-',1)
             aggname = ''
+            logger.debug('聚合字段处理,分割结果:%s',type_field)
             if type_field[0] in aggType:
                 aggname+=aggType[type_field[0]]
             else:
@@ -394,7 +394,7 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
 
 
         if orderBy != 'null':
-            field_order = orderBy.split('-')
+            field_order = orderBy.split('+')
             col = column(field_order[0])
             # 降序
             if field_order[1] == 'desc':
@@ -428,8 +428,9 @@ def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', 
     # 表格的直接返回dataset
     if chartType=='table':
         print(dataset)
-        dataset.insert(0,tuple(entities))
-        print(dataset)
+        dataset.insert(0, aggfield2name( tuple(entities)))
+
+        logger.debug("获取表格数据,头处理结果:%s",str(aggfield2name( tuple(entities))))
         return dataset
 
 
@@ -710,7 +711,7 @@ def charts2():
             if key in request.form:
                 params[key] = request.form[key]
         # 要返回报告的数据结构
-        item = ReportItem('table', 0, 400, 400, 1, **params)
+        item = ReportItem('table', 0, 800, 400, 1, **params)
         # 设置生成的option
         item.rows = result
 

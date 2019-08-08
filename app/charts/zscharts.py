@@ -39,12 +39,12 @@ class zschart():
         data = {
             'chartType': 'table',
             'groupfield': 'sex_name,departments',
-            'aggfield': 'count_total_score_of_filing',
+            'aggfield': 'count-total_score_of_filing',
             'orderBy': 'null',
             'filter': 'null',
             'limit': -1,
             'dataType': 'group'}
-        item = ReportItem('table', 0, 400, 400, self.recordid, **data)
+        item = ReportItem('table', 0, 800, 400, self.recordid, **data)
 
         chart1 = drawChart(self.query, **data)
         # option = json.loads( chart1.dump_options())
@@ -55,7 +55,7 @@ class zschart():
     def chart2(self):
         data = {
             'chartType': 'pie',
-            'aggfield': 'count_student_name',
+            'aggfield': 'count-student_name',
             'groupfield': 'student_type',
             'orderBy': 'null',
             'filter': 'null',
@@ -115,7 +115,7 @@ class zschart():
             {
                 'element': self.chart({
                     'chartType': 'pie',
-                    'aggfield': 'count_student_name',
+                    'aggfield': 'count-student_name',
                     'groupfield': 'sex_name',
                     'orderBy': 'null',
                     'filter': 'null',
@@ -140,7 +140,7 @@ class zschart():
            'title':title,
             'element':self.chart({
             'chartType': 'pie',
-            'aggfield': 'count_student_name',
+            'aggfield': 'count-student_name',
             'groupfield': 'sex_name',
             'orderBy': 'null',
             'filter': 'source_provinces-contains-广东',
@@ -158,7 +158,7 @@ class zschart():
                 'element':self.chart(
                     {
                         'chartType': 'pie',
-                        'aggfield': 'count_student_name',
+                        'aggfield': 'count-student_name',
                         'groupfield': 'student_type',
                         'orderBy': 'null',
                         'limit': -1,
@@ -176,7 +176,7 @@ class zschart():
             {
                 'title':title,
                 'element':self.chart({
-            'aggfield': 'count_student_name',
+            'aggfield': 'count-student_name',
             'groupfield': 'sex_name, departments',
             'chartType': 'stackbar',
             'orderBy': 'null',
@@ -196,7 +196,7 @@ class zschart():
         self.charts.append({
             'title':title,
             'element':self.chart({
-            'aggfield': 'count_student_name',
+            'aggfield': 'count-student_name',
             'groupfield': 'sex_name, major_name',
             'chartType': 'horizontal_stackbar',
             'orderBy': 'null',
@@ -217,10 +217,10 @@ class zschart():
         self.charts.append({
             'title':title,
             'element':self.chart(
-            {'aggfield': 'count_student_name',
+            {'aggfield': 'count-student_name',
              'groupfield': 'departments',
              'chartType': 'bar',
-             'orderBy': 'count_student_name-desc',
+             'orderBy': 'count-student_name+desc',
              'limit': '-1',
              # 'recordid': '1',
              'dataType': 'group',
@@ -235,7 +235,7 @@ class zschart():
             'title':title,
 
             'element':self.chart(
-                {'aggfield': 'count_student_name', 'groupfield': 'major_name', 'chartType': 'bar', 'orderBy': 'count_student_name-desc', 'limit': '10',
+                {'aggfield': 'count-student_name', 'groupfield': 'major_name', 'chartType': 'bar', 'orderBy': 'count-student_name+desc', 'limit': '10',
                  'dataType': 'group', 'filter': 'null'},title=title
 )
         })
@@ -243,8 +243,8 @@ class zschart():
         self.charts.append({
             'title':'广东各地区招生人数',
             'element':self.chart(
-                {'aggfield': 'count_student_name', 'groupfield': 'student_address', 'chartType': 'bar',
-                 'orderBy': 'count_student_name-desc', 'limit':'10',
+                {'aggfield': 'count-student_name', 'groupfield': 'student_address', 'chartType': 'bar',
+                 'orderBy': 'count-student_name+desc', 'limit':'10',
                  'dataType': 'group', 'filter': 'source_provinces-contains-广东'},title='广东各地区招生人数'
 
 
@@ -255,7 +255,7 @@ class zschart():
         self.charts.append({
             'title':'各学院文科理科分数区间人数',
             'element':self.chart(
-                {'aggfield': 'count_student_name', 'groupfield': 'departments,interval-total_score_of_filing-0-100-200-300', 'chartType': 'stackbar',
+                {'aggfield': 'count-student_name', 'groupfield': 'departments,interval-total_score_of_filing-0-100-200-300', 'chartType': 'stackbar',
                  'orderBy': 'null', 'limit': '-1', 'dataType': 'group', 'filter': 'null'},type='chart',title='各学院文科理科分数区间人数',
             )
         })

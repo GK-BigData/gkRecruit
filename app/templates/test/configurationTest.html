@@ -5,16 +5,18 @@
 {% block container %}
 
 {#    测试图表#}
-    <div id="chart" style="width: 400px;height: 400px;">
-    </div>
+    <div id="chart" style="width: 400px;height: 400px;"></div>
+    <div id="chart2" style="width: 400px;height: 400px;"></div>
 
 
 <a  href="#!"  class="button waves-red" onclick="openConfig()">打开配置</a>
+<a  href="#!"  class="button waves-red" onclick="switchDom()">切换 chart2编辑的 dom 测试 </a>
+
 {#    宽高修改#}
     {#    基本的 常用的 图表编辑模块#}
     {% raw %}
     <div id="chartEdit" >
-        图表高度: {{ chart.width }}px <input   v-on:input="changeSize('width')" v-model="chart.height" id="chart_height" type="range" min="300" max="1000" name="test"/>
+        图表高度: {{ chart.height }}px <input   v-on:input="changeSize('height')" v-model="chart.height" id="chart_height" type="range" min="300" max="1000" name="test"/>
        <!-- 暂时只修改高度，框高都变 图表宽度: {{ chart.width }}px <input  v-model="chart.width" v-on:change="changeSize('width')" id="chart_width" type="range" min="300" max="1000" name="test"/> -->
 
         <div class="divider"></div>
@@ -33,10 +35,30 @@
 
         <div class="divider"></div>
         <div class="section">
-            <h5>图表位置设置</h5>
+            <h5>格子(Grid)设置</h5>
 
-
+            <div class="row" v-for="(grid,index) in option.grid">
+                <h6>Grid {{ index }}</h6>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.width" v-model="grid.width" title="宽度"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.width" v-model="grid.height" title="高度"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.top" v-model="grid.top" title="距离顶部"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.bottom" v-model="grid.bottom" title="距离底部"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.left" v-model="grid.left" title="距离左边"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.left" v-model="grid.right" title="距离右边"></div>
+            </div>
         </div>
+
+    <div class="divider"></div>j
+        <div class="section">
+            <h5>图例</h5>
+
+            <div class="row" v-for="(legend,index) in option.legend">
+                <!--<h6>Legend {{ index }}</h6>-->
+               <label><input type="checkbox" v-on:change="changeOption" v-model="legend.show"/><span>显示</span></label>
+            </div>
+        </div>
+
+
     </div>
 
 {% endraw %}
@@ -75,8 +97,8 @@
 
 
 
-{#    应用按钮 ,默认隐藏 #}
-    <a href="#!"  id='apply' class="btn waves-block hide" style="z-index: 99999;position:fixed;top:0;right: 0;" >应用</a>
+
+
     <div class="sidenav" style="width: 500px" id="slide">
 
         <h4>图表配置</h4>
@@ -86,18 +108,39 @@
     <div  class="container" ></div>
 {#        容器配置#}
 
+
         {% raw %}
     <div id="option">
 
         <nav class="teal nav-wrapper">
             <div class="col s12">
-                <a href="#!" class="breadcrumb" v-for="name in path">{{ name }}</a>
+                <a href="#!" class="breadcrumb"  v-on:click="enterObjectByOffset(index)" v-for="(name,index) in path">{{ name }}</a>
             </div>
         </nav>
 
-        <ul>
-            <li v-for="(value,key) in nowObject">{{ key }}</li>
+        <!-- select数组选择  -->
+
+        <!-- 键值对界面 -->
+        <ul class="collection">
+            <li  class="collection-item" v-for="(value,key) in getObjects"><a href="#!" v-on:click="enterObject(value)">{{ value }}</a></li>
         </ul>
+
+        <div class="divider"></div>
+        <!-- 输入界面 -->
+
+        <div class="row" v-for="edit in getEditors">
+
+            <div class="col s12" v-if="edit.input_type==='checkbox'">
+            <label>
+                <input v-on:change="changeOption()" v-model="edit.object[edit.key]" type="checkbox" class="filled-in"/>
+                <span>{{ edit.key }}</span>
+            </label>
+            </div>
+            <div class="input-field col s12" v-else>
+                <input  type="text"  v-on:change="changeOption()" v-model="edit.object[edit.key]" class="validate" v-bind:id="'edit-'+edit.key" />
+                <label :for="'edit-'+edit.key" class="active">{{ edit.key }}</label>
+            </div>
+        </div>
 
     </div>
         {% endraw %}
@@ -114,6 +157,7 @@
 {% block script %}
 
 
+     <script type="text/javascript" src="{{ url_for('static',filename='components.js') }}"></script>
      <script type="text/javascript" src="{{ url_for('static',filename='js/echarts.js') }}"></script>
      <script type="text/javascript" src="{{ url_for('static',filename='chart/chartEditor.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='chart/EChartEditor.js') }}"></script>
@@ -125,13 +169,19 @@
     var chartEditor = new ChartEditor();
 
 
+        //
+        function switchDom() {
+            console.log('切换到chart2');
+           // echartEdit = new EChartEditor(document.getElementById('chart2'));
+            echartEdit.setChartByDom(document.getElementById('chart2'));
+            optionEdit.setChartByDom(document.getElementById('chart2'));
 
+        }
         //生成侧滑的配置
         function openConfig() {
 
             slide.open();
 
-            var optionEdit = new OptionEditor(chartDom);
 
 
             console.log("图表配置:");
@@ -158,8 +208,10 @@
 
     {#生成测试图表#}
     var chart = echarts.init(document.getElementById('chart'));
+    var chart2 = echarts.init(document.getElementById('chart2'));
 
     var options = {
+        legend:{},
         title:{
             text:"测试图表"
         },
@@ -176,8 +228,26 @@
             ]
         }
     };
+    var baroption = {
+        title:{text:'dd'},
+        grid:{},
+        xAxis:{
+            data:['MT管理器','ADK编辑器','Apktool+Helper']
+        },
+        yAxis:{},
+
+        series:{
+            label:{
+                show:true,
+                position:'right'
+            },
+            type:'bar',
+            data:[100,56,10]
+        }
+    };
 
     chart.setOption(options);
+    chart2.setOption(baroption);
 
 
     var slide;
@@ -188,13 +258,13 @@
         //关闭时
         edge:'right',
             onOpenEnd:function(){
-             $('#apply').removeClass('hide');
+
             },
         onCloseEnd:function () {
-            $("#apply").addClass('hide');
 
 
-            chartEditor.updateChart();
+
+            //chartEditor.updateChart();
 
         }
     });
@@ -202,16 +272,13 @@
 
     });
 
-    //提交按钮
-    $('#apply').click(function () {
-        chartEditor.updateChart();
-
-    });
-
 
     var chartDom = document.getElementById('chart');
-    var echartEdit = new EChartEditor(chartDom);
+    var echartEdit = new EChartEditor();
+    echartEdit.setChartByDom(chartDom);
 
+    var optionEdit = new OptionEditor();
+    optionEdit.setChartByDom(chartDom);
 
     </script>
 

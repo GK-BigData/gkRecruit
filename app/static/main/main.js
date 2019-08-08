@@ -413,12 +413,14 @@ function editElement(elementid)
 function editChart(elementid)
 {
     var element = report.elements[elementid];
-
+    console.log('编辑图表,设置数据:'+elementid);
+    console.log(report.elements);
+    console.log(element);
     //标签id和elemet里的字段名一样
     var fields = ['aggfield','groupfield','chartType','recordid'];
     fields.forEach(function (ele,index) {
-
         var dom = document.getElementById(ele);
+
         Zs.prototype.selectOption(dom,(''+element[ele]).split(','));
         //重新初始化才有效果
         M.FormSelect.init(dom);
@@ -443,8 +445,9 @@ div 双击后 调用
 */
 function editOption(elementid,element)
 {
+    chartid=elementid;
     //设置当前编辑的图表
-    chartEditor.setChartId(elementid);
+    //chartEditor.setChartId(elementid);
 
     //打开配置侧滑
     slide_config.open();
@@ -453,7 +456,11 @@ function editOption(elementid,element)
     //     console.log("关闭编辑侧滑,图表id:"+elementid);
     //
     // };
-    chartEditor.generateConfig(document.getElementById('container'));
+    //设置简易修改
+    echartEdit.setChartByDom(document.getElementById(elementid));
+    //option修改
+    optionEdit.setChartByDom(document.getElementById(elementid));
+    //chartEditor.generateConfig(document.getElementById('container'));
 
 
 }
@@ -514,6 +521,10 @@ function loadPreData()
             return;
         }
         jsonData.forEach(function (item) {
+
+            console.log('添加报告数据:');
+            console.log(item);
+            if(item!=null)
             report.addElement(item);
         });
 

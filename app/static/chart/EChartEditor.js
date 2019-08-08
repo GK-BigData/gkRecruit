@@ -1,23 +1,20 @@
 //简易修改,chart_dom, echart所在的dom元素
 function EChartEditor(chart_dom){
 
-        console.log('初始化EChartEditor..');
-        if(chart_dom===undefined)
-        {
-            console.log('严重错误,Echart dom无效');
-            return;
-        }
-        console.log(chart_dom);
 
-        this.dom = chart_dom;
 
-        this.chart = echarts.getInstanceByDom(chart_dom);
 
-        console.log(chart.getOption());
-        // 获取框高的元素
+
+
+
+
+}
+
+EChartEditor.prototype.loadVue=function(){
+
 
         var self = this;
-
+        //初始话vue.
         this.edit = new Vue({
         el:'#chartEdit',
         data:{
@@ -27,7 +24,7 @@ function EChartEditor(chart_dom){
                 height:self.dom.style.height.replace('px','')
 
             },
-            option:chart.getOption()
+            option:this.chart.getOption()
         },
             methods:{
                 //对应
@@ -37,6 +34,8 @@ function EChartEditor(chart_dom){
                 //    更新echart宽高
                     self.dom.style.width=this.chart.height+'px';
                     self.dom.style.height=this.chart.height+'px';
+
+
                     console.log(self.dom);
                     self.chart.resize();
 
@@ -49,8 +48,32 @@ function EChartEditor(chart_dom){
                    // console.log('input...');
                 }
 
+            },
+            computed:{
+
             }
 
     });
-}
+
+};
+//切换dom
+EChartEditor.prototype.setChartByDom=function(dom)
+{
+
+    if(dom===undefined)
+        {
+            console.log('严重错误,Echart dom无效');
+            return;
+        }
+    this.dom=dom;
+    this.chart = echarts.getInstanceByDom(dom);
+    //设置vue的新对象
+
+    if(this.edit===undefined)
+    {
+        this.loadVue();
+    }
+    this.edit.option=this.chart.getOption();
+
+};
 

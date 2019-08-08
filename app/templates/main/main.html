@@ -76,7 +76,7 @@
     <a href="#!"  id='apply' class="btn waves-block hide" style="z-index: 99999;position:fixed;top:0;right: 0;" >应用</a>
 
 
-    <div class="sidenav" id="slide-config" style="width: 500px;">
+    <div class="sidenav" id="slide-config" style="width: 700px;padding-left: 30px;">
 
 
 
@@ -84,7 +84,7 @@
     {#        图表配置 ，分为常规和高级 选项 #}
         <ul class="tabs" id="tabs_chartedit">
             <li class="tab col s6"><a href="#normal">简单</a></li>
-            <li class="tab col s6"><a href="#advance">高级</a></li>
+            <li class="tab col s6"><a href="#advance">Option</a></li>
         </ul>
 
 
@@ -96,14 +96,95 @@
         <a href="#!" class="btn-flat col s6" id="refresh">刷新图表</a>
     </div>
 
-{#            高度修改  #}
+         {% raw %}
+    <div id="chartEdit" >
+        图表高度: {{ chart.width }}px <input   v-on:input="changeSize('width')" v-model="chart.height" id="chart_height" type="range" min="300" max="1000" name="test"/>
+       <!-- 暂时只修改高度，框高都变 图表宽度: {{ chart.width }}px <input  v-model="chart.width" v-on:change="changeSize('width')" id="chart_width" type="range" min="300" max="1000" name="test"/> -->
 
+        <div class="divider"></div>
+        <div class="section">
+            <h5>标题设置</h5>
+            <!--循环生成标题修改-->
+            <div class="row" v-for="(title,index) in option.title">
+            <div class="col s6">
+                <label><input type="checkbox"  v-on:change="changeOption()"  v-model="title.show"/><span>标题 {{ index }}</span></label>
+                <input  id="chart_title"  v-on:change="changeOption()" v-model="title.text"/>
+            </div>
+            <div class="col s6">副标题{{ index }}:<input  v-on:change="changeOption()" v-model="title.subtext"/></div>
+            </div>
+
+        </div>
+
+        <div class="divider"></div>
+        <div class="section">
+            <h5>格子(Grid)设置</h5>
+
+            <div class="row" v-for="(grid,index) in option.grid">
+                <h6>Grid {{ index }}</h6>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.width" v-model="grid.width" title="宽度"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.width" v-model="grid.height" title="高度"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.top" v-model="grid.top" title="距离顶部"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.bottom" v-model="grid.bottom" title="距离底部"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.left" v-model="grid.left" title="距离左边"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.left" v-model="grid.right" title="距离右边"></div>
+            </div>
+        </div>
+
+    <div class="divider"></div>
+        <div class="section">
+            <h5>图例</h5>
+
+            <div class="row" v-for="(legend,index) in option.legend">
+                <!--<h6>Legend {{ index }}</h6>-->
+               <label><input type="checkbox" v-on:change="changeOption" v-model="legend.show"/><span>显示</span></label>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endraw %}
 
         </div>
 
 
+    {#    高级编辑Option编辑#}
+        <div id="advance">
+        {% raw %}
+    <div id="option">
 
-        <div id="advance"><div id="container"></div></div>
+        <nav class="teal nav-wrapper">
+            <div class="col s12">
+                <a href="#!" class="breadcrumb"  v-on:click="enterObjectByOffset(index)" v-for="(name,index) in path">{{ name }}</a>
+            </div>
+        </nav>
+
+        <!-- select数组选择  -->
+
+        <!-- 键值对界面 -->
+        <ul class="collection">
+            <li  class="collection-item" v-for="(value,key) in getObjects"><a href="#!" v-on:click="enterObject(value)">{{ value }}</a></li>
+        </ul>
+
+        <div class="divider"></div>
+        <!-- 输入界面 -->
+
+        <div class="row" v-for="edit in getEditors">
+
+            <div class="col s12" v-if="edit.input_type==='checkbox'">
+            <label>
+                <input v-on:change="changeOption()" v-model="edit.object[edit.key]" type="checkbox" class="filled-in"/>
+                <span>{{ edit.key }}</span>
+            </label>
+            </div>
+            <div class="input-field col s12" v-else>
+                <input  type="text"  v-on:change="changeOption()" v-model="edit.object[edit.key]" class="validate" v-bind:id="'edit-'+edit.key" />
+                <label :for="'edit-'+edit.key" class="active">{{ edit.key }}</label>
+            </div>
+        </div>
+
+    </div>
+        {% endraw %}</div>
 
     </div>
 
@@ -180,9 +261,9 @@
                     {% for name,field in columns.items() %}
 
                      <optgroup label="{{ name }}">
-                    <option value="count_{{ field }}">{{ name }} 计数</option>
-                    <option value="sum_{{ field }}">{{ name }} 总和</option>
-                    <option value="avg_{{ field }}">{{ name }} 平均值</option>
+                    <option value="count-{{ field }}">{{ name }} 计数</option>
+                    <option value="sum-{{ field }}">{{ name }} 总和</option>
+                    <option value="avg-{{ field }}">{{ name }} 平均值</option>
                      </optgroup>
                     {% endfor %}
                     </select>
@@ -320,6 +401,10 @@
     <script type="text/javascript"  src="{{ url_for('static',filename='chart/chartEditor.js') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='main/main.js') }}"></script>
 
+    {#    下面Echart编辑需要的组件#}
+    <script type="text/javascript" src="{{ url_for('static',filename='components.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='chart/EChartEditor.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='chart/OptionEditor.js') }}"></script>
 
 
 
@@ -340,11 +425,15 @@
 
      //当前的记录id
      //var recordid;改为select标签，获取参数时直接获取
-
+        //当前编辑的图表id
+    var chartid=0;
     //当前report的id
     var reportid={{ report.id }};
 
-
+    //图表简易修改
+    var echartEdit = new EChartEditor();
+    //图表高级修改
+    var optionEdit = new OptionEditor();
 
 {#    初始化侧滑 #}
     document.addEventListener('DOMContentLoaded',function (evt) {
@@ -366,7 +455,7 @@
             {#关闭完成 时#}
             onCloseEnd:function () {
                 //更新图表
-                chartEditor.updateChart();
+                //chartEditor.updateChart();
                 $("#apply").addClass('hide');
             }
         });
@@ -407,7 +496,7 @@
         {#先关闭侧滑，不然侧滑关闭时会自动更新option,修改数据后的option会没有用#}
         slide_config.close();
         //编辑图表而不是option
-        editChart(chartEditor.chartid);
+        editChart(chartid);
 
 
     });
@@ -473,7 +562,7 @@
         console.log('遍历分组字段:'+element);
              orderByFields.push(
                 {
-                    field:$(element).val()+'-'+order,
+                    field:$(element).val()+'+'+order,
                     name:$(element).text()
                 }
             );
@@ -484,7 +573,7 @@
         console.log('遍历聚合函数:'+element);
              orderByFields.push(
                 {
-                    field:$(element).val()+'-'+order,
+                    field:$(element).val()+'+'+order,
                     name:$(element).text()
                 }
             );
