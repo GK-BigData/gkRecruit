@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+
+{% block container %}
+
+    <div class="progress" id="saveprogress" style="display: none;position: fixed;left: 0;right: 0;margin: 0 auto;top: 50%;"> <div class="indeterminate"></div></div>
+    <div class="row">
+    <div class="input-field col s6">
+        <select>
+            <option value="zs">招生数据</option>
+        </select>
+        <label>数据类型</label>
+    </div>
+
+    <div class="input-field col s6">
+        <select id="zsyear">
+            <option value="{{ zsyear }}">{{ zsyear }}</option>
+        </select>
+        <label>数据年份</label>
+    </div>
+
+    </div>
+
+    <div class="section">
+    <h5>数据的需要字段列表</h5>
+    {% raw %}
+   <ul class="collection" id="fields" >
+   <a  v-on:click="selectValue(index)" v-for="(field,index) in fields" class="collection-item"><h5 v-bind:class="{ 'red-text':isValueEmpty(index)}"> {{ index }}.{{ field.name }}</h5><p class="black-text" >{{  field.desc }}</p><p class="black-text">{{ preview(values[index]) }}</p></a>
+   </ul>
+{% endraw %}
+
+    <a class="btn" onclick="apply();">提交</a>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <div class="modal bottom-sheet" id="field_modal">
+{#    表格选择 内容， 行可以点击 #}
+    <div class="modal-content">
+
+        {% raw %}
+        <h4>为<span id="name"></span>选择数据<span id="field" style="display: none"></span></h4>
+
+        <table id="field_table">
+
+            <tr  v-on:click="selectDone(index)" v-for="(item,index) in preview_data">
+                <th>{{ item.field }}</th>
+                <td v-for="value in item.values" class="grey-text">{{ value }}</td>
+            </tr>
+        </table>
+        {% endraw %}
+
+    </div>
+
+
+    </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script type="text/javascript"  src="{{ url_for('static',filename='js/zs.js') }}"></script>
+    <script>
+
+    var recordid = {{ recordid }};
+    function getFields()
+    {
+        Zs.prototype.display('#saveprogress');
+
+        $.ajax({
+            url:'fields?id='+recordid+'&type=zs',
+            method:'get',
+            success:function (data) {
+                console.log('获取字段数据...');
+                console.log(data);
+                console.log(data.fields);
+                var fields = data.data.fields;
+                var values = data.data.values;
+                setfield.fields.splice(0,setfield.fields.length);
+                setfield.values.splice(0,setfield.values.length);
+                fields.forEach(function (ele) {
+                    setfield.fields.push(ele);
+                });
+                values.forEach(function (ele) {
+                    setfield.values.push(ele);
+                });
+
+                selectField.preview_data.splice(0,selectField.preview_data.length);
+
+                data.data.preview_data.forEach(function (ele) {
+                    selectField.preview_data.push(ele);
+                });
+                 Zs.prototype.hide('#saveprogress');
+
+            }
+        })
+
+    }
+    //提交
+    function apply(){
+
+        //select
+        var zsyear = M.FormSelect.init(document.getElementById('zsyear'));
+
+        console.log('提交数据....');
+        data={};
+        for (var i = 0;i<setfield.fields.length;i+=1)
+        {
+            //设置field和对应选择的字段名
+            data[setfield.fields[i].field] = setfield.values[i];
+        }
+        data['recordid']=recordid;
+        data['zsyear']=zsyear.getSelectedValues()[0];
+
+        console.log(data);
+        $.ajax({
+            url:"import",
+            method:'POST',
+            data:data,
+            success:function(data)
+            {
+                console.log("导入数据成功!");
+                console.log(data);
+
+            },
+            error:function (data) {
+                console.log('导入数据失败!');
+                console.log(data);
+
+            }
+        });
+
+    }
+    var setfield = new Vue({
+        el:'#fields',
+        data:{
+            fields:[
+                {
+                    name:'字段1',
+                    fields:'field1',
+                    'desc':'这是字段1'
+                }
+            ],
+            values:[''],
+
+        },
+        methods:{
+
+            selectValue:function(index){
+                console.log('为'+index+'选择值');
+                selectField.setSelectTarget(this.fields[index].field,index);
+
+            },
+
+
+
+                 preview:function(field){
+
+                //console.log(selectField.preview_data);
+                if( setfield!==undefined ){
+                    var result="";
+                    selectField.preview_data.forEach(function (ele) {
+                        if(ele.field===field)
+                        {
+                        result =  ele.values.join(",");
+                        return;
+                        }
+                    });
+
+                    return result;
+                }
+                else return '字段未选择'
+            },
+                  //value是不是空
+            isValueEmpty:function(index){
+                return this.values[index]==="";
+            }
+        },
+        computed:{
+
+        }
+    });
+
+    //选择数据组件
+    var selectField = new Vue({
+
+        el:'#field_modal',
+        data:{
+            //输入的列数据
+            preview_data:[],
+            //要选择的field,下面两个对应setfield这个vue的
+            nowSelectField:null,
+            nowSelectIndex:0
+        },
+        methods:{
+            //设置要选择的目标字段
+            setSelectTarget:function(field,index)
+            {
+                this.nowSelectField = field;
+                this.nowSelectIndex=index;
+                field_modal.open();
+
+            },
+            //点击的，选择完成的回调函数
+            selectDone:function(index)
+            {
+
+                var selectField = this.preview_data[index].field;
+                console.log('选择完成：下标:'+index+" value:"+selectField);
+                //设置到 setfield里
+                console.log('模板的下标:'+this.nowSelectIndex);
+
+                Vue.set(setfield.values,this.nowSelectIndex,selectField)
+
+                field_modal.close();
+
+            }
+        },
+        computed:{}
+
+    });
+
+var field_modal=null;
+
+    document.addEventListener('DOMContentLoaded',function (evt) {
+
+    var elements = $("#field_modal");
+
+    field_modal = M.Modal.init(elements,{})[0];
+
+    console.log("初始化modal成功...");
+    getFields();
+});
+
+
+    </script>
+{% endblock %}

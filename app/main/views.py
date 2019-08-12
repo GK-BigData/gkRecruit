@@ -22,7 +22,7 @@ from app.common.mycolumns import needcolumns_fields, needcolumns_name,chartTypes
 from . import bp_main,logger
 
 from app.charts.Report import ReportItem
-
+from flask_login import login_required,current_user
 
 need_columns = {}
 for i in range(0, len(needcolumns_name)):
@@ -48,6 +48,7 @@ allcharts = ["各学院男女人数占比雷达图",
 
 # 需要传入报告id
 @bp_main.route("/<reportid>")
+@login_required
 def index(reportid):
     # report要引用到这个views的drawChart方法,如果在上面引用，report里又用到drawChart，就会找不到
     from app.report.models import Report
@@ -256,13 +257,13 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
                 pass
 
         # entities.append(column(group))
-    logger.debug('处理完聚合函数前', query)
+    logger.debug('处理完聚合函数前:%s', str(query))
     #聚合字段要分割出聚合函数和字段
     for agg in aggfield:
 
         # sum_xxx,限制只能分割一次，因为有些字段名可能有_ ,label设置别名为传进来的原始参数，因为orderby是根据这个的
         aggtype_field=agg.split('-',1)
-        logger.debug("处理聚合函数:,分割结果:%s"%aggtype_field)
+        logger.debug("处理聚合函数:,分割结果:%s",aggtype_field)
         print(aggtype_field)
         if aggtype_field[0]=='count':
             entities.append(func.count(column(aggtype_field[1].strip())).label(agg)  )
@@ -273,7 +274,7 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
     # 选择,with_entites是变长参数，这里解包列表进去
 
     query = query.with_entities(*entities)
-    logger.debug('处理完聚合函数后2', query)
+    logger.debug('处理完聚合函数后:%s', query)
     #-------------------group by 分组字段处理 ----------------,普通分组和整数分段分组
 
     group_columns = []
@@ -326,6 +327,7 @@ def get_sql(query, charttype: str,  groupfield: list,aggfield: list):
 
 def drawChart(query, chartType: str= '', dataType:str= '', groupfield: str= '', aggfield:str= '', filter:str= '', orderBy='', limit=-1,title=None,sql=None):
 
+    logger.debug('drawChart,title:%s',title)
     print('数据类型:',dataType)
 
 
@@ -651,6 +653,7 @@ def test():
 
 # 获取所有图表列表测试
 @bp_main.route("/charts2",methods=['POST'])
+@login_required
 def charts2():
 
     print('表单:',request.form)
@@ -749,7 +752,7 @@ def options(type):
     logger.debug('获取内置options,类型:%s'%type)
     # 招生数据
     if type=='zs':
-        sql = zs.query.filter(zs.recordid==1)
+        sql = zs.query.filter(zs.recordid==3)
         chart = zschart(sql,1)
         options = chart.options()
         # chart1 = drawChart(sql, 'bar', 'group', 'sex_name,departments', 'count_total_score_of_filing', 'null',
@@ -762,6 +765,7 @@ export_dir=os.path.abspath('../download')
 
 # 根据报告id , 导出报告,返回导出是否成功
 @bp_main.route('/export/<int:id>')
+@login_required
 def export(id):
 
     time.sleep(4)
@@ -782,6 +786,7 @@ def export(id):
 
 
 @bp_main.route('/download/<int:id>')
+@login_required
 def download(id):
     from app.report.models import Report
     report = Report.query.with_entities(Report.id, Report.title,

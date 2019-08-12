@@ -8,11 +8,20 @@ from flask_sqlalchemy import SQLAlchemy
 from settings import config
 
 from flask_uploads import UploadSet,configure_uploads,DOCUMENTS,IMAGES
+
+#会话管理
+from flask_login import LoginManager
+
+
+
 import logging
 
 db = SQLAlchemy()
 
 upload_tables = UploadSet('TABLE',IMAGES+DOCUMENTS+('pdf','csv'))
+
+login_manager = LoginManager()
+login_manager.login_view='user.unauthorized'
 
 # 配置主日志打印，模块共享这个,子模块获取app.xx
 app_logger = logging.getLogger('app')
@@ -48,6 +57,8 @@ def create_app():
     app.config.from_object(config)
 
     db.init_app(app)
+    login_manager.init_app(app)
+
 
 
     # 导入各个模块
@@ -56,16 +67,21 @@ def create_app():
 
     from app.testroute.views import bp_test
     from app.report import report_admin
+    from app.user import bp_user
 
     app.register_blueprint(bp_admin,url_prefix='/admin')
     app.register_blueprint(bp_main,url_prefix='/main')
     app.register_blueprint(bp_test,url_prefix='/test')
     app.register_blueprint(report_admin,url_prefix='/report')
+    app.register_blueprint(bp_user,url_prefix='/user')
 
     # 导入model，这里似乎没用，但在migrate时，要导入才找得到model
     from app.admin.models import Record
     from app.main.models import zs
     from app.report.models import Report
+    from app.user.models import User
+
+
 
     # 配置上传插件
     configure_uploads(app,upload_tables)

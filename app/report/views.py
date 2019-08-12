@@ -25,6 +25,9 @@ from sqlalchemy import or_
 
 from app.report.template_report import get_report_template
 
+# 导入需要登录和当前用户
+from flask_login import login_required,current_user
+
 # 模板的类型，暂时只有招生数据的模板
 report_templates={
     'zs':'招生数据',
@@ -32,11 +35,13 @@ report_templates={
 }
 
 # 主界面，显示所有记录的界面
+
 @report_admin.route("/")
+@login_required
 def index():
 
     # 查询数据源
-    dataset = Record.query.all()
+    dataset = Record.query.filter( Report.userid==current_user.get_id() ).all()
     records = {}
     for data in dataset:
         records[data.id] = '%s %s %s'%(data.id,data.zsyear,data.status)
@@ -46,12 +51,13 @@ def index():
     result = []
     for item in data:
         result.append({'title':item.title,'id':item.id,'time':item.time})
-    return render_template("report/report.html",data=data,templates=report_templates,records=records)
+    return render_template("report/report.html",data=data,templates=report_templates,records=records,current_user=current_user)
 
 @report_admin.route('/data')
+@login_required
 def data():
     # 找出没有被删除的,isdelete>0的
-    data = Report.query.with_entities(Report.id,Report.title, func.date_format( Report.time,'%Y-%m-%d %H:%i:%S').label('time')).filter( or_( Report.isdelete<1 , Report.isdelete==None))
+    data = Report.query.filter( Report.userid==current_user.get_id()).with_entities(Report.id,Report.title, func.date_format( Report.time,'%Y-%m-%d %H:%i:%S').label('time')).filter( or_( Report.isdelete<1 , Report.isdelete==None))
     logger.debug('获取数据,sql'+str(data))
     data=data.all()
     result = []
@@ -66,10 +72,11 @@ def reports():
     pass
 # 删除报告
 @report_admin.route('/reports/<int:id>',methods=['DELETE'])
+@login_required
 def delete_reprots(id):
     logger.debug('删除报告:%s',id)
     try:
-        item = Report.query.filter(Report.id == id).first_or_404()
+        item = Report.query.filter( and_( Report.id == id,Report.userid==current_user.get_id())).first_or_404()
         logger.debug(item)
         item.isdelete=1
         db.session.add(item)
@@ -82,9 +89,10 @@ def delete_reprots(id):
 
 #获取单个报告
 @report_admin.route('/reports/<id>')
+@login_required
 def get_reports(id):
     time.sleep(5)
-    report = Report.query.filter(Report.id == id).first_or_404()
+    report = Report.query.filter( and_( Report.id == id,Report.userid==current_user.get_id())).first_or_404()
     return rjson({
         'id':report.id,
         'data':report.data
@@ -92,6 +100,7 @@ def get_reports(id):
 
 # 更新或者添加报告
 @report_admin.route('/reports',methods=['POST'])
+@login_required
 def update_report():
 
     id = None
@@ -117,7 +126,7 @@ def update_report():
             recordid = request.form.get('recordid')
 
         except Exception as e:
-            logger.warning('update_report 更新,缺少参数', ex_info=True)
+            logger.warning('update_report 更新,缺少参数', exc_info=True)
         nowtime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         # 有模板表示要创建模板
@@ -126,11 +135,11 @@ def update_report():
             data = get_report_template(query,template,recordid)
             pass
 
-        report = Report(id=id, data=data,title=title, template=template,time=nowtime)
+        report = Report(id=id, data=data,title=title, template=template,time=nowtime,userid=current_user.get_id())
 
     else:
 
-        report = Report.query.filter(Report.id == id).first()
+        report = Report.query.filter( and_( Report.id == id ,Report.userid==current_user.get_id())).first()
         if report==None:
             return rjson('id %d 不存在',1)
         # 更新有的数据
@@ -142,6 +151,7 @@ def update_report():
             report.template = request.form['template']
         logger.debug('更新数据...')
 
+    report.userid=current_user.id
     db.session.add(report)
     db.session.commit()
 

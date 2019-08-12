@@ -17,6 +17,13 @@ def aggfield2name(aggfield):
     result = []
     for field in aggfield:
 
+        # 整数分割，特殊处理
+        if field.startswith('interval-'):
+            type_field = field.split('-')
+            #第二个是字段名，应该是有的
+            result.append('整数分组-'+field_name[type_field[1]])
+            continue
+
         type_field = field.split('-',1)
         if len(type_field)==2:
                 result.append(aggType[type_field[0]]+"_"+field_name[type_field[1]])

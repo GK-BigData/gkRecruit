@@ -37,23 +37,11 @@ class All_Picture():
         ]
 
     def bar_picture(self, series_names, bar_xdata, bar_ydatas,stack=False,reverse=False):
-        logger.debug('draw bar...')
+        logger.debug('draw bar chart...')
+        logger.debug('ydatas:%s',bar_ydatas)
         b = (
             Bar(init_opts=self.init_opts)
                 .add_xaxis(bar_xdata)
-                .set_global_opts(
-                title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
-                # 显示下载等按钮
-                toolbox_opts=opts.ToolboxOpts(),
-                legend_opts=opts.LegendOpts(is_show=True),
-
-                # 设置y轴名称和value单位
-                yaxis_opts=opts.AxisOpts( axislabel_opts=opts.LabelOpts(formatter="{value}")),
-                xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=27)),
-
-                # 设置logo
-                graphic_opts=self.logo
-            )
 
         )
 
@@ -63,13 +51,26 @@ class All_Picture():
                 b.add_yaxis(name,ydata,stack=self.fields[-1])
             else:
                 b.add_yaxis(name, ydata)
-        b.set_series_opts(label_opts=opts.LabelOpts(position="top"))
+        #有些数据过小，看不清，设置最小高度,barMinHeight=40,但设置了是0的数据也会显示有高度。。。
+        b.set_series_opts(label_opts=opts.LabelOpts(position="insideTop",color='white'))
         #如果是水平的设置label的位置在右边
         if reverse:
             b.reversal_axis()
-            b.set_series_opts(label_opts=opts.LabelOpts(position="right"))
-        #
+            b.set_series_opts(label_opts=opts.LabelOpts(position="insideTop",color='white'))
 
+        b .set_global_opts(
+                title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+                # 显示下载等按钮,需要调整
+                # toolbox_opts=opts.ToolboxOpts(),
+                legend_opts=opts.LegendOpts(is_show=True,pos_bottom='0'),
+
+                # 设置y轴名称和value单位
+                yaxis_opts=opts.AxisOpts( axislabel_opts=opts.LabelOpts(formatter="{value}")),
+                xaxis_opts=opts.AxisOpts(axislabel_opts=opts.LabelOpts(rotate=27)),
+
+                # 设置logo
+                graphic_opts=self.logo
+            )
         return b
 
     def rose_picture(self,series_names, rose_xdata, rose_ydatas):
@@ -142,10 +143,10 @@ class All_Picture():
         for series_name ,item_x , item_y in zip(series_names, x,y):
             print('add series:',series_name)
             p.add(series_name, [list(z) for z in zip(item_x, item_y)])
-            p.set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle),
+            p.set_global_opts(title_opts=opts.TitleOpts(title=self.title, subtitle=self.subtitle,pos_left='center'),
                              # 添加logo
                              graphic_opts=self.logo,
-                             legend_opts=opts.LegendOpts(type_='scroll'),
+                             legend_opts=opts.LegendOpts(type_='scroll',pos_bottom='0'),
                              )
         p.set_series_opts(label_opts=opts.LabelOpts(formatter="{b}:{c}\n({d}%)"))
         return p

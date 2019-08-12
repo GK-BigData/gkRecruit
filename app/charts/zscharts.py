@@ -71,13 +71,15 @@ class zschart():
 
         return item.to_dict()
 
-    def chart(self,  data,type='chart', title=None):
-        item = ReportItem(type, 0, 400, 400, self.recordid, **data)
+    # 输入图表参数和标题，返回报告元素数据
+    def chart(self,  data,type='chart', title=None,width=400,height=400):
+
+        item = ReportItem(type, 0, width, height, self.recordid, **data)
         try:
 
             chart2 = drawChart(self.query, **data, title=title)
         except Exception as e:
-            logger.error('zs画图失败,标题:%s' % title)
+            logger.error('zs画图失败,标题:%s,错误信息:%s' ,title,e,exc_info=True)
             return None
 
         if data['chartType']=='table':
@@ -88,6 +90,20 @@ class zschart():
             item.option = option
 
         return item.to_dict()
+
+    #上个函数的封装
+    def addChart(self,data,type='chart',title=None,width=400,height=400):
+        self.charts.append({
+            'element':self.chart(
+                data=data,
+                type=type,
+                title=title,
+                width=width,
+                height=height
+            ),
+            'title':title
+        })
+
 
 
     # 获取所有options
@@ -110,72 +126,53 @@ class zschart():
         :return:
         '''
         # 测试，各学院男女人数和男女比例,返回完整结构
-        title = '男女比例'
-        self.charts.append(
-            {
-                'element': self.chart({
+        self.addChart({
                     'chartType': 'pie',
                     'aggfield': 'count-student_name',
                     'groupfield': 'sex_name',
                     'orderBy': 'null',
                     'filter': 'null',
                     'limit': -1,
-                    'dataType': 'group'
-                }),
-                'title': title
-            })
+                    'dataType': 'group',
 
-        self.charts.append({
-            'title':'文科理科比例',
-            'element':self.chart2()
-        })
+                },title='全校男女人数比例')
 
-        self.charts.append({
-            'title':'各学院男女人数，男女比例',
-            'element':self.chart1()
-        })
-
-        title = '广东地区男女比例'
-        self.charts.append({
-           'title':title,
-            'element':self.chart({
+        self.addChart({
             'chartType': 'pie',
             'aggfield': 'count-student_name',
-            'groupfield': 'sex_name',
+            'groupfield': 'student_type',
             'orderBy': 'null',
-            'filter': 'source_provinces-contains-广东',
+            'filter': 'null',
             'limit': -1,
             'dataType': 'group'
-        })
+        },title='全校文科理科比例')
 
-        })
+        self.addChart({
+                    'chartType': 'pie',
+                    'aggfield': 'count-student_name',
+                    'groupfield': 'sex_name',
+                    'orderBy': 'null',
+                    'limit': -1,
+                    'dataType': 'group',
+                    'filter': 'source_provinces-contains-广东',
 
-        # 广东地区
-        title = '广东地区文科理科'
-        self.charts.append(
-            {
-                'title':title,
-                'element':self.chart(
-                    {
-                        'chartType': 'pie',
-                        'aggfield': 'count-student_name',
-                        'groupfield': 'student_type',
-                        'orderBy': 'null',
-                        'limit': -1,
-                        'dataType': 'group',
-                        'filter': 'source_provinces-contains-广东'
-                    }
-                )
-            }
-        )
+                },title='广东地区男女人数比例')
 
 
-        # 各院系招生人数
-        title = '各院系招生总人数'
-        self.charts.append(
-            {
-                'title':title,
-                'element':self.chart({
+        self.addChart({
+            'chartType': 'table',
+            'aggfield': 'count-student_name',
+            'groupfield': 'student_type',
+            'orderBy': 'null',
+            'limit': -1,
+            'dataType': 'group',
+            'filter': 'source_provinces-contains-广东',
+        }, type='table', title='广东地区文科理科比例')
+
+
+
+
+        self.addChart({
             'aggfield': 'count-student_name',
             'groupfield': 'sex_name, departments',
             'chartType': 'stackbar',
@@ -183,40 +180,26 @@ class zschart():
             'limit': '-1',
             'dataType': 'group',
             'filter': 'null'
-        })
-            }
-        )
+        },title='各院系招生总人数')
 
-
-
-        # 各院系各生源
-
-        # 各专业
-        title = '专业招生总人数'
-        self.charts.append({
-            'title':title,
-            'element':self.chart({
+        self.addChart({
             'aggfield': 'count-student_name',
             'groupfield': 'sex_name, major_name',
             'chartType': 'horizontal_stackbar',
             'orderBy': 'null',
             'limit': '-1',
             'dataType': 'group',
-            'filter': 'null'
-        })
-        })
+            'filter': 'null',
+
+        },title = '专业招生总人数', type='chart', height=1000)
+
+
 
 
         # top 10
 
 
-
-
-        title = '招生人数Top10院系'
-        # 1.按院系招生人数、报到率排名
-        self.charts.append({
-            'title':title,
-            'element':self.chart(
+        self.addChart(
             {'aggfield': 'count-student_name',
              'groupfield': 'departments',
              'chartType': 'bar',
@@ -225,40 +208,23 @@ class zschart():
              # 'recordid': '1',
              'dataType': 'group',
              'filter': 'null'
-             },title=title)
-        }
+             },title="院系人数"
         )
 
-        # 专业人数Top 10
-        title = '专业人数Top10'
-        self.charts.append({
-            'title':title,
+        self.addChart({'aggfield': 'count-student_name', 'groupfield': 'major_name', 'chartType': 'bar', 'orderBy': 'count-student_name+desc', 'limit': '10',
+                 'dataType': 'group', 'filter': 'null'},title='专业人数')
 
-            'element':self.chart(
-                {'aggfield': 'count-student_name', 'groupfield': 'major_name', 'chartType': 'bar', 'orderBy': 'count-student_name+desc', 'limit': '10',
-                 'dataType': 'group', 'filter': 'null'},title=title
-)
-        })
-        # 广东各地区
-        self.charts.append({
-            'title':'广东各地区招生人数',
-            'element':self.chart(
-                {'aggfield': 'count-student_name', 'groupfield': 'student_address', 'chartType': 'bar',
+
+        self.addChart({'aggfield': 'count-student_name', 'groupfield': 'student_address', 'chartType': 'bar',
                  'orderBy': 'count-student_name+desc', 'limit':'10',
-                 'dataType': 'group', 'filter': 'source_provinces-contains-广东'},title='广东各地区招生人数'
+                 'dataType': 'group', 'filter': 'source_provinces-contains-广东'},title='广东各地区招生人数')
+        # 广东各地区
 
 
-        )
-        })
+        self.addChart({'aggfield': 'count-student_name', 'groupfield': 'interval-total_score_of_filing-0-100-200-300,departments', 'chartType': 'table',
+                 'orderBy': 'null', 'limit': '-1', 'dataType': 'group', 'filter': 'null'}, type='table', title='各学院文科理科分数区间人数',height=600)
+        #文科理科
 
 
-        self.charts.append({
-            'title':'各学院文科理科分数区间人数',
-            'element':self.chart(
-                {'aggfield': 'count-student_name', 'groupfield': 'departments,interval-total_score_of_filing-0-100-200-300', 'chartType': 'stackbar',
-                 'orderBy': 'null', 'limit': '-1', 'dataType': 'group', 'filter': 'null'},type='chart',title='各学院文科理科分数区间人数',
-            )
-        })
-        # -----------------学生质量,录取区间
 
         return self.charts

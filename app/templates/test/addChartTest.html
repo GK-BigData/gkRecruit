@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{#添加图表界面重写,element解析器哈哈哈#}
+
+{% block container %}
+
+
+    {% raw %}
+    <div id="create_chart">
+
+         <ul class="tabs" id="createchart_tabs">
+            <li class="tab col s3"><a href="#group">分组</a></li>
+            <li class="tab col s3"><a href="#agg">聚合</a></li>
+            <li class="tab col s3"><a href="#sort">排序</a></li>
+            <li class="tab col s3 disabled"><a href="#filter">过滤</a></li>
+        </ul>
+
+
+                <div id="group">
+                    <div class="row" id="group">
+                <div class="col s3 input-field">
+                    <select id="groupfield">
+                        <option v-bind:value="field.field" v-for="field in fields">{{ field.name }}</option>
+                    </select>
+                <label>按字段分组</label>
+                </div>
+                        <a class="btn">添加</a>
+                </div>
+                    <div class="row">
+                    <div class="chips" id="groups">
+                        <input class="hide" style="display: none;"/>
+                    </div>
+            </div>
+                </div>
+
+
+
+
+                <div class="row" id="agg">
+                <h4>agg</h4>
+                </div>
+
+        <div class="row" id="sort">
+
+
+        <div class="col s3 input-field">
+            <select></select>
+        </div>
+
+            <div class="col s3  input-field"><select id="order"><option value="desc">高到低</option><option value="asc">低到高</option></select></div>
+            <div class="col s3  input-field"><label for="limit">Top选项</label><input type="text" value="-1" id="limit"/></div>
+
+        </div>
+    <div class="divider"></div>
+
+                 <div class="col s3 input-field">
+                <select id="chartType">
+                    {% for key,name in chartTypes.items() %}  <option value="{{ key }}">{{ name }}</option>  {% endfor %}
+                </select>
+                <label>图表类型</label>
+                </div>
+            <p>按<span class="red-text">方法分，分，f</span>分组,统计 <span class="green-text">得到xx</span>,按<span class="blue-text">abcd</span>排序</p>
+    </div>
+{% endraw %}
+
+{% endblock %}
+
+{% block script %}
+
+
+    <script type="text/javascript">
+
+var wm_add_chart = new Vue({
+
+        el:'#create_chart',
+        data:{
+            //字段
+            fields:[{
+                name:'字段1',
+                value:'field1'
+            }],
+            //单个元素的属性
+            element:{
+
+
+            }
+        },
+        methods:{
+
+        },
+        computed:{}
+
+    });
+wm_add_chart.$nextTick(function () {
+    var tabs = M.Tabs.init(document.getElementById('createchart_tabs'));
+})
+    </script>
+
+
+{% endblock %}

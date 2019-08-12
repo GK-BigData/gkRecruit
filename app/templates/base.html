@@ -48,6 +48,13 @@
             {% block navmenu %}
 {#                自定义的选项 #}
             {% endblock %}
+
+{#        用户下拉  #}
+        <a class="btn dropdown-trigger" id="user_dropdown" data-target="dropdown_user">{{ current_user.id }}</a>
+        <ul class="dropdown-content" id="dropdown_user">
+            <li><a  href="{{ url_for('user.logout') }}" href="#!">退出登录</a></li>
+        </ul>
+
         </ul>
     </div>
     </nav>
@@ -106,6 +113,7 @@
 {#        初始化通用模态框 #}
 
         var base_modal = M.Modal.init(document.getElementById('base-modal'));
+        M.Dropdown.init(document.getElementById('user_dropdown'));
 
     {#    调用函数#}
         function showDialog(title,content) {

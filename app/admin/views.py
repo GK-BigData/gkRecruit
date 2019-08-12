@@ -16,21 +16,78 @@ import json
 from app.common.excel_utils  import  get_columns,excel2dict,excel2list
 import  sqlalchemy.sql.functions as func
 from  sqlalchemy.sql.expression import *
+
+from flask_login import current_user,login_required
+from sqlalchemy import and_
 #  这里使用 restful api http://www.pythondoc.com/flask-restful/first.html
 
 from . import bp_admin,need_columns,needcolumns_fields
+from app.common.mycolumns import needcolumns_fields,needcolumns_name
 pinyin = Pinyin()
 
 
 # 主界面，显示所有记录的界面
 @bp_admin.route("/")
+@login_required
 def index():
     return render_template("admin/admin.html")
+
+
+# 获取某个数据类型可以用的字段
+@bp_admin.route('/setfield/fields')
+def get_fields():
+#     现在只有一个
+    print('获取填充字段....请求参数',request.args)
+    id=request.args['id']
+    type = request.args['type']
+
+    nowrecord = Record.query.filter(  and_( Record.id==id ,Record.userid==current_user.id) ).first()
+    filename = os.path.join("upload", nowrecord.filename)
+
+
+    inputcolumns = get_columns(filename, previewsize=10)
+    print(need_columns)
+    print(inputcolumns)
+    preview_data = []
+    for field,values in inputcolumns.items():
+        preview_data.append({
+            'field':field,
+            'values':values
+        })
+
+
+
+
+    # fields是空的话,就进行推断,将需要的字段 和 输入的字段进行匹配
+
+
+    fields = nowrecord.fields
+    print("数据库的的 fields", fields)
+    if fields == None:
+        fields = caculateFields(need_columns, inputcolumns)
+    else:
+        fields = fields.split(",")
+
+    if type=='zs':
+        vue_fields = []
+        for field, name, value in zip(needcolumns_fields, needcolumns_name, fields):
+            vue_fields.append({
+                'field': field,
+                'name': name,
+                'desc': name
+            })
+
+        return rjson({
+            'fields':vue_fields,
+            'values':fields,
+            'preview_data':preview_data
+        },0)
 
 
 
 # 修改字段导入数据 界面
 @bp_admin.route("/setfield/<int:id>")
+@login_required
 def setfield(id):
 
     """
@@ -39,36 +96,43 @@ def setfield(id):
     :return:
     """
 
-    nowrecord = Record.query.filter(Record.id==id).first()
+    nowrecord = Record.query.filter(  and_( Record.id==id ,Record.userid==current_user.id) ).first()
 
     if nowrecord==None:
         return redirect(url_for('admin.index'))
     fields = nowrecord.fields
 
 
-    filename = os.path.join("upload", nowrecord.filename)
+    # filename = os.path.join("upload", nowrecord.filename)
+    #
+    #
+    # print("打开文件:",filename)
+    # # 获取预览数据,字典格式,键为 列名，值是数组列表
+    # inputcolumns = get_columns(filename,previewsize=10)
+    # print(need_columns)
+    # print(inputcolumns)
+    #
+    # print("数据库的的 fields",fields)
+    #
+    # # fields是空的话,就进行推断,将需要的字段 和 输入的字段进行匹配
+    #
+    # if fields==None:
+    #     fields=caculateFields(need_columns,inputcolumns)
+    # else:
+    #     fields=fields.split(",")
+    #
+    # print("处理有fields",fields)
 
 
-    print("打开文件:",filename)
-    # 获取预览数据,字典格式,键为 列名，值是数组列表
-    inputcolumns = get_columns(filename,previewsize=10)
-    print(need_columns)
-    print(inputcolumns)
 
-    print("数据库的的 fields",fields)
-    # fields是空的话,就进行推断,将需要的字段 和 输入的字段进行匹配
-    if fields==None:
-        fields=caculateFields(need_columns,inputcolumns)
-    else:
-        fields=fields.split(",")
-
-    print("处理有fields",fields)
     # preview是 inputcolumns的json字符串
-    return render_template("admin/setfield.html",
-                           zsyear=nowrecord.zsyear,
-                           need_columns=need_columns,
-                           needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns,preview=json.dumps(inputcolumns),
-                           fileds = fields)
+    # return render_template("admin/setfield.html",
+    #                        zsyear=nowrecord.zsyear,
+    #                        need_columns=need_columns,
+    #                        needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns,preview=json.dumps(inputcolumns),
+    #                        fileds = fields)
+    return render_template('admin/import.html',zsyear=nowrecord.zsyear,recordid=nowrecord.id)
+
 
 def caculateFields(need_columns:dict,inputcolumns:dict)->list:
     '''
@@ -97,9 +161,10 @@ def caculateFields(need_columns:dict,inputcolumns:dict)->list:
 
 # 获取全部数据
 @bp_admin.route("/records_html",methods=['GET'])
+@login_required
 def get_records2():
 
-    datasets = Record.query.all()
+    datasets = Record.query.filter(Record.userid==current_user.get_id()).all()
     # 查询到的是Record对象，不能序列化
     result = []
 
@@ -117,9 +182,10 @@ def get_records2():
 
 # 获取全部数据
 @bp_admin.route("/records",methods=['GET'])
+@login_required
 def get_records():
 
-    datasets = Record.query.all()
+    datasets = Record.query.filter(Record.userid==current_user.get_id()).all()
     # 查询到的是Record对象，不能序列化
     result = []
     for data in datasets:
@@ -136,11 +202,12 @@ def get_records():
 
 # 获取某个预览数据
 @bp_admin.route("/preview/<int:id>",methods=['GET'])
+@login_required
 def preview(id):
     # 返回类型，返回json还是html表格
     type=request.args['type']
 
-    item = Record.query.filter(Record.id==id).first()
+    item = Record.query.filter(  and_( Record.id==id,Record.userid==current_user.get_id())  ).first()
     zsyear = item.zsyear
 
     students = zs.query.filter(zs.zsyear==zsyear).order_by(func.rand()).limit(10).all()
@@ -155,9 +222,10 @@ def preview(id):
 
 # 删除数据
 @bp_admin.route('/records/<int:id>',methods=['DELETE'])
+@login_required
 def delete_record(id):
     try:
-        item = Record.query.filter(Record.id == id).first()
+        item = Record.query.filter(  and_( Record.id == id,Record.userid==current_user.get_id())).first()
         # 先删除招生数据再删除记录
         zss = zs.query.filter(zs.zsyear==item.zsyear).delete()
 
@@ -168,8 +236,10 @@ def delete_record(id):
     except Exception as e:
         return rjson("错误:{}".format(str(e)), 1)
     return rjson("删除成功", 0)
+
 # 添加数据
 @bp_admin.route("/records",methods=['POST'])
+@login_required
 def add_record():
     # data = request.form
 
@@ -183,6 +253,7 @@ def add_record():
     item.zsyear=zsyear
     item.status=status
     item.size=0
+    item.userid=current_user.get_id()
 
 
     print(type(db.session))

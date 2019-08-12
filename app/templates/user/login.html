@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+
+{#用户登录界面#}
+{% block container %}
+
+    <form method="post" action="{{ url_for('user.loginuser') }}">
+<div class="input-field">
+<input id="username"  name="id" type="text"/><label for="username">用户名</label>
+</div>
+    <div class="input-field">
+    <input  name="password" type="text" id="userpassword"/><label for="userpassword">密码</label>
+    </div>
+        <div class="row">
+    <div class="input-field col s12">
+    <input  class="btn" type="submit" value="登录" />
+    </div>
+            </div>
+</form>
+{% endblock %}

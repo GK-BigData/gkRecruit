@@ -27,6 +27,8 @@ class Record(db.Model):
     # 原始的字段
     raw_fields = db.Column(db.Text)
 
+    userid = db.Column(db.ForeignKey('user.id'),nullable=False)
+
     # record表和zs表外键关联,这里的zss 代表这一年的所有zs 数据
     zss = db.relationship('zs',backref='record',lazy='dynamic',foreign_keys='zs.recordid')
 
