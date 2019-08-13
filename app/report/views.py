@@ -41,7 +41,11 @@ report_templates={
 def index():
 
     # 查询数据源
-    dataset = Record.query.filter( Report.userid==current_user.get_id() ).all()
+    dataset = Record.query.filter( Record.userid==current_user.get_id() )
+    logger.debug(dataset)
+    dataset=dataset.all()
+    logger.debug('新建报告获取数据源:%s,当前用户:%s',dataset,current_user.get_id())
+
     records = {}
     for data in dataset:
         records[data.id] = '%s %s %s'%(data.id,data.zsyear,data.status)

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{#正则表达式测试#}
+
+{% block container %}
+
+    {% raw %}
+    <div id="test">
+    文字：<input  v-on:input="changeText()" v-model="text"/>
+    正则: <input v-model="regex" v-on:input="changeText()"/>
+    匹配结果:<p>{{ result }}</p>
+    </div>
+{% endraw %}
+
+
+{% endblock %}
+
+{% block script %}
+
+    <script type="text/javascript">
+        var wm = new Vue({
+            el:'#test',
+            data:{
+                text:'汉族',
+                regex:'*',
+                result:''
+            },
+            methods:{
+                changeText:function () {
+                    console.log('inputText..'+this.text+' re:'+this.regex);
+                    try {
+                        var pa = new RegExp(this.regex);
+
+                    }catch (e) {
+
+                        this.result = '正则表达式错误:'+e;
+                        console.log(this.result);
+                        return;
+                    }
+                    this.result = pa.test(this.text);
+                    console.log('匹配结果:' + this.result);
+                }
+            }
+
+        });
+    </script>
+
+
+{% endblock %}
