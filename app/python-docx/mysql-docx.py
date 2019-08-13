@@ -14,6 +14,7 @@ from pyecharts.render import make_snapshot
 import time
 
 
+
 '''
 连接mysql数据库，将数据传入到word文档里面
 '''
