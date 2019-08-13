@@ -32,8 +32,8 @@
 {#        全局导航 #}
         <ul class="left">
 
-            <li><a href="/report/">报告管理</a></li>
-            <li><a href="/admin/">数据管理</a></li>
+            <li><a href="/report/">报告管理({{ report_count }})</a></li>
+            <li><a href="/admin/">数据管理({{ record_count }})</a></li>
         </ul>
 
 
@@ -137,7 +137,12 @@
         var zsDialog = new ZsDialog();
 
 
-
+        //请求用户和记录信息
+        $.ajax(
+            {
+                url:''
+            }
+        );
     </script>
 
 {% block script %}

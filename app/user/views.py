@@ -12,7 +12,12 @@ from app.common.restful import rjson
 from app import login_manager
 from app.user.models import User
 
-from flask_login import login_user,logout_user
+from app.report.models import Report
+from app.admin.models import Record
+
+import  sqlalchemy.sql.functions  as func
+
+from flask_login import login_user,logout_user,current_user,login_required
 @bp_user.route('/login')
 def index():
     return render_template('user/login.html')
@@ -61,3 +66,17 @@ def load_user(id):
 @bp_user.route('/unauthrized')
 def unauthorized():
     return render_template('user/unauthorized.html')
+from app import db
+# 获取使用者基本信息,包括 记录数，报告数,定义为在全部模板里都可用
+
+@bp_user.app_context_processor
+def info():
+    report_count = Report.query.filter(Report.userid==current_user.get_id()).with_entities(func.count(Report.id)).first()[0]
+    record_count = Record.query.filter(Record.userid == current_user.get_id()).with_entities(func.count(Record.id)).first()[0]
+    logger.debug('获取使用折信息,记录数:%s,报告数: %s',record_count,report_count)
+
+    return {
+        'report_count':report_count,
+        'record_count':record_count
+    }
+

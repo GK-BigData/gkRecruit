@@ -6,7 +6,7 @@
 //
 // });
 
-//图表编辑工具
+//图表编辑工具n
 var chartEditor = new ChartEditor();
 
 

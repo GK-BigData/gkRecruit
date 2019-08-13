@@ -12,11 +12,10 @@ need_columns = {}
 for i in range(0, len(needcolumns_name)):
     # need_columns['sex_name']=性别名称
     need_columns[needcolumns_fields[i]] = needcolumns_name[i]
-
-from . import views
-from . import etlviews
-
 # 初始化logger,和app那个logger共享配置，name以app开头就行
 logger = logging.getLogger('app.admin')
 logger.debug('子模块debug 测试 ')
 logger.warning('子模块警告测试.')
+from . import views
+from . import etlviews
+

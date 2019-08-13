@@ -17,20 +17,18 @@
 
 
                 <div id="group">
-                    <div class="row" id="group">
-                <div class="col s3 input-field">
-                    <select id="groupfield">
-                        <option v-bind:value="field.field" v-for="field in fields">{{ field.name }}</option>
+                    <div class="row">
+                <div class="col s3">
+
+                    <select   id="groupfield" v-model="nowgroup.field">
+                        <option  v-bind:selected="nowgroup.field===field.value" v-bind:value="field.value" v-for="field in fields">{{ field.name }}</option>
                     </select>
                 <label>按字段分组</label>
-                </div>
-                        <a class="btn">添加</a>
+                </div><a v-on:click="addGroup()" class="btn">添加</a>
                 </div>
                     <div class="row">
-                    <div class="chips" id="groups">
-                        <input class="hide" style="display: none;"/>
+                        <div  v-on:click="selectGroup(index)" class="chip" v-for="(group,index) in groupText()">  {{ group }}<i v-on:click.stop='element.groupfield.splice(index,1)' class="material-icons close">close</i></div>
                     </div>
-            </div>
                 </div>
 
 
@@ -52,6 +50,7 @@
 
         </div>
     <div class="divider"></div>
+        {% endraw %}
 
                  <div class="col s3 input-field">
                 <select id="chartType">
@@ -59,8 +58,10 @@
                 </select>
                 <label>图表类型</label>
                 </div>
-            <p>按<span class="red-text">方法分，分，f</span>分组,统计 <span class="green-text">得到xx</span>,按<span class="blue-text">abcd</span>排序</p>
+    {% raw %}
+            <p>按<span class="red-text">{{ element.groupfield }}</span>分组,统计 <span class="green-text">得到xx</span>,按<span class="blue-text">abcd</span>排序</p>
     </div>
+
 {% endraw %}
 
 {% endblock %}
@@ -78,22 +79,84 @@ var wm_add_chart = new Vue({
             fields:[{
                 name:'字段1',
                 value:'field1'
+            },{
+                name:'字段2',
+                value:'field2'
             }],
+
+
+            nowgroup:{
+                field:''
+            },
             //单个元素的属性
             element:{
-
+                //分组字段
+                groupfield:['field1','field2'],
+                //聚合字段
+                aggfield:[]
 
             }
         },
-        methods:{
+        methods: {
 
+            addGroup:function(){
+                console.log('添加组:')
+            },
+            //添加分组
+            removeGroup:function(index){
+                console.log('移除组:'+index);
+            },
+            selectGroup:function(index){
+                console.log('选择组:'+index);
+                console.log(this.element);
+                var f = this.element.groupfield[index];
+                console.log(f);
+                this.nowgroup.field=f;
+                this.$nextTick(function () {
+                    M.FormSelect.init(document.getElementById('groupfield'));
+                });
+
+            },
+            //分组文字显示
+            groupText: function () {
+                var result = [];
+
+                this.element.groupfield.forEach(function (ele) {
+
+                    if (ele.startsWith('interval-')) {
+                        var type_field = ele.split('-');
+                        result.push('整数分组-' + type_field[1]);
+                    } else {
+                        result.push(ele)
+                    }
+                });
+                return result;
+
+            },
         },
         computed:{}
 
     });
 wm_add_chart.$nextTick(function () {
     var tabs = M.Tabs.init(document.getElementById('createchart_tabs'));
-})
+});
+
+$.ajax(
+    {
+        url:'../admin/setfield/fields?type=zs',
+        method:'get',
+        success:function (data) {
+            console.log('加载数据成功:');
+            console.log(data);
+
+        },
+        error:function (data) {
+            console.log('加载失败:');
+            console.log(data);
+        }
+
+    }
+);
     </script>
 
 

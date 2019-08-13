@@ -22,9 +22,9 @@ from sqlalchemy import and_
 #  这里使用 restful api http://www.pythondoc.com/flask-restful/first.html
 
 from . import bp_admin,need_columns,needcolumns_fields
-from app.common.mycolumns import needcolumns_fields,needcolumns_name
+from app.common.mycolumns import needcolumns_fields,needcolumns_name,needcolumns_pattern
 pinyin = Pinyin()
-
+from . import logger
 
 # 主界面，显示所有记录的界面
 @bp_admin.route("/")
@@ -38,50 +38,54 @@ def index():
 def get_fields():
 #     现在只有一个
     print('获取填充字段....请求参数',request.args)
-    id=request.args['id']
+    id=None
+    if 'id' in request.args.keys():
+        id = request.args['id']
+
     type = request.args['type']
 
-    nowrecord = Record.query.filter(  and_( Record.id==id ,Record.userid==current_user.id) ).first()
-    filename = os.path.join("upload", nowrecord.filename)
 
 
-    inputcolumns = get_columns(filename, previewsize=10)
-    print(need_columns)
-    print(inputcolumns)
+    #预览数据
     preview_data = []
-    for field,values in inputcolumns.items():
-        preview_data.append({
-            'field':field,
-            'values':values
-        })
+    # 选择的字段
+    values=[]
+#没有id代表不加载预览数据
+    if id!=None:
+        nowrecord = Record.query.filter(  and_( Record.id==id ,Record.userid==current_user.id) ).first()
+        filename = os.path.join("upload", nowrecord.filename)
+        inputcolumns = get_columns(filename, previewsize=10)
+        for field,values in inputcolumns.items():
+            preview_data.append({
+                'field':field,
+                'values':values
+            })
+        values = nowrecord.fields
+
+        # fields是空的话,就进行推断,将需要的字段 和 输入的字段进行匹配
+        if values == None:
+            values = caculateFields(need_columns, inputcolumns)
+        else:
+            values = values.split(",")
 
 
-
-
-    # fields是空的话,就进行推断,将需要的字段 和 输入的字段进行匹配
-
-
-    fields = nowrecord.fields
-    print("数据库的的 fields", fields)
-    if fields == None:
-        fields = caculateFields(need_columns, inputcolumns)
-    else:
-        fields = fields.split(",")
+    vue_fields = []
 
     if type=='zs':
-        vue_fields = []
-        for field, name, value in zip(needcolumns_fields, needcolumns_name, fields):
+
+        for field, name,pattern in zip(needcolumns_fields, needcolumns_name,needcolumns_pattern):
             vue_fields.append({
                 'field': field,
                 'name': name,
-                'desc': name
+                'desc': name,
+                'pattern':pattern
             })
 
-        return rjson({
-            'fields':vue_fields,
-            'values':fields,
-            'preview_data':preview_data
-        },0)
+    return rjson({
+        'fields':vue_fields,
+        'values':values,
+        'preview_data':preview_data
+    },0)
 
 
 
@@ -207,12 +211,12 @@ def preview(id):
     # 返回类型，返回json还是html表格
     type=request.args['type']
 
-    item = Record.query.filter(  and_( Record.id==id,Record.userid==current_user.get_id())  ).first()
-    zsyear = item.zsyear
+    # item = Record.query.filter(  and_( Record.id==id,Record.userid==current_user.get_id())  ).first()
+    # zsyear = item.zsyear
 
-    students = zs.query.filter(zs.zsyear==zsyear).order_by(func.rand()).limit(10).all()
+    students = zs.query.filter(zs.recordid==id).order_by(func.rand()).limit(10).all()
 
-    print(students[:10])
+    logger.debug('获取预览学生信息,记录id %s,:%s',id,students)
 
     if type=='json':
         return rjson(students,0)

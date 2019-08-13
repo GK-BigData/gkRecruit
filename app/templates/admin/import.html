@@ -29,7 +29,7 @@
    </ul>
 {% endraw %}
 
-    <a class="btn" onclick="apply();">提交</a>
+    <a class="btn" id='apply' onclick="apply();">提交</a>
 </div>
 
 
@@ -52,8 +52,8 @@
         <table id="field_table">
 
             <tr  v-on:click="selectDone(index)" v-for="(item,index) in preview_data">
-                <th>{{ item.field }}</th>
-                <td v-for="value in item.values" class="grey-text">{{ value }}</td>
+                <th v-bind:class="{ 'grey-text':isSelect(item.field) }">{{ item.field }}</th>
+                <td v-for="value in item.values" v-bind:class="{ 'grey-text':isSelect(item.field) }">{{ value }}</td>
             </tr>
         </table>
         {% endraw %}
@@ -80,9 +80,7 @@
             url:'fields?id='+recordid+'&type=zs',
             method:'get',
             success:function (data) {
-                console.log('获取字段数据...');
-                console.log(data);
-                console.log(data.fields);
+
                 var fields = data.data.fields;
                 var values = data.data.values;
                 setfield.fields.splice(0,setfield.fields.length);
@@ -108,10 +106,12 @@
     //提交
     function apply(){
 
+        Zs.prototype.disable('#apply');
+        Zs.prototype.display('#saveprogress');
         //select
         var zsyear = M.FormSelect.init(document.getElementById('zsyear'));
 
-        console.log('提交数据....');
+
         data={};
         for (var i = 0;i<setfield.fields.length;i+=1)
         {
@@ -121,18 +121,23 @@
         data['recordid']=recordid;
         data['zsyear']=zsyear.getSelectedValues()[0];
 
-        console.log(data);
+
         $.ajax({
             url:"import",
             method:'POST',
             data:data,
             success:function(data)
             {
+                Zs.prototype.hide('#saveprogress');
+                Zs.prototype.enable('#apply');
                 console.log("导入数据成功!");
                 console.log(data);
+                showJsonResult(data,'响应完成');
 
             },
             error:function (data) {
+                Zs.prototype.hide('#saveprogress');
+                Zs.prototype.enable('#apply');
                 console.log('导入数据失败!');
                 console.log(data);
 
@@ -219,10 +224,22 @@
                 //设置到 setfield里
                 console.log('模板的下标:'+this.nowSelectIndex);
 
-                Vue.set(setfield.values,this.nowSelectIndex,selectField)
+                Vue.set(setfield.values,this.nowSelectIndex,selectField);
 
                 field_modal.close();
 
+            },
+            //折列有没有被选择，被选择的设置为灰色
+            isSelect:function(field)
+            {
+
+                //需要setfiel
+                for(var i = 0;i<setfield.values.length;i+=1)
+                {
+                    if(setfield.values[i]===field)
+                        return true;
+                }
+                return false;
             }
         },
         computed:{}
