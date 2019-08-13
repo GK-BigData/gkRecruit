@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{#自定义的一些组件
+url:
+http://127.0.0.1:5000/test/template/componentTest.html
+
+
+componentTest.html
+#}
+
+
+
+{% block container %}
+
+
+    <div class="row">
+        <div class="input-field col s12"><input type="text"   id="edit-animationEasingUpdate" >
+            <label for="edit-animationEasingUpdate" class="active">animationEasingUpdate</label></div>
+    </div>
+
+    <div class="card-panel">百分比拉动条</div>
+
+    <div>
+    <label> <span>键值</span><span> 1000 </span>  <input style="width:50%" type="range"/> </label>
+    <label><input type="checkbox" /> <span>使用百分比</span></label>
+    </div>
+
+    {% raw %}
+    <div id="mycomponent">
+    <percent-range v-model="percent" title="格格百分比拉动条"></percent-range>
+    <p>{{ percent }}</p>
+    </div>
+    {% endraw %}
+
+
+    <div class="card-panel">select 输入框，带有select的输入框</div>
+    <div class="row">
+    <div class="input-field s8 inline"><input id="a" type="text"/><label >输入</label></div>
+    <div class="input-field s4 inline"><select class="browser-default">
+        <option value="android">Android</option>
+        <option value="linux">Linux</option>
+        <option value="win">windows</option>
+    </select>
+{#    <label>输入。</label></div>#}
+
+    </div>
+    {% raw %}
+
+    {% endraw %}
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script type="text/javascript" src="{{ url_for('static',filename='components.js') }}">
+
+    </script>
+    {% raw %}
+    <script type="text/javascript">
+
+//https://www.cnblogs.com/wind-lanyan/p/7899428.html
+        var vm = new Vue({
+            el:'#mycomponent',
+            data:{
+                percent:'10'
+
+            }
+
+        });
+
+
+
+    </script>
+    {% endraw %}
+
+{% endblock %}

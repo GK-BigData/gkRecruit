@@ -5,6 +5,11 @@
 
 import xlrd
 
+#数据预处理
+def preProcess():
+    pass
+
+
 '''Excel工具'''
 def get_columns(path,sheet_index=0,previewsize=0)->dict:
     '''

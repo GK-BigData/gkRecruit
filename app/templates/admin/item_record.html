@@ -7,14 +7,19 @@
     <td>{{record.time }}</td>
     <td>{{record.zsyear }}</td>
     <td>{{record.size }}</td>
+{#        如果是未到入数据，要添加导入数据按钮#}
+        {% if record.status=='未导入数据' %}
+     <td><a href="!#" onclick="action_import('{{ record.id }}')">未导入数据,点击导入</a></td>
+            {% else %}
     <td>{{record.status }}</td>
+        {% endif %}
     <td>
         <a class="dropdown-trigger btn" data-target="action{{ record.id }}">操作</a>
         <ul id="action{{ record.id }}" class="dropdown-content">
 
     <li><a class="modal-trigger" href="#modal_info" data-id="{{ record.id }}">信息</a></li>
     <li><a onclick="action_delete('{{ record.id }}')">删除</a></li>
-    <li><a onclick="action_import('{{ record.id }}')">导入数据</a></li>
+    <li><a onclick="action_import('{{ record.id }}')">重新导入数据</a></li>
     <li><a>更新文件</a></li>
     </ul>
     </td>

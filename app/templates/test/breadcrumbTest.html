@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{#面包导航测试#}
+
+{% block container %}
+<nav>
+    <div class="nav-wrapper teal" style="overflow: auto">
+
+
+
+        <div class="col s12">
+            {% for i in range(0,3) %}
+            <a class="breadcrumb" href="#!"></a>
+            {% endfor %}
+        </div>
+
+    </div>
+</nav>
+{% endblock %}

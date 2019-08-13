@@ -23,25 +23,42 @@
 
    {#上面的导航#}
    {#    通用导航 头#}
+   <div class="navbar-fixed">
     <nav>
     <div class="nav-wrapper teal" >
         {#   Logo      #}
-        <a href="#" class="brand-logo left" >Logo</a>
-        <a href="#" class="brand-logo center" >{% block navtitle %}{% endblock %}</a>
+
+
+{#        全局导航 #}
+        <ul class="left">
+
+            <li><a href="/report/">报告管理</a></li>
+            <li><a href="/admin/">数据管理</a></li>
+        </ul>
+
+
+        <a href="#" class="brand-logo center" >{% block navtitle %}Logo{% endblock %}</a>
 {#        <ul class="left hide-on-med-and-down">#}
 {#            <li></li>#}
 {#            <li><a>首页</a></li>#}
 {#        </ul>#}
-        <ul class="right hide-on-med-and-down">
+        <ul class="right">
 {#            <li><a>其他</a></li>#}
 {#        导航菜单，子页面需要继承添加自定义的项的话#}
             {% block navmenu %}
 {#                自定义的选项 #}
             {% endblock %}
+
+{#        用户下拉  #}
+        <a class="btn dropdown-trigger" id="user_dropdown" data-target="dropdown_user">{{ current_user.id }}</a>
+        <ul class="dropdown-content" id="dropdown_user">
+            <li><a  href="{{ url_for('user.logout') }}" href="#!">退出登录</a></li>
+        </ul>
+
         </ul>
     </div>
     </nav>
-
+</div>
 
 {#    对于不想70%居中的，就重写body段#}
    {% block body %}
@@ -70,12 +87,25 @@
 
     </div>
 
+{#    一个全局的 yes or no 对话框#}
+
+    <div class="modal modal-fixed-footer" id="confirm-modal">
+        <div class="modal-content">
+            <h4 id="confirm-title"></h4>
+            <div id="confirm-content"></div>
+        </div>
+        <div class="modal-footer">
+            <a class="btn modal-close" id="confirm-yes" >确定</a>
+            <a class="btn modal-close">取消</a>
+        </div>
+    </div>
+
 {#-----------------------模态框结束-------------#}
     </div>
 
 
     <script type="text/javascript" src="{{ url_for('static',filename='js/jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static',filename='js/vue.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/vue.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='material/js/materialize.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='base.js') }}"></script>
 
@@ -83,6 +113,7 @@
 {#        初始化通用模态框 #}
 
         var base_modal = M.Modal.init(document.getElementById('base-modal'));
+        M.Dropdown.init(document.getElementById('user_dropdown'));
 
     {#    调用函数#}
         function showDialog(title,content) {
@@ -102,6 +133,8 @@
             else
                 M.toast({html:data.data})
         }
+
+        var zsDialog = new ZsDialog();
 
 
 

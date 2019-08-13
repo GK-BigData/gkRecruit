@@ -5,7 +5,7 @@
 # BY    :FormatFa
 
 from flask import Blueprint,request,render_template
-
+from app.common.mycolumns import chartTypes
 bp_test = Blueprint('test',__name__)
 
 # 返回某个html
@@ -24,6 +24,8 @@ def option(type):
     """
 
     return render_template('test/optionsTest.html')
-
+@bp_test.route('/addChart')
+def addChart():
+    return  render_template('test/addChartTest.html',chartTypes=chartTypes)
 
 

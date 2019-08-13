@@ -38,12 +38,8 @@ var chartEditor = new ChartEditor();
 //
 // );
 
-function openChartEdit() {
-    createchart_modal.open();
-}
-function openTextEdit() {
-    createtext_modal.open();
-}
+
+
 /*
 请求图表数据的参数
 返回 要提交的参数
@@ -59,6 +55,7 @@ function getCreateChartParams()
       //var select_dataType = M.FormSelect.init(document.getElementById('dataType'));
      var  select_chartType = M.FormSelect.init(document.getElementById('chartType'));
      var  select_orderBy = M.FormSelect.init(document.getElementById('orderBy'));
+     var  select_recordid = M.FormSelect.init(document.getElementById('recordid'));
 
     var groupfield = select_groupfields.getSelectedValues();
     var aggfield = select_aggfields.getSelectedValues();
@@ -66,7 +63,7 @@ function getCreateChartParams()
    // var dataType = select_dataType.getSelectedValues();
     var chartType = select_chartType.getSelectedValues();
     var orderBy = select_orderBy.getSelectedValues();
-
+    var recordid = select_recordid.getSelectedValues();
 
     var limit = $('#limit').val();
     console.log("获取创建图表参数..");
@@ -85,7 +82,7 @@ function getCreateChartParams()
         orderBy:orderBy[0],
         limit:limit,
         //当前的数据的ID
-        recordid:recordid,
+        recordid:recordid[0],
         dataType:'group',
         //filter:'total_score_of_filing->=-200'
         filter:'null'
@@ -179,28 +176,34 @@ function previewChart()
 }
 /*
 创建图表到侧滑栏，
-点击创建按钮的时间
+点击创建按钮的时间,表格直接显示
  */
 
-function createChartOrTable()
+function createChartOrTable(id)
 {
 
-
+   // var  select_chartType = M.FormSelect.init(document.getElementById('chartType'))
+ //   var chartType = select_chartType.getSelectedValues();
     var params = getCreateChartParams();
-    createChartByParams(params);
+
+
+
+    createChartOrTableByParams(params,id);
+
 
 
 }
 /*
-创建text,暂时只有一个参数
+创建text,暂时只有一个参数,id为元素的id,如果没有就表示是新建的
  */
 
-function createText()
+function createText(id)
 {
     var select_style= M.FormSelect.init(document.getElementById('paragraph'));
 
     var text = $('#text').val();
     var style = select_style.getSelectedValues()[0];
+
     report.addElement({
         type:'text',
         paragraph:style,
@@ -208,7 +211,7 @@ function createText()
         width:400,
         height:400,
         text:text
-    });
+    },id);
 
 
 }
@@ -224,7 +227,7 @@ function updataBaseOptions()
 /*
 在左边侧滑创建一个图表 , 需要传入图表的参数
  */
-function createChartByParams(params)
+function createChartOrTableByParams(params,elementid)
 {
     console.log("创建图表，参数:");
     console.log(params);
@@ -232,22 +235,32 @@ function createChartByParams(params)
          if(data.code===0) {
 
                  //将标题作为id
-             var id = data.data.option.title[0].text.replace(' ','-');
-             baseOptions.push(
-                 {
-                     id:id,
-                     data:data.data
-                 }
-             );
+             var type = data.data.type;
 
-             // vue 监听渲染完成还有，更新对应的图表
-            chartlist.$nextTick(function () {
-            console.log("更新数据后 渲染完成!,开始渲染图表..");
-            console.log(data);
-             var chart = echarts.init(document.getElementById(id));
-             chart.setOption(data.data.option);
+             //图表还是表格，都直接添加到报告界面
+             report.addElement(data.data,elementid);
 
-         });
+             //图表就添加到baseOption
+            if(type==='chart') {
+                var id = data.data.option.title[0].text.replace(' ', '-');
+                baseOptions.push(
+                    {
+                        id: id,
+                        data: data.data
+                    }
+                );
+                // vue 监听渲染完成还有，更新对应的图表
+                chartlist.$nextTick(function () {
+                    console.log("更新数据后 渲染完成!,开始渲染图表..");
+                    console.log(data);
+                    var chart = echarts.init(document.getElementById(id));
+                    chart.setOption(data.data.option);
+
+                });
+
+            }
+
+
 
 
 
@@ -269,14 +282,7 @@ function createChartByParams(params)
 2.
 */
 
-function selectDataSource(id)
-{
-    console.log("选择数据源:"+id);
 
-    //字段
-    recordid = id;
-
-}
 /*
 加载数据源到下拉框,即record
 */
@@ -291,23 +297,21 @@ function loadDataSource()
         {
 
             //填充select
-            var select = $('#datasource');
+            var select = $('#recordid');
 
             data.data.forEach(function (ele,index) {
 
-               var li = $('<li></li>',{
-
-                   //设置点击事件为选择指定数据源，
-                   onclick:'selectDataSource("'+ele.id+'");'
+               var option = $('<option></option>',{
+                  value:ele.id
                });
-               li.text(ele.id+ " "+ele.zsyear+ " "+ ele.status);
+               option.text(ele.id+ " "+ele.zsyear+ " "+ ele.status);
 
-                select.append(li);
+                select.append(option);
             });
 
             console.log(select);
 
-             M.Dropdown.init(document.getElementById('datasource-trigger'));
+             M.FormSelect.init(document.getElementById('recordid'));
 
         }
         else {
@@ -342,6 +346,96 @@ function addChart(elementid)
 
 
 /*
+添加元素的对话框
+ */
+function addElement(type)
+{
+    if(type==='chart')
+    {
+        //设置点击事件为普通
+        $('#createChart').attr('onclick','createChartOrTable()');
+        createchart_modal.open();
+    }
+    else if(type==='table')
+    {
+
+    }
+    else if(type==='text')
+    {
+        //设置为普通的点击事件
+        $('#createText').attr('onclick','createText()');
+        createtext_modal.open();
+
+
+    }
+
+}
+
+/*report.js里调用
+1.获取元素判断类型
+2.调用对应的编辑函数
+ */
+function editElement(elementid)
+{
+    console.log('编辑已存在元素:'+elementid);
+    //获取要编辑的元素
+    var element = report.elements[elementid];
+    if(element.type==='chart')
+    {
+
+        //编辑图表默认打开的是option编辑界面，修改数据需要再点数据按钮
+        editOption(elementid,element);
+
+
+
+    }
+    else if(element.type==='table')
+    {
+    //    表格暂时直接显示为修改数据
+        editChart(elementid);
+    }
+    else if(element.type==='text')
+    {
+        //设置点击事件为带id的，在普通创建时恢复成不带id的
+        $('#createText').attr('onclick','createText("'+elementid+ '")')
+
+        //更新成当前编辑的text,段落先不更新
+       $('#text').val(element.text);
+
+        createtext_modal.open();
+
+    }
+
+}
+/*
+编辑图表数据,要先恢复参数,将select的值设置为选中的
+ */
+function editChart(elementid)
+{
+    var element = report.elements[elementid];
+    console.log('编辑图表,设置数据:'+elementid);
+    console.log(report.elements);
+    console.log(element);
+    //标签id和elemet里的字段名一样
+    var fields = ['aggfield','groupfield','chartType','recordid'];
+    fields.forEach(function (ele,index) {
+        var dom = document.getElementById(ele);
+
+        Zs.prototype.selectOption(dom,(''+element[ele]).split(','));
+        //重新初始化才有效果
+        M.FormSelect.init(dom);
+
+    });
+
+
+
+
+    $('#createChart').attr('onclick','createChartOrTable("'+elementid+'")');
+    createchart_modal.open();
+}
+
+/*
+编辑图表配置
 div 双击后 调用
 1.接受div id
 2.设置chartEditor 的chartId
@@ -349,10 +443,11 @@ div 双击后 调用
 4.生成配置的input等标签
 
 */
-function editChart(elementid)
+function editOption(elementid,element)
 {
+    chartid=elementid;
     //设置当前编辑的图表
-    chartEditor.setChartId(elementid);
+    //chartEditor.setChartId(elementid);
 
     //打开配置侧滑
     slide_config.open();
@@ -361,7 +456,11 @@ function editChart(elementid)
     //     console.log("关闭编辑侧滑,图表id:"+elementid);
     //
     // };
-    chartEditor.generateConfig(document.getElementById('container'));
+    //设置简易修改
+    echartEdit.setChartByDom(document.getElementById(elementid));
+    //option修改
+    optionEdit.setChartByDom(document.getElementById(elementid));
+    //chartEditor.generateConfig(document.getElementById('container'));
 
 
 }
@@ -412,20 +511,67 @@ function loadPreData()
 {
     Zs.prototype.display('#saveprogress');
     $.get('../report/reports/'+reportid,function(data){
+           Zs.prototype.hide('#saveprogress');
         console.log('加载报告数据');
         console.log(data.data.data);
         var jsonData = JSON.parse(data.data.data);
+        if(jsonData==null)
+        {
+            console.log('报告数据为空.');
+            return;
+        }
         jsonData.forEach(function (item) {
+
+            console.log('添加报告数据:');
+            console.log(item);
+            if(item!=null)
             report.addElement(item);
         });
-        Zs.prototype.hide('#saveprogress');
+
     });
 
 }
+
+//导出报告
+function exportReport()
+{
+
+    Zs.prototype.display('#saveprogress');
+    Zs.prototype.disable('#export');
+    $.ajax(
+        {
+            url:'export/'+reportid,
+            method:'GET',
+            success:function (data,err) {
+                  Zs.prototype.hide('#saveprogress');
+                Zs.prototype.enable('#export');
+
+                console.log('导出成功');
+                if(data.code===0)
+                window.open('download/'+reportid);
+                else
+                {
+                    showJsonResult(data,'导出结果');
+                }
+            },
+            error:function(data)
+            {
+                  Zs.prototype.hide('#saveprogress');
+        Zs.prototype.enable('#save');
+
+                console.log('导出失败')
+            }
+        }
+    );
+    //打开导出路由,导出当前文档
+
+}
+
 //保存报告
 function saveReport()
 {
-    Zs.prototype.disable('#saveprogress');
+    Zs.prototype.display('#saveprogress');
+    Zs.prototype.disable('#save');
 
 
     var temp = report.generateJSON();
@@ -438,6 +584,8 @@ function saveReport()
     },function(data){
 
         Zs.prototype.hide('#saveprogress');
+        Zs.prototype.enable('#save');
+
         showJsonResult(data);
     });
 
@@ -465,6 +613,13 @@ loadDataSource();
             options:baseOptions
         }
     });
+
+ //创建文字
+// var createTextV = new Vue({
+//
+//
+//
+// });
 
 loadBaseOption();
 //选择数据源后的可选字段,现在是招生的，暂时不会有变化，如果有其他数据，要动态切换，先保留

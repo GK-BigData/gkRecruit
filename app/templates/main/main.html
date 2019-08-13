@@ -2,12 +2,18 @@
 
 {% block head %}
     <link  type="text/css"  rel="stylesheet" href="{{ url_for('static',filename='main/main.css') }}"/>
+
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static',filename='main/Report.css') }}"/>
 {% endblock %}
 
 
 {#自定义导航菜单#}
 {% block navmenu %}
-<li><a onclick="saveReport();">保存</a></li>
+
+<li><a onclick="saveReport();" id="save" class="btn">保存</a></li>
+<li><a onclick="exportReport();" id="export" class="btn">导出</a></li>
+{#    添加元素#}
+<li><a class="dropdown-trigger" href="#!" data-target="add_menu" id='add_element_trigger' > 添加图表 </a></li>
 {% endblock %}
 
 {% block navtitle %}{{ report.title }}{% endblock %}
@@ -26,8 +32,8 @@
 
 {#    创建元素下拉框   #}
     <ul id="add_menu" class="dropdown-content">
-        <li><a href="#!" onclick="openChartEdit()">图表</a></li>
-        <li><a href="#!" onclick="openTextEdit()">文字</a></li>
+        <li><a href="#!" onclick="addElement('chart')">图表</a></li>
+        <li><a href="#!" onclick="addElement('text')">文字</a></li>
 
     </ul>
 <h4>可选元素 <a class="btn dropdown-trigger"  id='add_menu_trigger' data-target="add_menu"  >+</a></h4>
@@ -70,18 +76,115 @@
     <a href="#!"  id='apply' class="btn waves-block hide" style="z-index: 99999;position:fixed;top:0;right: 0;" >应用</a>
 
 
-    <div class="sidenav" id="slide-config">
-    <h4>图表配置</h4>
+    <div class="sidenav" id="slide-config" style="width: 700px;padding-left: 30px;">
 
-    <div class="row ">
-        <div class="input-field col">
-            <input id="chart_title"/>
-        </div>
-    </div>
+
+
 
     {#        图表配置 ，分为常规和高级 选项 #}
+        <ul class="tabs" id="tabs_chartedit">
+            <li class="tab col s6"><a href="#normal">简单</a></li>
+            <li class="tab col s6"><a href="#advance">Option</a></li>
+        </ul>
 
-    <div id="container"></div>
+
+
+        <div id="normal">简易修改
+    <div class="row ">
+{#        显示创建爱图表时的界面 #}
+        <a href="#!" class="btn-flat col s6" id="dataEdit">数据设置</a>
+        <a href="#!" class="btn-flat col s6" id="refresh">刷新图表</a>
+    </div>
+
+         {% raw %}
+    <div id="chartEdit" >
+        图表高度: {{ chart.width }}px <input   v-on:input="changeSize('width')" v-model="chart.height" id="chart_height" type="range" min="300" max="1000" name="test"/>
+       <!-- 暂时只修改高度，框高都变 图表宽度: {{ chart.width }}px <input  v-model="chart.width" v-on:change="changeSize('width')" id="chart_width" type="range" min="300" max="1000" name="test"/> -->
+
+        <div class="divider"></div>
+        <div class="section">
+            <h5>标题设置</h5>
+            <!--循环生成标题修改-->
+            <div class="row" v-for="(title,index) in option.title">
+            <div class="col s6">
+                <label><input type="checkbox"  v-on:change="changeOption()"  v-model="title.show"/><span>标题 {{ index }}</span></label>
+                <input  id="chart_title"  v-on:change="changeOption()" v-model="title.text"/>
+            </div>
+            <div class="col s6">副标题{{ index }}:<input  v-on:change="changeOption()" v-model="title.subtext"/></div>
+            </div>
+
+        </div>
+
+        <div class="divider"></div>
+        <div class="section">
+            <h5>格子(Grid)设置</h5>
+
+            <div class="row" v-for="(grid,index) in option.grid">
+                <h6>Grid {{ index }}</h6>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.width" v-model="grid.width" title="宽度"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.width" v-model="grid.height" title="高度"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.top" v-model="grid.top" title="距离顶部"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.bottom" v-model="grid.bottom" title="距离底部"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.left" v-model="grid.left" title="距离左边"></div>
+                <div  class="col s6" is="percent-range" v-on:change="changeOption" value="grid.left" v-model="grid.right" title="距离右边"></div>
+            </div>
+        </div>
+
+    <div class="divider"></div>
+        <div class="section">
+            <h5>图例</h5>
+
+            <div class="row" v-for="(legend,index) in option.legend">
+                <!--<h6>Legend {{ index }}</h6>-->
+               <label><input type="checkbox" v-on:change="changeOption" v-model="legend.show"/><span>显示</span></label>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endraw %}
+
+        </div>
+
+
+    {#    高级编辑Option编辑#}
+        <div id="advance">
+        {% raw %}
+    <div id="option">
+
+        <nav class="teal nav-wrapper">
+            <div class="col s12">
+                <a href="#!" class="breadcrumb"  v-on:click="enterObjectByOffset(index)" v-for="(name,index) in path">{{ name }}</a>
+            </div>
+        </nav>
+
+        <!-- select数组选择  -->
+
+        <!-- 键值对界面 -->
+        <ul class="collection">
+            <li  class="collection-item" v-for="(value,key) in getObjects"><a href="#!" v-on:click="enterObject(value)">{{ value }}</a></li>
+        </ul>
+
+        <div class="divider"></div>
+        <!-- 输入界面 -->
+
+        <div class="row" v-for="edit in getEditors">
+
+            <div class="col s12" v-if="edit.input_type==='checkbox'">
+            <label>
+                <input v-on:change="changeOption()" v-model="edit.object[edit.key]" type="checkbox" class="filled-in"/>
+                <span>{{ edit.key }}</span>
+            </label>
+            </div>
+            <div class="input-field col s12" v-else>
+                <input  type="text"  v-on:change="changeOption()" v-model="edit.object[edit.key]" class="validate" v-bind:id="'edit-'+edit.key" />
+                <label :for="'edit-'+edit.key" class="active">{{ edit.key }}</label>
+            </div>
+        </div>
+
+    </div>
+        {% endraw %}</div>
 
     </div>
 
@@ -91,8 +194,10 @@
 
 
 
-{#进度条 ,保存等用 #}
-    <div class="progress" id="saveprogress" style="display: none;"> <div class="indeterminate"></div></div>
+
+
+{#进度条 ,保存等用，悬浮居中 #}
+    <div class="progress" id="saveprogress" style="display: none;position: fixed;left: 0;right: 0;margin: 0 auto;top: 50%;"> <div class="indeterminate"></div></div>
 <a href="#!" class="sidenav-trigger" data-target="slide-raw"> <i>Trigger</i> </a>
 
 
@@ -123,10 +228,10 @@
         <div class="modal-content">
 
         <div class="row">
-        <a class="dropdown-trigger btn col s6 " id="datasource-trigger" href="#" data-target="datasource">选择数据源</a>
+{#        <a class="dropdown-trigger btn col s6 " id="datasource-trigger" href="#" data-target="datasource">选择数据源</a>#}
 
-        <ul id="datasource" class="dropdown-content">
-        </ul>
+        <select id="recordid" >
+        </select>
         </div>
 
 {#        tabs#}
@@ -156,9 +261,9 @@
                     {% for name,field in columns.items() %}
 
                      <optgroup label="{{ name }}">
-                    <option value="count_{{ field }}">{{ name }} 计数</option>
-                    <option value="sum_{{ field }}">{{ name }} 总和</option>
-                    <option value="avg_{{ field }}">{{ name }} 平均值</option>
+                    <option value="count-{{ field }}">{{ name }} 计数</option>
+                    <option value="sum-{{ field }}">{{ name }} 总和</option>
+                    <option value="avg-{{ field }}">{{ name }} 平均值</option>
                      </optgroup>
                     {% endfor %}
                     </select>
@@ -226,7 +331,7 @@
         </div>
         <div class="modal-footer">
             <a class="btn-flat waves-effect" id="preview" onclick="previewChart();">预览</a>
-            <a href="#!" class="btn-flat modal-close waves-effect" onclick="createChartOrTable();">创建</a>
+            <a href="#!" class="btn-flat modal-close waves-effect" onclick="createChartOrTable();" id="createChart">创建</a>
             <a href="#!" class="btn-flat modal-close">关闭</a>
         </div>
     </div>
@@ -240,7 +345,8 @@
     <div class="modal modal-fixed-footer" id="createtext-modal">
 
         <div class="modal-content">
-
+{#            指定创建id , 新建时为空#}
+            <p id="createtext_id"></p>
             <div class="row">
                 <div class="col s4 input-field"><select id="paragraph"><option value="p">段落</option>
                 <option value="h1">标题一</option>
@@ -252,13 +358,13 @@
 
             <div class="input-field col s12">
                 <input id="text" type="text"/>
-                <label for="text">插入文本内容</label>
+                <label class="active"  for="text">插入文本内容</label>
             </div>
 
 
         </div>
         <div class="modal-footer">
-            <a href="#!" class="btn-flat modal-close waves-effect" onclick="createText();">创建</a>
+            <a href="#!" class="btn-flat modal-close waves-effect" onclick="createText();" id="createText">创建</a>
             <a href="#!" class="btn-flat modal-close">关闭</a>
         </div>
 
@@ -291,10 +397,14 @@
     <script type="text/javascript"  src="{{ url_for('static',filename='js/zs.js') }}"></script>
 
     <script type="text/javascript"  src="{{ url_for('static',filename='main/Report.js') }}"></script>
-    <script type="text/javascript"  src="{{ url_for('static',filename='main/Report.css') }}"></script>
+
     <script type="text/javascript"  src="{{ url_for('static',filename='chart/chartEditor.js') }}"></script>
     <script type="text/javascript"  src="{{ url_for('static',filename='main/main.js') }}"></script>
 
+    {#    下面Echart编辑需要的组件#}
+    <script type="text/javascript" src="{{ url_for('static',filename='components.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='chart/EChartEditor.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='chart/OptionEditor.js') }}"></script>
 
 
 
@@ -314,12 +424,16 @@
      var select_orderBy;
 
      //当前的记录id
-     var recordid;
-
+     //var recordid;改为select标签，获取参数时直接获取
+        //当前编辑的图表id
+    var chartid=0;
     //当前report的id
     var reportid={{ report.id }};
 
-
+    //图表简易修改
+    var echartEdit = new EChartEditor();
+    //图表高级修改
+    var optionEdit = new OptionEditor();
 
 {#    初始化侧滑 #}
     document.addEventListener('DOMContentLoaded',function (evt) {
@@ -341,7 +455,7 @@
             {#关闭完成 时#}
             onCloseEnd:function () {
                 //更新图表
-                chartEditor.updateChart();
+                //chartEditor.updateChart();
                 $("#apply").addClass('hide');
             }
         });
@@ -357,9 +471,12 @@
 
         //创建图表tab
         M.Tabs.init(document.getElementById('createchart_tabs'));
+        //图表编辑模式tab
+        M.Tabs.init(document.getElementById('tabs_chartedit'));
 
         //下拉框
         M.Dropdown.init(document.getElementById('add_menu_trigger'));
+        M.Dropdown.init(document.getElementById('add_element_trigger'));
 
 
 
@@ -369,10 +486,20 @@
 
     //应用点击事件
     $('#apply').click(function () {
-        chartEditor.updateChart();
+        console.log(JSON.stringify( optionEdit.chart.getOption()));
 
     });
 
+    //当前图表的id
+    $('#dataEdit').click(function(){
+        console.log('编辑图表数据:');
+        {#先关闭侧滑，不然侧滑关闭时会自动更新option,修改数据后的option会没有用#}
+        slide_config.close();
+        //编辑图表而不是option
+        editChart(chartid);
+
+
+    });
     //可以排序的字段，根据,选择的字段和数据类型推断,vue绑定  , 更新，图表类型，可选
     var orderByFields=[{field:'null',name:'无'}];
     //聚合数据类型的 ， 会随着字段的选择而动态变化,用与vue
@@ -435,7 +562,7 @@
         console.log('遍历分组字段:'+element);
              orderByFields.push(
                 {
-                    field:$(element).val()+'-'+order,
+                    field:$(element).val()+'+'+order,
                     name:$(element).text()
                 }
             );
@@ -446,7 +573,7 @@
         console.log('遍历聚合函数:'+element);
              orderByFields.push(
                 {
-                    field:$(element).val()+'-'+order,
+                    field:$(element).val()+'+'+order,
                     name:$(element).text()
                 }
             );

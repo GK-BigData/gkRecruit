@@ -1,4 +1,37 @@
-# SQLAlchemy
+
+
+# Flask SQLAlchemy 使用
+
+## 一些前提
+
+> SQLAlchemy 将代码转换为sql语句,with_entities类似sql中的select,选出需要的字段
+>
+> Model.query 是一个BaseQuery类
+>
+> 在调用.all(),.first(),.first_or_404() 这些函数之前，都可以通过print,将BaseQuery作为SQL语句输出
+>
+> 函数对应的参数都是列对象,列对象可以通过其他函数的返回值或者column函数将字符串转换为对应的列对象,Model.属性，也可以直接使用
+
+
+
+## 常见操作
+
+### 1. 使用sql函数
+
+```python
+from sqlalchemy.sql.expression import *
+
+```
+
+还有下面这个导入，每个都有各自的函数
+
+```python
+import sqlalchemy.sql.functions as func
+```
+
+### 2. 修改列名
+
+调用avg之类的函数处理字段后,想修改字段名的话，在mysql里是as xx，这里是**调用列对象(column)的label方法**，如`xx.label(列名)`
 
 
 
@@ -17,6 +50,16 @@
 3. 
 
 ## Model
+
+> 定义数据库模型
+>
+> Flask里的Modal定义直接继承Modal类即可,Model类自db对象,db
+>
+> 通过db = SQLAlchemy()来创建
+>
+> 
+
+
 
 model里的方法
 
@@ -46,7 +89,6 @@ column函数
 
 ```python
 from sqlalchemy.sql.expression import *
-
 ```
 
 修改列名
@@ -57,3 +99,15 @@ xx.label(列名)
 
 order_by
 
+- contains
+
+  最后转换为like函数..
+
+  ```mysql
+   SELECT sex_name, count(student_name) AS count_student_name 
+  FROM zs 
+  WHERE zs.recordid = %(recordid_1)s AND (source_provinces LIKE concat(concat('%%', %(source_provinces_1)s), '%%')) GROUP BY sex_name
+  
+  ```
+
+  

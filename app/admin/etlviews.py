@@ -24,15 +24,18 @@ from  sqlalchemy.sql.expression import *
 import csv
 import json
 from datetime import datetime
-
+from flask_login import current_user,login_required
 
 # 选择字段导入 ,
 @bp_admin.route("/setfield/import",methods=['POST'])
+@login_required
 def importdata():
 
 
 
     zsyear = request.form['zsyear']
+    recordid = request.form['recordid']
+
     field_columns = {}
     for col in needcolumns_fields:
         field_columns[col] = request.form[col]
@@ -42,7 +45,7 @@ def importdata():
     print("字段和 输入列的关系:",field_columns)
 
 
-    record = Record.query.filter(Record.zsyear==zsyear).first()
+    record = Record.query.filter( and_(  Record.id==recordid, Record.userid==current_user.get_id())  ) .first()
 
 
     file = os.path.join('upload',record.filename)
@@ -70,6 +73,7 @@ def importdata():
 
             params['zsyear']=zsyear
             params['recordid']=record.id
+            #params['userid']=current_user.get_id()
             zsitem = zs(**params)
             db.session.add(zsitem)
             size+=1
@@ -93,6 +97,7 @@ def importdata():
 
 #     https://www.jianshu.com/p/9d6da9b76d70
 @bp_admin.route("/upload",methods=['POST'])
+@login_required
 def upload():
     pass
     print(request.files)
@@ -103,6 +108,7 @@ def upload():
     tablefile = request.files['table'].filename
     zsyear = request.form['zsyear']
 
+
     # filename_py=pinyin.get_pinyin( tablefile)
     # 文件名暂时用年份来表示
 
@@ -110,10 +116,10 @@ def upload():
     # --------------------------检查年的存不存在
 
 
-    result = Record.query.filter(Record.zsyear==zsyear).first()
-
-    if result:
-        return rjson( zsyear+ "年的数据已存在",1)
+    # result = Record.query.filter( and_(  Record.id==recordid, Record.userid==current_user.get_id())  ).first()
+    #
+    # if result:
+    #     return rjson( zsyear+ "年的数据已存在",1)
 
     filename_py = zsyear + os.path.splitext(tablefile)[1]
     # 指定保存的文件名为拼音处理后的
@@ -122,14 +128,12 @@ def upload():
     ab = os.path.abspath(os.path.join("upload", filename))
     print("保存路径:", ab)
 
-
-
     try:
         # parse_csv(ab,zsyear)
 
-        record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="未导入数据",filename=filename_py)
+        record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="未导入数据",filename=filename_py,userid=current_user.get_id())
         print(record)
-        print("查询结果:",result)
+
 
         # 尝试解析数据
 

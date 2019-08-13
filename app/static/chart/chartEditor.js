@@ -24,7 +24,7 @@ ChartEditor.prototype.updateChart=function()
 {
     if(this.chartid===undefined)
     {
-        console.log("图表id未设置.更新图表失败!");
+        console.log("图表id未设置.更新图表失败!x");
         return;
     }
     this.updateChartByDocument(document.getElementById(this.chartid));
@@ -67,7 +67,6 @@ ChartEditor.prototype.updateOption=  function (options)
              {
                  //第一个是空的
                  if(keys[i]==='')continue;
-
                  code+='["'+keys[i]+'"]'
              }
 
@@ -77,14 +76,14 @@ ChartEditor.prototype.updateOption=  function (options)
 
             code+=('='+value);
 
-            console.log("input 类型:"+type);
-            console.log(code);
+
+
             //生成代码来执行，如 options["markPoint"]["0"]["label"]["show"]=true
             eval(code);
 
         });
        // 根据id生成如 options['xx']['yy']=zzz这样的
-        options["textStyle"]["fontSize"]=22;
+      //  options["textStyle"]["fontSize"]=22;
         return options;
 
 
@@ -112,7 +111,7 @@ ChartEditor.prototype.optionMenu=function(option,parentDom,parentkey,level){
 
              var id=parentkey+'-'+key;
 
-             console.log("id:"+id);
+             // console.log("id:"+id);
 
              var li = document.createElement('li');
 
@@ -125,7 +124,7 @@ ChartEditor.prototype.optionMenu=function(option,parentDom,parentkey,level){
 
              if (type==='string')
              {
-                 console.log("value :"+li);
+
 
                  li.append(this.newinput(key,value,id,'text'))
              }

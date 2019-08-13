@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{#
+测试给select指定值，编辑图表时，双击图表后显示的图表选择的字段那些
+http://127.0.0.1:5000/test/template/selectTest.html
+#}
+{% block container %}
+
+    <div id="test">
+        <select id="testSelect">
+            <option value="a">a.txt</option>
+            <option selected value="b">b.txt</option>
+            <option value="c">c.txt</option>
+        </select>
+        <label>选择测试</label>
+
+    <select  multiple id="testSelectMul">
+            <option value="a">a.txt</option>
+            <option value="b">b.txt</option>
+            <option value="c">c.txt</option>
+        </select>
+        <label>多项选择测试</label>
+    </div>
+
+    <a class="btn" onclick="start();">选择value为c的选项</a>
+{% endblock %}
+
+
+{% block script %}
+
+    <script type="text/javascript" src="{{ url_for('static',filename='js/zs.js') }}"></script>
+    <script type="text/javascript">
+    function start()
+    {
+        Zs.prototype.selectOption(document.getElementById('testSelect'),['c']);
+        //重新初始化select
+        M.FormSelect.init(document.getElementById('testSelect'));
+
+        //多项选择
+        Zs.prototype.selectOption(document.getElementById('testSelectMul'),'c');
+        M.FormSelect.init(document.getElementById('testSelectMul'));
+
+    }
+    </script>
+
+{% endblock %}
