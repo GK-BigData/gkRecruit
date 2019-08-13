@@ -2143,7 +2143,7 @@
 /* Document
    ========================================================================== */
 /**
- * 1. Correct the line height in all browsers.
+ * 1. Correct the line height in imgs_txt browsers.
  * 2. Prevent adjustments of font size after orientation changes in
  *    IE on Windows Phone and in iOS.
  */
@@ -2159,7 +2159,7 @@ html {
 /* Sections
    ========================================================================== */
 /**
- * Remove the margin in all browsers (opinionated).
+ * Remove the margin in imgs_txt browsers (opinionated).
  */
 body {
   margin: 0;
@@ -2221,8 +2221,8 @@ hr {
 }
 
 /**
- * 1. Correct the inheritance and scaling of font size in all browsers.
- * 2. Correct the odd `em` font sizing in all browsers.
+ * 1. Correct the inheritance and scaling of font size in imgs_txt browsers.
+ * 2. Correct the odd `em` font sizing in imgs_txt browsers.
  */
 pre {
   font-family: monospace, monospace;
@@ -2276,8 +2276,8 @@ strong {
 }
 
 /**
- * 1. Correct the inheritance and scaling of font size in all browsers.
- * 2. Correct the odd `em` font sizing in all browsers.
+ * 1. Correct the inheritance and scaling of font size in imgs_txt browsers.
+ * 2. Correct the odd `em` font sizing in imgs_txt browsers.
  */
 code,
 kbd,
@@ -2304,7 +2304,7 @@ mark {
 }
 
 /**
- * Add the correct font size in all browsers.
+ * Add the correct font size in imgs_txt browsers.
  */
 small {
   font-size: 80%;
@@ -2312,7 +2312,7 @@ small {
 
 /**
  * Prevent `sub` and `sup` elements from affecting the line height in
- * all browsers.
+ * imgs_txt browsers.
  */
 sub,
 sup {
@@ -2365,7 +2365,7 @@ svg:not(:root) {
 /* Forms
    ========================================================================== */
 /**
- * 1. Change the font styles in all browsers (opinionated).
+ * 1. Change the font styles in imgs_txt browsers (opinionated).
  * 2. Remove the margin in Firefox and Safari.
  */
 button,
@@ -2448,7 +2448,7 @@ fieldset {
  * 1. Correct the text wrapping in Edge and IE.
  * 2. Correct the color inheritance from `fieldset` elements in IE.
  * 3. Remove the padding so developers are not caught out when they zero out
- *    `fieldset` elements in all browsers.
+ *    `fieldset` elements in imgs_txt browsers.
  */
 legend {
   -webkit-box-sizing: border-box;
@@ -2547,7 +2547,7 @@ menu {
 }
 
 /*
- * Add the correct display in all browsers.
+ * Add the correct display in imgs_txt browsers.
  */
 summary {
   display: list-item;
@@ -8486,10 +8486,19 @@ input[type=range]::-ms-thumb {
   visibility: visible;
   -webkit-animation: pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
           animation: pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
-  -webkit-transition: opacity .3s, visibility 0s 1s, -webkit-transform .3s;
-  transition: opacity .3s, visibility 0s 1s, -webkit-transform .3s;
-  transition: opacity .3s, transform .3s, visibility 0s 1s;
-  transition: opacity .3s, transform .3s, visibility 0s 1s, -webkit-transform .3s;
+  -webkit-transition: opacity .3s,
+ visibility 0s 1s,
+ -webkit-transform .3s;
+  transition: opacity .3s,
+ visibility 0s 1s,
+ -webkit-transform .3s;
+  transition: opacity .3s,
+ transform .3s,
+ visibility 0s 1s;
+  transition: opacity .3s,
+ transform .3s,
+ visibility 0s 1s,
+ -webkit-transform .3s;
 }
 
 .tap-target {
@@ -8542,10 +8551,19 @@ input[type=range]::-ms-thumb {
 
 .tap-target-wave::after {
   visibility: hidden;
-  -webkit-transition: opacity .3s, visibility 0s, -webkit-transform .3s;
-  transition: opacity .3s, visibility 0s, -webkit-transform .3s;
-  transition: opacity .3s, transform .3s, visibility 0s;
-  transition: opacity .3s, transform .3s, visibility 0s, -webkit-transform .3s;
+  -webkit-transition: opacity .3s,
+ visibility 0s,
+ -webkit-transform .3s;
+  transition: opacity .3s,
+ visibility 0s,
+ -webkit-transform .3s;
+  transition: opacity .3s,
+ transform .3s,
+ visibility 0s;
+  transition: opacity .3s,
+ transform .3s,
+ visibility 0s,
+ -webkit-transform .3s;
   z-index: -1;
 }
 

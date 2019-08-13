@@ -198,7 +198,7 @@ def charts():
     #
     # sql = zs.query.with_entities(zs.sex_name,func.count()).group_by(zs.sex_name)
     # print(sql)
-    # dataset = sql.all()
+    # dataset = sql.imgs_txt()
     # for item in dataset:
     #     x.append(item[0])
     #     y.append(item[1])
@@ -680,7 +680,7 @@ def charts2():
     #
     # sql = zs.query.with_entities(zs.sex_name,func.count()).group_by(zs.sex_name)
     # print(sql)
-    # dataset = sql.all()
+    # dataset = sql.imgs_txt()
     # for item in dataset:
     #     x.append(item[0])
     #     y.append(item[1])

@@ -1354,7 +1354,7 @@ var arrySlice = Array.prototype.slice;
  *        param: {string} eventType
  *        param: {string|Object} query
  *        return: {boolean}
- * @param {Function} [eventProcessor.afterTrigger] Call after all handlers called.
+ * @param {Function} [eventProcessor.afterTrigger] Call after imgs_txt handlers called.
  *        param: {string} eventType
  */
 var Eventful = function (eventProcessor) {
@@ -1735,7 +1735,7 @@ function addEventListener(el, name, handler) {
         // then the warning log will be printed when addEventListener called.
         // See https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
         // We have not yet found a neat way to using passive. Because in zrender the dom event
-        // listener delegate all of the upper events of element. Some of those events need
+        // listener delegate imgs_txt of the upper events of element. Some of those events need
         // to prevent default. For example, the feature `preventDefaultMouseMove` of echarts.
         // Before passive can be adopted, these issues should be considered:
         // (1) Whether and how a zrender user specifies an event listener passive. And by default,
@@ -3588,7 +3588,7 @@ function parse(colorStr, rgbaArr) {
 
     // colorStr may be not string
     colorStr = colorStr + '';
-    // Remove all whitespace, not compliant, but should just be more accepting.
+    // Remove imgs_txt whitespace, not compliant, but should just be more accepting.
     var str = colorStr.replace(/ /g, '').toLowerCase();
 
     // Color keywords (and transparent) lookup.
@@ -4497,9 +4497,9 @@ Animator.prototype = {
     },
 
     _doneCallback: function () {
-        // Clear all tracks
+        // Clear imgs_txt tracks
         this._tracks = {};
-        // Clear all clips
+        // Clear imgs_txt clips
         this._clipList.length = 0;
 
         var doneList = this._doneList;
@@ -4829,7 +4829,7 @@ function animateTo(animatable, target, time, delay, easing, callback, forceAnima
     else if (!time) {
         time = 500;
     }
-    // Stop all previous animations
+    // Stop imgs_txt previous animations
     animatable.stopAnimation();
     animateToShallow(animatable, '', animatable, target, time, delay, reverse);
 
@@ -4849,8 +4849,8 @@ function animateTo(animatable, target, time, delay, easing, callback, forceAnima
     if (!count) {
         callback && callback();
     }
-    // Start after all animators created
-    // Incase any animator is done immediately when all animation properties are not changed
+    // Start after imgs_txt animators created
+    // Incase any animator is done immediately when imgs_txt animation properties are not changed
     for (var i = 0; i < animators.length; i++) {
         animators[i]
             .done(done)
@@ -7287,7 +7287,7 @@ Layer.prototype = {
 
     /**
      * 清空该层画布
-     * @param {boolean} [clearAll]=false Clear all with out motion blur
+     * @param {boolean} [clearAll]=false Clear imgs_txt with out motion blur
      * @param {Color} [clearColor]
      */
     clear: function (clearAll, clearColor) {
@@ -7697,7 +7697,7 @@ function adjustTextPositionOnRect(textPosition, rect, distance) {
  * @param  {number} [options.minChar=0] If truncate result are less
  *                  then minChar, ellipsis will not show, which is
  *                  better for user hint in some cases.
- * @param  {number} [options.placeholder=''] When all truncated, use the placeholder.
+ * @param  {number} [options.placeholder=''] When imgs_txt truncated, use the placeholder.
  * @return {string}
  */
 function truncateText(text, containerWidth, font, ellipsis, options) {
@@ -8854,7 +8854,7 @@ RectText.prototype = {
 
 /**
  * 可绘制的图形基类
- * Base class of all displayable graphic objects
+ * Base class of imgs_txt displayable graphic objects
  * @module zrender/graphic/Displayable
  */
 
@@ -9716,7 +9716,7 @@ Painter.prototype = {
             // Ignore transparent element
             && el.style.opacity !== 0
             // Ignore scale 0 element, in some environment like node-canvas
-            // Draw a scale 0 element can cause all following draw wrong
+            // Draw a scale 0 element can cause imgs_txt following draw wrong
             // And setTransform with scale 0 will cause set back transform failed.
             && !(m && !m[0] && !m[3])
             // Ignore culled element
@@ -10124,7 +10124,7 @@ Painter.prototype = {
     },
 
     /**
-     * Get canvas which has all thing rendered
+     * Get canvas which has imgs_txt thing rendered
      * @param {Object} opts
      * @param {string} [opts.backgroundColor]
      * @param {number} [opts.pixelRatio]
@@ -11102,7 +11102,7 @@ ZRender.prototype = {
     },
 
     /**
-     * Perform all refresh
+     * Perform imgs_txt refresh
      */
     flush: function () {
         var triggerRendered;
@@ -11144,7 +11144,7 @@ ZRender.prototype = {
     },
 
     /**
-     * Clear all hover elements in hover layer
+     * Clear imgs_txt hover elements in hover layer
      * @param  {module:zrender/Element} el
      */
     clearHover: function () {
@@ -11183,7 +11183,7 @@ ZRender.prototype = {
     },
 
     /**
-     * Stop and clear all animation immediately
+     * Stop and clear imgs_txt animation immediately
      */
     clearAnimation: function () {
         this.animation.clear();
@@ -11276,7 +11276,7 @@ ZRender.prototype = {
 
 
     /**
-     * Clear all objects and the canvas.
+     * Clear imgs_txt objects and the canvas.
      */
     clear: function () {
         this.storage.delRoot();
@@ -11754,7 +11754,7 @@ var innerUniqueIndex = 0;
  *            geoId: ['aa', 'cc'],
  *            gridName: ['xx', 'rr']
  *        }
- *        xxxIndex can be set as 'all' (means all xxx) or 'none' (means not specify)
+ *        xxxIndex can be set as 'imgs_txt' (means imgs_txt xxx) or 'none' (means not specify)
  *        If nothing or null/undefined specified, return nothing.
  * @param {Object} [opt]
  * @param {string} [opt.defaultMainType]
@@ -13279,7 +13279,7 @@ PathProxy.prototype = {
 
     /**
      * 必须在其它绘制命令前调用
-     * Must be invoked before all other path drawing methods
+     * Must be invoked before imgs_txt other path drawing methods
      * @return {module:zrender/core/PathProxy}
      */
     setLineDash: function (lineDash) {
@@ -13299,7 +13299,7 @@ PathProxy.prototype = {
 
     /**
      * 必须在其它绘制命令前调用
-     * Must be invoked before all other path drawing methods
+     * Must be invoked before imgs_txt other path drawing methods
      * @return {module:zrender/core/PathProxy}
      */
     setLineDashOffset: function (offset) {
@@ -15429,7 +15429,7 @@ var fixClipWithShadow = function (orignalBrush) {
                     )) {
                         for (var j = 0; j < shadowTemp.length; j++) {
                             // It is save to put shadowTemp static, because shadowTemp
-                            // will be all modified each item brush called.
+                            // will be imgs_txt modified each item brush called.
                             shadowTemp[j][2] = style[shadowTemp[j][0]];
                             style[shadowTemp[j][0]] = shadowTemp[j][1];
                         }
@@ -15796,7 +15796,7 @@ var round$1 = Math.round;
  *
  * @param {Object} outputShape The modification will be performed on `outputShape`.
  *                 `outputShape` and `inputShape` can be the same object.
- *                 `outputShape` object can be used repeatly, because all of
+ *                 `outputShape` object can be used repeatly, because imgs_txt of
  *                 the `x1`, `x2`, `y1`, `y2` will be assigned in this method.
  * @param {Object} [inputShape]
  * @param {number} [inputShape.x1]
@@ -15839,7 +15839,7 @@ function subPixelOptimizeLine$1(outputShape, inputShape, style) {
  *
  * @param {Object} outputShape The modification will be performed on `outputShape`.
  *                 `outputShape` and `inputShape` can be the same object.
- *                 `outputShape` object can be used repeatly, because all of
+ *                 `outputShape` object can be used repeatly, because imgs_txt of
  *                 the `x`, `y`, `width`, `height` will be assigned in this method.
  * @param {Object} [inputShape]
  * @param {number} [inputShape.x]
@@ -16279,7 +16279,7 @@ Gradient.prototype = {
 };
 
 /**
- * x, y, x2, y2 are all percent from 0 to 1
+ * x, y, x2, y2 are imgs_txt percent from 0 to 1
  * @param {number} [x=0]
  * @param {number} [y=0]
  * @param {number} [x2=1]
@@ -16317,7 +16317,7 @@ LinearGradient.prototype = {
 inherits(LinearGradient, Gradient);
 
 /**
- * x, y, r are all percent from 0 to 1
+ * x, y, r are imgs_txt percent from 0 to 1
  * @param {number} [x=0.5]
  * @param {number} [y=0.5]
  * @param {number} [r=0.5]
@@ -16792,7 +16792,7 @@ function doSingleEnterHover(el) {
     // where properties of `emphasis` may not appear in `normal`. We previously use
     // module:echarts/util/model#defaultEmphasis to merge `normal` to `emphasis`.
     // But consider rich text and setOption in merge mode, it is impossible to cover
-    // all properties in merge. So we use merge mode when setting style here, where
+    // imgs_txt properties in merge. So we use merge mode when setting style here, where
     // only properties that is not `null/undefined` can be set. The disadventage:
     // null/undefined can not be used to remove style any more in `emphasis`.
     targetStyle.extendFrom(hoverStl);
@@ -16858,7 +16858,7 @@ function traverseCall(el, method) {
 /**
  * Set hover style (namely "emphasis style") of element, based on the current
  * style of the given `el`.
- * This method should be called after all of the normal styles have been adopted
+ * This method should be called after imgs_txt of the normal styles have been adopted
  * to the `el`. See the reason on `setHoverStyle`.
  *
  * @param {module:zrender/Element} el Should not be `zrender/container/Group`.
@@ -16872,7 +16872,7 @@ function traverseCall(el, method) {
  */
 function setElementHoverStyle(el, hoverStl) {
     // For performance consideration, it might be better to make the "hover style" only the
-    // difference properties from the "normal style", but not a entire copy of all styles.
+    // difference properties from the "normal style", but not a entire copy of imgs_txt styles.
     hoverStl = el.__hoverStl = hoverStl !== false && (hoverStl || {});
     el.__hoverStlDirty = true;
 
@@ -16947,7 +16947,7 @@ function leaveEmphasis() {
  *
  * (1)
  * **CONSTRAINTS** for this method:
- * <A> This method MUST be called after all of the normal styles having been adopted
+ * <A> This method MUST be called after imgs_txt of the normal styles having been adopted
  * to the `el`.
  * <B> The input `hoverStyle` (that is, "emphasis style") MUST be the subset of the
  * "normal style" having been set to the el.
@@ -17137,7 +17137,7 @@ function setText(textStyle, labelModel, defaultColor) {
  * The uniform entry of set text style, that is, retrieve style definitions
  * from `model` and set to `textStyle` object.
  *
- * Never in merge mode, but in overwrite mode, that is, all of the text style
+ * Never in merge mode, but in overwrite mode, that is, imgs_txt of the text style
  * properties will be set. (Consider the states of normal and emphasis and
  * default value can be adopted, merge would make the logic too complicated
  * to manage.)
@@ -17345,7 +17345,7 @@ function getAutoColor(color, opt) {
  * When a style object (eithor plain object or instance of `zrender/src/graphic/Style`) is
  * about to be modified on its text related properties, `rollbackDefaultTextStyle` should
  * be called before the modification and `applyDefaultTextStyle` should be called after that.
- * (For the case that all of the text related properties is reset, like `setTextStyleCommon`
+ * (For the case that imgs_txt of the text related properties is reset, like `setTextStyleCommon`
  * does, `rollbackDefaultTextStyle` is not needed to be called).
  */
 function applyDefaultTextStyle(textStyle) {
@@ -18460,7 +18460,7 @@ function getPixelPrecision(dataExtent, pixelExtent) {
  * The largest remainer method is used.
  * https://en.wikipedia.org/wiki/Largest_remainder_method
  *
- * @param {Array.<number>} valueList a list of all data
+ * @param {Array.<number>} valueList a list of imgs_txt data
  * @param {number} idx index of the data to be processed in valueList
  * @param {number} precision integer number showing digits of precision
  * @return {number} percent ranging from 0 to 100
@@ -18548,9 +18548,9 @@ var TIME_REG = /^(?:(\d{4})(?:[-\/](\d{1,2})(?:[-\/](\d{1,2})(?:[T ](\d{1,2})(?:
  *     + only year, month, date: '2012-03', '2012-03-01', '2012-03-01 05', '2012-03-01 05:06',
  *     + separated with T or space: '2012-03-01T12:22:33.123', '2012-03-01 12:22:33.123',
  *     + time zone: '2012-03-01T12:22:33Z', '2012-03-01T12:22:33+8000', '2012-03-01T12:22:33-05:00',
- *     all of which will be treated as local time if time zone is not specified
+ *     imgs_txt of which will be treated as local time if time zone is not specified
  *     (see <https://momentjs.com/>).
- *   + Or other string format, including (all of which will be treated as loacal time):
+ *   + Or other string format, including (imgs_txt of which will be treated as loacal time):
  *     '2012', '2012-3-1', '2012/3/1', '2012/03/01',
  *     '2009/6/12 2:00', '2009/6/12 2:05:08', '2009/6/12 2:05:08.123'
  *   + a timestamp, which represent a time in UTC.
@@ -18634,7 +18634,7 @@ function quantityExponent(val) {
 /**
  * find a “nice” number approximately equal to x. Round the number if round = true,
  * take ceiling if round = false. The primary observation is that the “nicest”
- * numbers in decimal are 1, 2, and 5, and all power-of-ten multiples of these numbers.
+ * numbers in decimal are 1, 2, and 5, and imgs_txt power-of-ten multiples of these numbers.
  *
  * See "Nice Numbers for Graph Labels" of Graphic Gems.
  *
@@ -19374,7 +19374,7 @@ function getLayoutRect(
  * Position a zr element in viewport
  *  Group position is specified by either
  *  {left, top}, {right, bottom}
- *  If all properties exists, right and bottom will be igonred.
+ *  If imgs_txt properties exists, right and bottom will be igonred.
  *
  * Logic:
  *     1. Scale (against origin point in parent coord)
@@ -19397,9 +19397,9 @@ function getLayoutRect(
  * @param {string|number} margin
  * @param {Object} [opt]
  * @param {Array.<number>} [opt.hv=[1,1]] Only horizontal or only vertical.
- * @param {Array.<number>} [opt.boundingMode='all']
+ * @param {Array.<number>} [opt.boundingMode='imgs_txt']
  *        Specify how to calculate boundingRect when locating.
- *        'all': Position the boundingRect that is transformed and uioned
+ *        'imgs_txt': Position the boundingRect that is transformed and uioned
  *               both itself and its descendants.
  *               This mode simplies confine the elements in the bounding
  *               of their container (e.g., using 'right: 0').
@@ -19538,7 +19538,7 @@ function mergeLayoutParam(targetOption, newOption, opt) {
         }
         // Case: newOption: {width: ..., right: ...},
         // Than we can make sure user only want those two, and ignore
-        // all origin params in targetOption.
+        // imgs_txt origin params in targetOption.
         else if (newValueCount >= enoughParamNumber) {
             return newParams;
         }
@@ -20441,7 +20441,7 @@ function getSource(seriesModel) {
 }
 
 /**
- * MUST be called before mergeOption of all series.
+ * MUST be called before mergeOption of imgs_txt series.
  * @param {module:echarts/model/Global} ecModel
  */
 function resetSourceDefaulter(ecModel) {
@@ -20982,8 +20982,8 @@ var GlobalModel = Model.extend({
     },
 
     /**
-     * @param {string} type null/undefined: reset all.
-     *                      'recreate': force recreate all.
+     * @param {string} type null/undefined: reset imgs_txt.
+     *                      'recreate': force recreate imgs_txt.
      *                      'timeline': only reset timeline option
      *                      'media': only reset media query option
      * @return {boolean} Whether option changed.
@@ -21195,7 +21195,7 @@ var GlobalModel = Model.extend({
     },
 
     /**
-     * If none of index and id and name used, return all components with mainType.
+     * If none of index and id and name used, return imgs_txt components with mainType.
      * @param {Object} condition
      * @param {string} condition.mainType
      * @param {string} [condition.subType] If ignore, only query by mainType
@@ -21247,7 +21247,7 @@ var GlobalModel = Model.extend({
             });
         }
         else {
-            // Return all components with mainType
+            // Return imgs_txt components with mainType
             result = cpts.slice();
         }
 
@@ -22167,7 +22167,7 @@ function indicesEquals(indices1, indices2) {
  * `chart.setOption(opt2);`
  * Then user press 'reset button' in toolbox.
  *
- * After doing that all of the interaction effects should be reset, the
+ * After doing that imgs_txt of the interaction effects should be reset, the
  * chart should be the same as the result of invoke
  * `chart.setOption(opt1); chart.setOption(opt2);`.
  *
@@ -23905,7 +23905,7 @@ var SeriesModel = ComponentModel.extend({
                 ? each$1(tooltipDims, function (dim) {
                     setEachItem(retrieveRawValue(data, dataIndex, dim), dim);
                 })
-                // By default, all dims is used on tooltip.
+                // By default, imgs_txt dims is used on tooltip.
                 : each$1(value, setEachItem);
 
             function setEachItem(val, dim) {
@@ -25238,8 +25238,8 @@ var proto = Scheduler.prototype;
  * @param {Object} payload
  */
 proto.restoreData = function (ecModel, payload) {
-    // TODO: Only restroe needed series and components, but not all components.
-    // Currently `restoreData` of all of the series and component will be called.
+    // TODO: Only restroe needed series and components, but not imgs_txt components.
+    // Currently `restoreData` of imgs_txt of the series and component will be called.
     // But some independent components like `title`, `legend`, `graphic`, `toolbox`,
     // `tooltip`, `axisPointer`, etc, do not need series refresh when `setOption`,
     // and some components like coordinate system, axes, dataZoom, visualMap only
@@ -25254,16 +25254,16 @@ proto.restoreData = function (ecModel, payload) {
     // (3) How to update target series when coordinate system related components modified.
 
     // TODO: simply the dirty mechanism? Check whether only the case here can set tasks dirty,
-    // and this case all of the tasks will be set as dirty.
+    // and this case imgs_txt of the tasks will be set as dirty.
 
     ecModel.restoreData(payload);
 
     // Theoretically an overall task not only depends on each of its target series, but also
-    // depends on all of the series.
+    // depends on imgs_txt of the series.
     // The overall task is not in pipeline, and `ecModel.restoreData` only set pipeline tasks
     // dirty. If `getTargetSeries` of an overall task returns nothing, we should also ensure
     // that the overall task is set as dirty and to be performed, otherwise it probably cause
-    // state chaos. So we have to set dirty of all of the overall tasks manually, otherwise it
+    // state chaos. So we have to set dirty of imgs_txt of the overall tasks manually, otherwise it
     // probably cause state chaos (consider `dataZoomProcessor`).
     this._stageTaskMap.each(function (taskRecord) {
         var overallTask = taskRecord.overallTask;
@@ -25484,7 +25484,7 @@ function createSeriesStageTask(scheduler, stageHandler, stageHandlerRecord, ecMo
     var seriesType = stageHandler.seriesType;
     var getTargetSeries = stageHandler.getTargetSeries;
 
-    // If a stageHandler should cover all series, `createOnAllSeries` should be declared mandatorily,
+    // If a stageHandler should cover imgs_txt series, `createOnAllSeries` should be declared mandatorily,
     // to avoid some typo or abuse. Otherwise if an extension do not specify a `seriesType`,
     // it works but it may cause other irrelevant charts blocked.
     if (stageHandler.createOnAllSeries) {
@@ -25561,7 +25561,7 @@ function createOverallStageTask(scheduler, stageHandler, stageHandlerRecord, ecM
         getTargetSeries(ecModel, api).each(createStub);
     }
     // Otherwise, (usually it is legancy case), the overall task will only be
-    // executed when upstream dirty. Otherwise the progressive rendering of all
+    // executed when upstream dirty. Otherwise the progressive rendering of imgs_txt
     // pipelines will be disabled unexpectedly. But it still needs stubs to receive
     // dirty info from upsteam.
     else {
@@ -25696,7 +25696,7 @@ Scheduler.wrapStageHandler = function (stageHandler, visualType) {
  * To ensure that they can work normally, they should work in block mode, that is,
  * they should not be started util the previous tasks finished. So they cause the
  * progressive rendering disabled. We try to detect the series type, to narrow down
- * the block range to only the series type they concern, but not all series.
+ * the block range to only the series type they concern, but not imgs_txt series.
  */
 function detectSeriseType(legacyFunc) {
     seriesType = null;
@@ -26853,7 +26853,7 @@ var ACTION_REG = /^[a-zA-Z0-9_]+$/;
 
 function createRegisterEventWithLowercaseName(method) {
     return function (eventName, handler, context) {
-        // Event name is all lowercase
+        // Event name is imgs_txt lowercase
         eventName = eventName && eventName.toLowerCase();
         Eventful.prototype[method].call(this, eventName, handler, context);
     };
@@ -27187,7 +27187,7 @@ echartsProto.getDevicePixelRatio = function () {
 };
 
 /**
- * Get canvas which has all thing rendered
+ * Get canvas which has imgs_txt thing rendered
  * @param {Object} opts
  * @param {string} [opts.backgroundColor]
  * @return {string}
@@ -27469,7 +27469,7 @@ echartsProto.containPixel = function (finder, value) {
  *        }
  *        If dataIndex is not specified, series visual will be fetched,
  *        but not data item visual.
- *        If all of seriesIndex, seriesId, seriesName are not specified,
+ *        If imgs_txt of seriesIndex, seriesId, seriesName are not specified,
  *        visual will be fetched from first series.
  * @param {string} visualType 'color', 'symbol', 'symbolSize'
  */
@@ -28160,7 +28160,7 @@ function prepareView(ecIns, type, ecModel, scheduler) {
 //  * @param {object} layout
 //  * @param {boolean} [layoutFilter] `true`: only layout,
 //  *                                 `false`: only not layout,
-//  *                                 `null`/`undefined`: all.
+//  *                                 `null`/`undefined`: imgs_txt.
 //  * @param {string} taskBaseTag
 //  * @private
 //  */
@@ -28215,7 +28215,7 @@ function renderComponents(ecIns, ecModel, api, payload, dirtyList) {
  * @private
  */
 function renderSeries(ecIns, ecModel, api, payload, dirtyMap) {
-    // Render all charts
+    // Render imgs_txt charts
     var scheduler = ecIns._scheduler;
     var unfinished;
     ecModel.eachSeries(function (seriesModel) {
@@ -28387,7 +28387,7 @@ echartsProto.dispose = function () {
         chart.dispose(ecModel, api);
     });
 
-    // Dispose after all views disposed
+    // Dispose after imgs_txt views disposed
     this._zr.dispose();
 
     delete instances[this.id];
@@ -28878,7 +28878,7 @@ function registerAction(actionInfo, eventName, action) {
             event: eventName
         }][0]);
 
-    // Event name is all lowercase
+    // Event name is imgs_txt lowercase
     actionInfo.event = (actionInfo.event || actionType).toLowerCase();
     eventName = actionInfo.event;
 
@@ -29742,7 +29742,7 @@ listProto.getDimensionsOnCoord = function () {
 /**
  * @param {string} coordDim
  * @param {number} [idx] A coordDim may map to more than one data dim.
- *        If idx is `true`, return a array of all mapped dims.
+ *        If idx is `true`, return a array of imgs_txt mapped dims.
  *        If idx is not specified, return the first dim not extra.
  * @return {string|Array.<string>} concrete data dim.
  *        If idx is number, and not found, return null/undefined.
@@ -30078,7 +30078,7 @@ function prepareInvertedIndex(list) {
                 invertedIndices[i] = INDEX_NOT_FOUND;
             }
             for (var i = 0; i < list._count; i++) {
-                // Only support the case that all values are distinct.
+                // Only support the case that imgs_txt values are distinct.
                 invertedIndices[list.get(dim, i)] = i;
             }
         }
@@ -30221,7 +30221,7 @@ listProto._getFast = function (dim, rawIdx) {
 
 /**
  * Get value for multi dimensions.
- * @param {Array.<string>} [dimensions] If ignored, using all dimensions.
+ * @param {Array.<string>} [dimensions] If ignored, using imgs_txt dimensions.
  * @param {number} idx
  * @return {number}
  */
@@ -30376,7 +30376,7 @@ listProto.getSum = function (dim /*, stack */) {
  */
 listProto.getMedian = function (dim /*, stack */) {
     var dimDataArray = [];
-    // map all data of one dimension
+    // map imgs_txt data of one dimension
     this.each(dim, function (val, idx) {
         if (!isNaN(val)) {
             dimDataArray.push(val);
@@ -30998,7 +30998,7 @@ listProto.map = function (dimensions, cb, context, contextCompat) {
 
     var list = cloneListForMapAndSample(this, dimensions);
 
-    // Following properties are all immutable.
+    // Following properties are imgs_txt immutable.
     // So we can reference to the same value
     list._indices = this._indices;
     list.getRawIndex = list._indices ? getRawIndexWithIndices : getRawIndexWithoutIndices;
@@ -31224,7 +31224,7 @@ listProto.setItemLayout = function (idx, layout, merge$$1) {
 };
 
 /**
- * Clear all layout of single data item
+ * Clear imgs_txt layout of single data item
  */
 listProto.clearItemLayouts = function () {
     this._itemLayouts.length = 0;
@@ -31435,7 +31435,7 @@ listProto.CHANGABLE_METHODS = ['filterSelf', 'selectRange'];
  * @param {number} [opt.generateCoordCount] By default, the generated dim name is `generateCoord`.
  *                 If `generateCoordCount` specified, the generated dim names will be:
  *                 `generateCoord` + 0, `generateCoord` + 1, ...
- *                 can be Infinity, indicate that use all of the remain columns.
+ *                 can be Infinity, indicate that use imgs_txt of the remain columns.
  * @param {number} [opt.dimCount] If not specified, guess by the first data item.
  * @param {number} [opt.encodeDefaulter] If not specified, auto find the next available data dim.
  * @return {Array.<Object>} [{
@@ -32672,7 +32672,7 @@ var IntervalScale = Scale.extend({
         if (!isFinite(span)) {
             return;
         }
-        // User may set axis min 0 and data are all negative
+        // User may set axis min 0 and data are imgs_txt negative
         // FIXME If it needs to reverse ?
         if (span < 0) {
             span = -span;
@@ -32706,7 +32706,7 @@ var IntervalScale = Scale.extend({
                 var expandSize = extent[0];
                 // In the fowllowing case
                 //      Axis has been fixed max 100
-                //      Plus data are all 100 and axis extent are [100, 100].
+                //      Plus data are imgs_txt 100 and axis extent are [100, 100].
                 // Extend to the both side will cause expanded max is larger than fixed max.
                 // So only expand to the smaller side.
                 if (!opt.fixMax) {
@@ -32983,7 +32983,7 @@ function doCalBarWidthAndOffset(seriesInfoList) {
 /**
  * @param {Object} barWidthAndOffset The result of makeColumnLayout
  * @param {module:echarts/coord/Axis} axis
- * @param {module:echarts/model/Series} [seriesModel] If not provided, return all.
+ * @param {module:echarts/model/Series} [seriesModel] If not provided, return imgs_txt.
  * @return {Object} {stackId: {offset, width}} or {offset, width} if seriesModel provided.
  */
 function retrieveColumnLayout(barWidthAndOffset, axis, seriesModel) {
@@ -33669,7 +33669,7 @@ function getScaleExtent(scale, model) {
 
     // Notice: When min/max is not set (that is, when there are null/undefined,
     // which is the most common case), these cases should be ensured:
-    // (1) For 'ordinal', show all axis.data.
+    // (1) For 'ordinal', show imgs_txt axis.data.
     // (2) For others:
     //      + `boundaryGap` is applied (if min/max set, boundaryGap is
     //      disabled).
@@ -33679,7 +33679,7 @@ function getScaleExtent(scale, model) {
 
     // FIXME
     // (1) When min/max is 'dataMin' or 'dataMax', should boundaryGap be able to used?
-    // (2) When `needCrossZero` and all data is positive/negative, should it be ensured
+    // (2) When `needCrossZero` and imgs_txt data is positive/negative, should it be ensured
     // that the results processed by boundaryGap are positive/negative?
 
     if (min == null) {
@@ -33874,7 +33874,7 @@ function ifAxisCrossZero(axis) {
  * @param {module:echarts/coord/Axis} axis
  * @return {Function} Label formatter function.
  *         param: {number} tickValue,
- *         param: {number} idx, the index in all ticks.
+ *         param: {number} idx, the index in imgs_txt ticks.
  *                         If category axis, this param is not requied.
  *         return: {string} label string.
  */
@@ -33896,7 +33896,7 @@ function makeLabelFormatter(axis) {
     }
     else if (typeof labelFormatter === 'function') {
         return function (tickValue, idx) {
-            // The original intention of `idx` is "the index of the tick in all ticks".
+            // The original intention of `idx` is "the index of the tick in imgs_txt ticks".
             // But the previous implementation of category axis do not consider the
             // `axisLabel.interval`, which cause that, for example, the `interval` is
             // `1`, then the ticks "name5", "name7", "name9" are displayed, where the
@@ -33993,7 +33993,7 @@ function getOptionCategoryInterval(model) {
 
 /**
  * Set `categoryInterval` as 0 implicitly indicates that
- * show all labels reguardless of overlap.
+ * show imgs_txt labels reguardless of overlap.
  * @param {Object} axis axisModel.axis
  * @return {boolean}
  */
@@ -34873,7 +34873,7 @@ var parseGeoJson$1 = function (geoJson) {
             geometries.push({
                 type: 'polygon',
                 // According to the GeoJSON specification.
-                // First must be exterior, and the rest are all interior(holes).
+                // First must be exterior, and the rest are imgs_txt interior(holes).
                 exterior: coordinates[0],
                 interiors: coordinates.slice(1)
             });
@@ -35003,7 +35003,7 @@ function makeCategoryTicks(axis, tickModel) {
     var tickCategoryInterval;
 
     // Optimize for the case that large category data and no label displayed,
-    // we should not return all ticks.
+    // we should not return imgs_txt ticks.
     if (!tickModel.get('show') || axis.scale.isBlank()) {
         ticks = [];
     }
@@ -35738,8 +35738,8 @@ SeriesModel.extend({
 
         showSymbol: true,
         // `false`: follow the label interval strategy.
-        // `true`: show all symbols.
-        // `'auto'`: If possible, show all symbols, otherwise
+        // `true`: show imgs_txt symbols.
+        // `'auto'`: If possible, show imgs_txt symbols, otherwise
         //           follow the label interval strategy.
         showAllSymbol: 'auto',
 
@@ -35905,7 +35905,7 @@ symbolProto.stopSymbolAnimation = function (toLastFrame) {
  * FIXME:
  * Caution: This method breaks the encapsulation of this module,
  * but it indeed brings convenience. So do not use the method
- * unless you detailedly know all the implements of `Symbol`,
+ * unless you detailedly know imgs_txt the implements of `Symbol`,
  * especially animation.
  *
  * Get symbol path element.
@@ -36528,7 +36528,7 @@ function getStackedOnPoint(dataCoordInfo, coordSys, data, idx) {
 //     // Generate int id instead of string id.
 //     // Compare string maybe slow in score function of arrDiff
 
-//     // Assume id in idList are all unique
+//     // Assume id in idList are imgs_txt unique
 //     var idIndicesMap = {};
 //     var idx = 0;
 //     for (var i = 0; i < newIdList.length; i++) {
@@ -36665,7 +36665,7 @@ var lineAnimationDiff = function (
         }
     }
 
-    // Diff result may be crossed if all items are changed
+    // Diff result may be crossed if imgs_txt items are changed
     // Sort by data index
     sortedIndices.sort(function (a, b) {
         return rawIndices[a] - rawIndices[b];
@@ -37422,7 +37422,7 @@ function getIsIgnoreFunc(seriesModel, data, coordSys) {
 
     // Note that category label interval strategy might bring some weird effect
     // in some scenario: users may wonder why some of the symbols are not
-    // displayed. So we show all symbols as possible as we can.
+    // displayed. So we show imgs_txt symbols as possible as we can.
     if (isAuto
         // Simplify the logic, do not determine label overlap here.
         && canShowAllSymbolForCategory(categoryAxis, data)
@@ -37446,7 +37446,7 @@ function getIsIgnoreFunc(seriesModel, data, coordSys) {
 function canShowAllSymbolForCategory(categoryAxis, data) {
     // In mose cases, line is monotonous on category axis, and the label size
     // is close with each other. So we check the symbol size and some of the
-    // label size alone with the category axis to estimate whether all symbol
+    // label size alone with the category axis to estimate whether imgs_txt symbol
     // can be shown without overlap.
     var axisExtent = categoryAxis.getExtent();
     var availSize = Math.abs(axisExtent[1] - axisExtent[0]) / categoryAxis.scale.count();
@@ -37911,7 +37911,7 @@ Chart.extend({
 
 
 var visualSymbol = function (seriesType, defaultSymbolType, legendSymbol) {
-    // Encoding visual for all series include which is filtered for legend drawing
+    // Encoding visual for imgs_txt series include which is filtered for legend drawing
     return {
         seriesType: seriesType,
 
@@ -38811,13 +38811,13 @@ var axisModelCreator = function (axisName, BaseAxisModelClass, axisTypeDefaulter
             },
 
             /**
-             * Should not be called before all of 'getInitailData' finished.
+             * Should not be called before imgs_txt of 'getInitailData' finished.
              * Because categories are collected during initializing data.
              */
             getCategories: function (rawData) {
                 var option = this.option;
                 // FIXME
-                // warning if called before all of 'getInitailData' finished.
+                // warning if called before imgs_txt of 'getInitailData' finished.
                 if (option.type === 'category') {
                     if (rawData) {
                         return option.data;
@@ -40577,7 +40577,7 @@ function collectSeriesInfo(result, ecModel) {
  *     axisPointer: {
  *         links: [{
  *             xAxisIndex: [2, 4],
- *             yAxisIndex: 'all'
+ *             yAxisIndex: 'imgs_txt'
  *         }, {
  *             xAxisId: ['a5', 'a7'],
  *             xAxisName: 'xxx'
@@ -42139,7 +42139,7 @@ var PieSeries = extendSeriesModel({
 
         percentPrecision: 2,
 
-        // If still show when all data zero.
+        // If still show when imgs_txt data zero.
         stillShowZeroSum: true,
 
         // cursor: null,
@@ -42720,7 +42720,7 @@ var dataColor = function (seriesType) {
                     }
                 }
                 else {
-                    // Set data all color for legend
+                    // Set data imgs_txt color for legend
                     dataAll.setItemVisual(rawIdx, 'color', singleDataColor);
                 }
             });
@@ -43104,7 +43104,7 @@ var pieLayout = function (seriesType, ecModel, api, payload) {
         // Some sector is constrained by minAngle
         // Rest sectors needs recalculate angle
         if (restAngle < PI2$4 && validDataCount) {
-            // Average the angle if rest angle is not enough after all angles is
+            // Average the angle if rest angle is not enough after imgs_txt angles is
             // Constrained by minAngle
             if (restAngle <= 1e-3) {
                 var angle = PI2$4 / validDataCount;
@@ -43945,7 +43945,7 @@ Radar.prototype.update = function (ecModel, api) {
         }
         return f * exp10;
     }
-    // Force all the axis fixing the maxSplitNumber.
+    // Force imgs_txt the axis fixing the maxSplitNumber.
     each$1(indicatorAxes, function (indicatorAxis, idx) {
         var rawExtent = getScaleExtent(indicatorAxis.scale, indicatorAxis.model);
         niceScaleExtent(indicatorAxis.scale, indicatorAxis.model);
@@ -44523,7 +44523,7 @@ extendChartView({
         }
 
         function updateSymbols(oldPoints, newPoints, symbolGroup, data, idx, isInit) {
-            // Simply rerender all
+            // Simply rerender imgs_txt
             symbolGroup.removeAll();
             for (var i = 0; i < newPoints.length - 1; i++) {
                 var symbolPath = createSymbol$$1(data, idx);
@@ -45379,7 +45379,7 @@ var MapSeries = SeriesModel.extend({
     needsDrawMap: false,
 
     /**
-     * Group of all map series with same mapType
+     * Group of imgs_txt map series with same mapType
      * @type {boolean}
      */
     seriesGroup: [],
@@ -45446,7 +45446,7 @@ var MapSeries = SeriesModel.extend({
 
     getRawValue: function (dataIndex) {
         // Use value stored in data instead because it is calculated from multiple series
-        // FIXME Provide all value of multiple series ?
+        // FIXME Provide imgs_txt value of multiple series ?
         var data = this.getData();
         return data.get(data.mapDimension('value'), dataIndex);
     },
@@ -46335,7 +46335,7 @@ MapDraw.prototype = {
                 regionGroup.add(textEl);
             }
 
-            // setItemGraphicEl, setHoverStyle after all polygons and labels
+            // setItemGraphicEl, setHoverStyle after imgs_txt polygons and labels
             // are added to the rigionGroup
             if (data) {
                 data.setItemGraphicEl(dataIdx, regionGroup);
@@ -48427,7 +48427,7 @@ Tree.prototype = {
     },
 
     /**
-     * Clear all layouts
+     * Clear imgs_txt layouts
      */
     clearLayouts: function () {
         this.data.clearItemLayouts();
@@ -48742,7 +48742,7 @@ SeriesModel.extend({
  */
 
 /**
- * Initialize all computational message for following algorithm.
+ * Initialize imgs_txt computational message for following algorithm.
  *
  * @param  {module:echarts/data/Tree~TreeNode} root   The virtual root of the tree.
  */
@@ -48831,7 +48831,7 @@ function firstWalk(node, separation) {
  * with some modifications made for this program.
  * See the license statement at the head of this file.
  *
- * Computes all real x-coordinates by summing up the modifiers recursively.
+ * Computes imgs_txt real x-coordinates by summing up the modifiers recursively.
  *
  * @param  {module:echarts/data/Tree~TreeNode} node
  */
@@ -50171,7 +50171,7 @@ SeriesModel.extend({
 function completeTreeValue(dataNode) {
     // Postorder travel tree.
     // If value of none-leaf node is not set,
-    // calculate it by suming up the value of all children.
+    // calculate it by suming up the value of imgs_txt children.
     var sum = 0;
 
     each$1(dataNode.children, function (child) {
@@ -50712,7 +50712,7 @@ extendChartView({
         );
 
         // Notice: when thisTree and oldTree are the same tree (see list.cloneShallow),
-        // the oldTree is actually losted, so we can not find all of the old graphic
+        // the oldTree is actually losted, so we can not find imgs_txt of the old graphic
         // elements from tree. So we use this stragegy: make element storage, move
         // from old storage to new storage, clear old storage.
 
@@ -50724,7 +50724,7 @@ extendChartView({
             0
         );
 
-        // Process all removing.
+        // Process imgs_txt removing.
         var willDeleteEls = clearStorage(oldStorage);
 
         this._oldTree = thisTree;
@@ -51442,7 +51442,7 @@ function renderNode(
     }
 }
 
-// We can not set all backgroud with the same z, Because the behaviour of
+// We can not set imgs_txt backgroud with the same z, Because the behaviour of
 // drill down and roll up differ background creation sequence from tree
 // hierarchy sequence, which cause that lowser background element overlap
 // upper ones. So we calculate z based on depth.
@@ -53227,7 +53227,7 @@ graphProto.getEdge = function (n1, n2) {
 };
 
 /**
- * Iterate all nodes
+ * Iterate imgs_txt nodes
  * @param  {Function} cb
  * @param  {*} [context]
  */
@@ -53242,7 +53242,7 @@ graphProto.eachNode = function (cb, context) {
 };
 
 /**
- * Iterate all edges
+ * Iterate imgs_txt edges
  * @param  {Function} cb
  * @param  {*} [context]
  */
@@ -53812,7 +53812,7 @@ var GraphSeries = extendSeriesModel({
 
         coordinateSystem: 'view',
 
-        // Default option for all coordinate systems
+        // Default option for imgs_txt coordinate systems
         // xAxisIndex: 0,
         // yAxisIndex: 0,
         // polarIndex: 0,
@@ -57373,7 +57373,7 @@ inherits(ParallelAxis, Axis);
  *              handleEnds will be modified in this method.
  * @param {Array.<number>} extent handleEnds is restricted by extent.
  *              extent[0] should less or equals than extent[1].
- * @param {number|string} handleIndex Can be 'all', means that both move the two handleEnds,
+ * @param {number|string} handleIndex Can be 'imgs_txt', means that both move the two handleEnds,
  *              where the input minSpan and maxSpan will not work.
  * @param {number} [minSpan] The range of dataZoom can not be smaller than that.
  *              If not set, handle0 and cross handle1. If set as a non-negative
@@ -58090,7 +58090,7 @@ var AxisModel$2 = ComponentModel.extend({
      * when action dispatched (i.e. legend click).
      *
      * @param {Array.<Array<number>>} intervals interval.length === 0
-     *                                          means set all active.
+     *                                          means set imgs_txt active.
      * @public
      */
     setActiveIntervals: function (intervals) {
@@ -58641,7 +58641,7 @@ BrushController.prototype = {
      *        `brushType` is required in each cover info. (can not be 'auto')
      *        `id` is not mandatory.
      *        `brushStyle`, `transformable` is not mandatory, use DEFAULT_BRUSH_OPT by default.
-     *        If brushOptionList is null/undefined, all covers removed.
+     *        If brushOptionList is null/undefined, imgs_txt covers removed.
      */
     updateCovers: function (brushOptionList) {
         if (__DEV__) {
@@ -61110,7 +61110,7 @@ function prepareNodesByBreadth(nodes, orient) {
  *
  * @param {module:echarts/data/Graph~Node} nodes  node of sankey view
  * @param {Array.<Array.<module:echarts/data/Graph~Node>>} nodesByBreadth
- *     group by the array of all sankey nodes based on the nodes x-position.
+ *     group by the array of imgs_txt sankey nodes based on the nodes x-position.
  * @param {module:echarts/data/Graph~Edge} edges  edge of sankey view
  * @param {number} height  the whole height of the area to draw the view
  * @param {number} nodeGap  the vertical distance between two nodes
@@ -61163,7 +61163,7 @@ function initializeNodeDepth(nodes, nodesByBreadth, edges, height, width, nodeGa
  * Resolve the collision of initialized depth (y-position)
  *
  * @param {Array.<Array.<module:echarts/data/Graph~Node>>} nodesByBreadth
- *     group by the array of all sankey nodes based on the nodes x-position.
+ *     group by the array of imgs_txt sankey nodes based on the nodes x-position.
  * @param {number} nodeGap  the vertical distance between two nodes
  * @param {number} height  the whole height of the area to draw the view
  */
@@ -61244,7 +61244,7 @@ function resolveCollisions(nodesByBreadth, nodeGap, height, width, orient) {
  * Change the y-position of the nodes, except most the right side nodes
  *
  * @param {Array.<Array.<module:echarts/data/Graph~Node>>} nodesByBreadth
- *     group by the array of all sankey nodes based on the node x-position.
+ *     group by the array of imgs_txt sankey nodes based on the node x-position.
  * @param {number} alpha  parameter used to adjust the nodes y-position
  */
 function relaxRightToLeft(nodesByBreadth, alpha, orient) {
@@ -61301,7 +61301,7 @@ function sum(array, f, orient) {
  * Change the y-position of the nodes, except most the left side nodes
  *
  * @param {Array.<Array.<module:echarts/data/Graph~Node>>} nodesByBreadth
- *     group by the array of all sankey nodes based on the node x-position.
+ *     group by the array of imgs_txt sankey nodes based on the node x-position.
  * @param {number} alpha  parameter used to adjust the nodes y-position
  */
 function relaxLeftToRight(nodesByBreadth, alpha, orient) {
@@ -65548,7 +65548,7 @@ function prepareLayoutInfo(
         var uLenWithMargin = Math.max(unitLength + symbolMargin * 2, 0);
 
         // When symbol margin is less than 0, margin at both ends will be subtracted
-        // to ensure that all of the symbols will not be overflow the given area.
+        // to ensure that imgs_txt of the symbols will not be overflow the given area.
         var endFix = hasEndGap ? 0 : symbolMargin * 2;
 
         // Both final repeatTimes and final symbolMargin area calculated based on
@@ -65565,7 +65565,7 @@ function prepareLayoutInfo(
         uLenWithMargin = unitLength + symbolMargin * 2;
         endFix = hasEndGap ? 0 : symbolMargin * 2;
 
-        // Update repeatTimes when not all symbol will be shown.
+        // Update repeatTimes when not imgs_txt symbol will be shown.
         if (!repeatSpecified && symbolRepeat !== 'fixed') {
             repeatTimes = repeatCutLength
                 ? toIntTimes((Math.abs(repeatCutLength) + endFix) / uLenWithMargin)
@@ -65680,7 +65680,7 @@ function createOrUpdateRepeatSymbols(bar, opt, symbolMeta, isUpdate) {
         );
 
         // FIXME
-        // If all emphasis/normal through action.
+        // If imgs_txt emphasis/normal through action.
         path
             .on('mouseover', onMouseOver)
             .on('mouseout', onMouseOut);
@@ -66885,7 +66885,7 @@ var curry$3 = curry;
 var inner$9 = makeInner();
 
 /**
- * Basic logic: check all axis, if they do not demand show/highlight,
+ * Basic logic: check imgs_txt axis, if they do not demand show/highlight,
  * then hide/downplay them.
  *
  * @param {Object} coordSysAxesInfo
@@ -67140,7 +67140,7 @@ function showTooltip(dataByCoordSys, axisInfo, payloadInfo, value) {
         axisId: axisModel.id,
         value: value,
         // Caustion: viewHelper.getValueLabel is actually on "view stage", which
-        // depends that all models have been updated. So it should not be performed
+        // depends that imgs_txt models have been updated. So it should not be performed
         // here. Considering axisPointerModel used here is volatile, which is hard
         // to be retrieve in TooltipView, we prepare parameters here.
         valueLabelOpt: {
@@ -68522,7 +68522,7 @@ registerProcessor(PRIORITY.PROCESSOR.STATISTIC, function (ecModel, api) {
         = collect(ecModel, api);
 });
 
-// Broadcast to all views.
+// Broadcast to imgs_txt views.
 registerAction({
     type: 'updateAxisPointer',
     event: 'updateAxisPointer',
@@ -69471,7 +69471,7 @@ SeriesModel.extend({
 
         percentPrecision: 2,
 
-        // If still show when all data zero.
+        // If still show when imgs_txt data zero.
         stillShowZeroSum: true,
 
         // Policy of highlighting pieces when hover on one
@@ -69569,7 +69569,7 @@ SeriesModel.extend({
 function completeTreeValue$1(dataNode) {
     // Postorder travel tree.
     // If value of none-leaf node is not set,
-    // calculate it by suming up the value of all children.
+    // calculate it by suming up the value of imgs_txt children.
     var sum = 0;
 
     each$1(dataNode.children, function (child) {
@@ -71642,9 +71642,9 @@ var GraphicModel = extendComponentModel({
         //      can not be percentage value (like '33%'). See the reason in the
         //      layout algorithm below.
         //
-        // bounding: (enum: 'all' (default) | 'raw')
+        // bounding: (enum: 'imgs_txt' (default) | 'raw')
         //      Specify how to calculate boundingRect when locating.
-        //      'all': Get uioned and transformed boundingRect
+        //      'imgs_txt': Get uioned and transformed boundingRect
         //          from both itself and its descendants.
         //          This mode simplies confining a group of elements in the bounding
         //          of their ancester container (e.g., using 'right: 0').
@@ -71923,7 +71923,7 @@ extendComponentView({
         var rootGroup = this.group;
         var elMap = this._elMap;
 
-        // Bottom-up tranvese all elements (consider ec resize) to locate elements.
+        // Bottom-up tranvese imgs_txt elements (consider ec resize) to locate elements.
         for (var i = elOptions.length - 1; i >= 0; i--) {
             var elOption = elOptions[i];
             var el = elMap.get(elOption.id);
@@ -71951,7 +71951,7 @@ extendComponentView({
     },
 
     /**
-     * Clear all elements.
+     * Clear imgs_txt elements.
      *
      * @private
      */
@@ -72401,7 +72401,7 @@ function legendSelectActionHandler(methodName, payload, ecModel) {
     var selectedMap = {};
     var isToggleSelect = methodName === 'toggleSelected';
     var isSelected;
-    // Update all legend components
+    // Update imgs_txt legend components
     ecModel.eachComponent('legend', function (legendModel) {
         if (isToggleSelect && isSelected != null) {
             // Force other legend has same selected status
@@ -72811,7 +72811,7 @@ var LegendView = extendComponentView({
         // Compose symbols
         // PENDING
         if (!itemIcon && symbolType
-            // At least show one symbol, can't be all none
+            // At least show one symbol, can't be imgs_txt none
             && ((symbolType !== legendSymbolType) || symbolType === 'none')
         ) {
             var size = itemHeight * 0.8;
@@ -77182,8 +77182,8 @@ function createVisualMappings(option, stateList, supplementVisualOption) {
 function replaceVisualOption(thisOption, newOption, keys) {
     // Visual attributes merge is not supported, otherwise it
     // brings overcomplicated merge logic. See #2853. So if
-    // newOption has anyone of these keys, all of these keys
-    // will be reset. Otherwise, all keys remain.
+    // newOption has anyone of these keys, imgs_txt of these keys
+    // will be reset. Otherwise, imgs_txt keys remain.
     var has;
     each$1(keys, function (key) {
         if (newOption.hasOwnProperty(key) && hasKeys(newOption[key])) {
@@ -77500,7 +77500,7 @@ var INCLUDE_FINDER_MAIN_TYPES = [
  * Can be {
  *     panelId: ...,
  *     coordSys: <a representitive cartesian in grid (first cartesian by default)>,
- *     coordSyses: all cartesians.
+ *     coordSyses: imgs_txt cartesians.
  *     gridModel: <grid component>
  *     xAxes: correspond to coordSyses on index
  *     yAxes: correspond to coordSyses on index
@@ -77652,7 +77652,7 @@ proto$2.makePanelOpts = function (api, getDefaultBrushType) {
 
 proto$2.controlSeries = function (area, seriesModel, ecModel) {
     // Check whether area is bound in coord, and series do not belong to that coord.
-    // If do not do this check, some brush (like lineX) will controll all axes.
+    // If do not do this check, some brush (like lineX) will controll imgs_txt axes.
     var targetInfo = this.findTargetInfo(area, ecModel);
     return targetInfo === true || (
         targetInfo && indexOf$1(targetInfo.coordSyses, seriesModel.coordinateSystem) >= 0
@@ -78004,7 +78004,7 @@ registerVisual(PRIORITY_BRUSH, function (ecModel, api, payload) {
         }
 
         // If no supported brush or no brush on the series,
-        // all visuals should be in original state.
+        // imgs_txt visuals should be in original state.
         function brushed(rangeInfoList) {
             return !!rangeInfoList.length;
         }
@@ -78094,7 +78094,7 @@ registerVisual(PRIORITY_BRUSH, function (ecModel, api, payload) {
                         : 'outOfBrush';
                 };
 
-            // If no supported brush or no brush, all visuals are in original state.
+            // If no supported brush or no brush, imgs_txt visuals are in original state.
             (linkOthers(seriesIndex) ? hasBrushExists : brushed(rangeInfoList))
                 && applyVisual(
                     STATE_LIST, visualMappings, data, getValueState
@@ -78271,7 +78271,7 @@ var BrushModel = extendComponentModel({
         // outOfBrush: null,
         toolbox: null,          // Default value see preprocessor.
         brushLink: null,        // Series indices array, broadcast using dataIndex.
-                                // or 'all', which means all series. 'none' or null means no series.
+                                // or 'imgs_txt', which means imgs_txt series. 'none' or null means no series.
         seriesIndex: 'all',     // seriesIndex array, specify series controlled by this brush component.
         geoIndex: null,         //
         xAxisIndex: null,
@@ -78719,7 +78719,7 @@ proto$3.onclick = function (ecModel, api, type) {
         api.dispatchAction({
             type: 'brush',
             command: 'clear',
-            // Clear all areas of all brush components.
+            // Clear imgs_txt areas of imgs_txt brush components.
             areas: []
         });
     }
@@ -80514,7 +80514,7 @@ AxisProxy.prototype = {
             // unit or extent, and the latter one is suitable for accurate zoom by pixel
             // (e.g., in dataZoomSelect). `valueProp` can be calculated from `percentProp`,
             // but it is awkward that `percentProp` can not be obtained from `valueProp`
-            // accurately (because all of values that are overflow the `dataExtent` will
+            // accurately (because imgs_txt of values that are overflow the `dataExtent` will
             // be calculated to percent '100%'). So we have to use
             // `dataZoom.getRangePropMode()` to mark which prop is used.
             // `rangePropMode` is updated only when setOption or dispatchAction, otherwise
@@ -80531,7 +80531,7 @@ AxisProxy.prototype = {
             }
             else {
                 // Calculating `percent` from `value` may be not accurate, because
-                // This calculation can not be inversed, because all of values that
+                // This calculation can not be inversed, because imgs_txt of values that
                 // are overflow the `dataExtent` will be calculated to percent '100%'
                 boundPercent = linearMap(
                     boundValue, dataExtent, percentExtent, true
@@ -80858,7 +80858,7 @@ var DataZoomModel = extendComponentModel({
                                 //          filtered if one of the relevant dimensions is out of the window.
                                 // 'weakFilter': data items which are out of window will be removed. This option
                                 //          is applicable when filtering outliers. For each data item, it will be
-                                //          filtered only if all  of the relevant dimensions are out of the same
+                                //          filtered only if imgs_txt  of the relevant dimensions are out of the same
                                 //          side of the window.
                                 // 'empty': data items which are out of window will be set to empty.
                                 //          This option is applicable when user should not neglect
@@ -82090,7 +82090,7 @@ var SliderZoomView = DataZoomView.extend({
 
     /**
      * @private
-     * @param {(number|string)} handleIndex 0 or 1 or 'all'
+     * @param {(number|string)} handleIndex 0 or 1 or 'imgs_txt'
      * @param {number} delta
      * @return {boolean} changed
      */
@@ -82442,7 +82442,7 @@ function register$2(api, dataZoomInfo) {
     var theCoordId = dataZoomInfo.coordId;
 
     // Do clean when a dataZoom changes its target coordnate system.
-    // Avoid memory leak, dispose all not-used-registered.
+    // Avoid memory leak, dispose imgs_txt not-used-registered.
     each$1(store, function (record, coordId) {
         var dataZoomInfos = record.dataZoomInfos;
         if (dataZoomInfos[theDataZoomId]
@@ -82609,7 +82609,7 @@ function mergeControllerParams(dataZoomInfos) {
     return {
         controlType: controlType,
         opt: {
-            // RoamController will enable all of these functionalities,
+            // RoamController will enable imgs_txt of these functionalities,
             // and the final behavior is determined by its event listener
             // provided by each inside zoom.
             zoomOnMouseWheel: true,
@@ -82665,7 +82665,7 @@ var InsideZoomView = DataZoomView.extend({
         InsideZoomView.superApply(this, 'render', arguments);
 
         // Hance the `throttle` util ensures to preserve command order,
-        // here simply updating range all the time will not cause missing
+        // here simply updating range imgs_txt the time will not cause missing
         // any of the the roam change.
         this._range = dataZoomModel.getPercentRange();
 
@@ -82954,7 +82954,7 @@ registerProcessor({
         });
 
         ecModel.eachComponent('dataZoom', function (dataZoomModel) {
-            // Fullfill all of the range props so that user
+            // Fullfill imgs_txt of the range props so that user
             // is able to get them from chart.getOption().
             var axisProxy = dataZoomModel.findRepresentativeAxisProxy();
             var percentRange = axisProxy.getDataPercentWindow();
@@ -83393,7 +83393,7 @@ var VisualMapModel = extendComponentModel({
         zlevel: 0,
         z: 4,
 
-        seriesIndex: 'all',     // 'all' or null/undefined: all series.
+        seriesIndex: 'all',     // 'imgs_txt' or null/undefined: imgs_txt series.
                                 // A number or an array of number: the specified series.
 
                                 // set min: 0, max: 200, only for campatible with ec2.
@@ -84717,7 +84717,7 @@ var ContinuousView = VisualMapView.extend({
 
     /**
      * @private
-     * @param {(number|string)} handleIndex 0 or 1 or 'all'
+     * @param {(number|string)} handleIndex 0 or 1 or 'imgs_txt'
      * @param {number} dx
      * @param {number} dy
      */
@@ -85322,7 +85322,7 @@ var PiecewiseModel = VisualMapModel.extend({
         selected: null,             // Object. If not specified, means selected.
                                     // When pieces and splitNumber: {'0': true, '5': true}
                                     // When categories: {'cate1': false, 'cate3': true}
-                                    // When selected === false, means all unselected.
+                                    // When selected === false, means imgs_txt unselected.
 
         minOpen: false,             // Whether include values that smaller than `min`.
         maxOpen: false,             // Whether include values that bigger than `max`.
@@ -85456,7 +85456,7 @@ var PiecewiseModel = VisualMapModel.extend({
         var thisOption = this.option;
         var pieceList = this._pieceList;
 
-        // Selected do not merge but all override.
+        // Selected do not merge but imgs_txt override.
         var selected = (isInit ? thisOption : newOption).selected || {};
         thisOption.selected = selected;
 
@@ -85481,7 +85481,7 @@ var PiecewiseModel = VisualMapModel.extend({
                 }
             }, this);
         }
-        // thisOption.selectedMode === 'multiple', default: all selected.
+        // thisOption.selectedMode === 'multiple', default: imgs_txt selected.
     },
 
     /**
@@ -86304,7 +86304,7 @@ function hasXAndY(item) {
     return !isNaN(parseFloat(item.x)) && !isNaN(parseFloat(item.y));
 }
 
-// Make it simple, do not visit all stacked value to count precision.
+// Make it simple, do not visit imgs_txt stacked value to count precision.
 // function getPrecision(data, valueAxisDim, dataIndex) {
 //     var precision = -1;
 //     var stackedDim = data.mapDimension(valueAxisDim);
@@ -86344,7 +86344,7 @@ function markerTypeCalculatorWithExtent(
     coordArr[otherCoordIndex] = data.get(otherDataDim, dataIndex);
     coordArr[targetCoordIndex] = data.get(targetDataDim, dataIndex);
 
-    // Make it simple, do not visit all stacked value to count precision.
+    // Make it simple, do not visit imgs_txt stacked value to count precision.
     var precision = getPrecision(data.get(targetDataDim, dataIndex));
     precision = Math.min(precision, 20);
     if (precision >= 0) {
@@ -88451,7 +88451,7 @@ TimelineView.extend({
         // Position is be called finally, because bounding rect is needed for
         // adapt content to fill viewRect (auto adapt offset).
 
-        // Timeline may be not all in the viewRect when 'offset' is specified
+        // Timeline may be not imgs_txt in the viewRect when 'offset' is specified
         // as a number, because it is more appropriate that label aligns at
         // 'offset' but not the other edge defined by viewRect.
 
@@ -88576,7 +88576,7 @@ TimelineView.extend({
      */
     _renderAxisTick: function (layoutInfo, group, axis, timelineModel) {
         var data = timelineModel.getData();
-        // Show all ticks, despite ignoring strategy.
+        // Show imgs_txt ticks, despite ignoring strategy.
         var ticks = axis.scale.getTicks();
 
         // The value is dataIndex, see the costomized scale.
@@ -90123,7 +90123,7 @@ function pop(ecModel) {
     var head = store[store.length - 1];
     store.length > 1 && store.pop();
 
-    // Find top for all dataZoom.
+    // Find top for imgs_txt dataZoom.
     var snapshot = {};
     each$29(head, function (batchItem, dataZoomId) {
         for (var i = store.length - 1; i >= 0; i--) {
@@ -90418,7 +90418,7 @@ proto$6._dispatchZoomAction = function (snapshot) {
 
 function retrieveAxisSetting(option) {
     var setting = {};
-    // Compatible with previous setting: null => all axis, false => no axis.
+    // Compatible with previous setting: null => imgs_txt axis, false => no axis.
     each$1(['xAxisIndex', 'yAxisIndex'], function (name) {
         setting[name] = option[name];
         setting[name] == null && (setting[name] = 'all');
@@ -92494,7 +92494,7 @@ Diff.prototype = {
             }];
         }
 
-        // Main worker method. checks all permutations of a given edit length for acceptance.
+        // Main worker method. checks imgs_txt permutations of a given edit length for acceptance.
         function execEditLength() {
             for (var diagonalPath = -1 * editLength; diagonalPath <= editLength; diagonalPath += 2) {
                 var basePath;
@@ -93887,7 +93887,7 @@ registerPainter('svg', SVGPainter);
 * under the License.
 */
 
-// Import all charts and components
+// Import imgs_txt charts and components
 
 exports.version = version;
 exports.dependencies = dependencies;

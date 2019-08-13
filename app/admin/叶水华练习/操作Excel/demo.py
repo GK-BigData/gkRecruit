@@ -18,7 +18,7 @@ for i in range(0, len(needcolumns_name)):
 class ETL():
     def __init__(self):
 
-        self.engine = create_engine('mysql+pymysql://root:gkbigdata123456@192.168.43.33:3306/recruit')
+        self.engine = create_engine('mysql+pymysql://root:gkbigdata123456@10.50.10.16:3306/recruit')
         self.now_time=datetime.now()
 
     '''

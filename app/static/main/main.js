@@ -182,8 +182,9 @@ function previewChart()
 点击创建按钮的时间
  */
 
-function createChart()
+function createChartOrTable()
 {
+
 
     var params = getCreateChartParams();
     createChartByParams(params);
