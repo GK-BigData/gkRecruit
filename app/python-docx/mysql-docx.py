@@ -67,7 +67,7 @@ class Mysql_docx:
 
         return html
 
-    def jiexi(self,data):
+    def jiexi(self,data,doc_title):
         with open(data, 'r', encoding='utf-8') as file:
             j = json.loads(file.read())
             index = 1
@@ -98,6 +98,49 @@ class Mysql_docx:
                 else:
                     return 'error'
                 index += 1
+
+
+            #word文档
+
+            document = Document()
+            document.styles['Normal'].font.name = u'宋体'
+            document.styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+
+            document.add_heading('')
+            p = document.add_paragraph('', style='Heading 2')
+            # 添加了一个段落，不是添加标题，只是在段落上添加文字
+            p.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+            title = p.add_run(doc_title)
+            title.font.name = u'宋体'
+            title.bold = True
+            title.font.size = Pt(15)
+            title._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+
+            filepath = './need/'
+            for i, j, k in os.walk(filepath):
+                for name in k:
+                    houzhui = name.split('.')[-1]
+                    if houzhui == 'png':
+                        path = filepath + name
+                        document.add_picture('{}'.format(path), width=Inches(6.5))
+                    if houzhui == 'txt':
+                        with open(filepath + name, 'r', encoding='utf-8')as f:
+                            txt = f.read()
+                            p2 = document.add_paragraph('')
+                            # 整个段落使用首行缩进0.25厘米
+                            p2.paragraph_format.first_line_indent = Inches(0.25)
+                            # txt = '正月里采花无哟花采，二月间采花花哟正开，二月间采花花哟正开。三月里桃花红哟似海，四月间葡萄架哟上开，四月间葡萄架哟上开。'
+                            text = p2.add_run(txt)
+                            font = text.font
+                            font.name = 'Calibri'
+                            font.size = Pt(10.5)
+
+                    else:
+                        pass
+
+            save_docx_name=doc_title+'.docx'
+            document.save(save_docx_name)
+
 
     # 传入HTML，将其转为图片
     def html_echarts(self, html, output_name):
