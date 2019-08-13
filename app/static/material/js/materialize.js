@@ -1006,7 +1006,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 ;
 var Component = function () {
   /**
-   * Generic constructor for all components
+   * Generic constructor for imgs_txt components
    * @constructor
    * @param {Element} el
    * @param {Object} options
@@ -5408,7 +5408,7 @@ $jscomp.polyfill = function (e, r, p, m) {
       }
 
       /**
-       * Remove all toasts
+       * Remove imgs_txt toasts
        */
 
     }, {
@@ -6781,7 +6781,7 @@ $jscomp.polyfill = function (e, r, p, m) {
 
         var matchingData = [];
 
-        // Gather all matching data
+        // Gather imgs_txt matching data
         for (var key in data) {
           if (data.hasOwnProperty(key) && key.toLowerCase().indexOf(val) !== -1) {
             // Break if past limit
