@@ -95,7 +95,7 @@ def delete_reprots(id):
 @report_admin.route('/reports/<id>')
 @login_required
 def get_reports(id):
-    time.sleep(5)
+
     report = Report.query.filter( and_( Report.id == id,Report.userid==current_user.get_id())).first_or_404()
     return rjson({
         'id':report.id,

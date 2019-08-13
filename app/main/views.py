@@ -761,37 +761,43 @@ def options(type):
         return rjson(options,0)
 
 # 导出的目录
-export_dir=os.path.abspath('../download')
+export_dir=os.path.abspath('../report/download')
 
 # 根据报告id , 导出报告,返回导出是否成功
 @bp_main.route('/export/<int:id>')
 @login_required
 def export(id):
 
-    time.sleep(4)
+    if not os.path.exists(export_dir):
+        logger.debug('建立下载文件夹:%s',export_dir)
+        os.makedirs(export_dir)
+
     from app.report.models import Report
     report = Report.query.with_entities(Report.id,Report.data,Report.title,func.unix_timestamp(Report.title).label('time')).filter(Report.id==id).first()
-    filename = '%s-%s-%s.docx' % (report.id,report.title,report.time)
+    filename = '%s_%s_%s.docx' % (report.id,report.title,report.time)
 
     path = os.path.join(export_dir,filename)
 
     # 报告的数据
     jsondata = report.data
-
+    jiexi_result = doc.jiexi(jsondata, report.title, path)
+    logger.debug('导出结果:%s',jiexi_result)
     if os.path.exists(path):
         return rjson('导出成功',0)
     else:
         return rjson('导出失败',1)
 
 
+from app.python_docx.mysql_docx import Mysql_docx
 
+doc = Mysql_docx()
 @bp_main.route('/download/<int:id>')
 @login_required
 def download(id):
     from app.report.models import Report
     report = Report.query.with_entities(Report.id, Report.title,
                                         func.unix_timestamp(Report.title).label('time')).filter(Report.id == id).first()
-    filename = '%s-%s-%s.docx' % (report.id, report.title, report.time)
+    filename = '%s_%s_%s.docx' % (report.id, report.title, report.time)
     path = os.path.join(export_dir, filename)
-
-    return send_file(path)
+    logger.debug('下载报告路径：%s',path)
+    return send_file(path,attachment_filename=filename,as_attachment=True)

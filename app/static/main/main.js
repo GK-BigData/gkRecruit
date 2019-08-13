@@ -547,8 +547,11 @@ function exportReport()
                 Zs.prototype.enable('#export');
 
                 console.log('导出成功');
+                console.log(data);
                 if(data.code===0)
-                window.open('download/'+reportid);
+                {
+                    console.log('打开:'+'download/'+reportid);
+                    window.open('download/'+reportid);}
                 else
                 {
                     showJsonResult(data,'导出结果');
@@ -557,7 +560,7 @@ function exportReport()
             error:function(data)
             {
                   Zs.prototype.hide('#saveprogress');
-        Zs.prototype.enable('#save');
+                 Zs.prototype.enable('#export');
 
                 console.log('导出失败')
             }

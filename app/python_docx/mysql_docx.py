@@ -12,39 +12,21 @@ from pyecharts.charts import Bar
 from snapshot_selenium import snapshot
 from pyecharts.render import make_snapshot
 import time
+import os
 
-
-
+from . import  logger
 '''
 连接mysql数据库，将数据传入到word文档里面
 '''
 
 
 class Mysql_docx:
-    '''def __init__(self):
-        self.connect = pymysql.connect(
-            host='',
-            user='root',
-            password='gkbigdata123',
-            databases='docx',
-            charset='utf8',
-            port=3306
-        )
+    def __init__(self):
+        if not os.path.exists(self.tmpdir):
+            logger.debug('建立输出文件夹:%s',self.tmpdir)
+            os.makedirs(self.tmpdir)
 
-
-
-    # 读取数据，拿到echarts的option
-    def read_mysql(self):
-        conn = self.connect.cursor()
-        cur = conn.execute('select * from ')
-        print(cur)
-
-        option = {
-
-        }
-
-        return option'''
-
+    tmpdir = '../report/tmp'
     def base_html(self):
         html = '''<!DOCTYPE html>
         <html>
@@ -68,79 +50,86 @@ class Mysql_docx:
 
         return html
 
-    def jiexi(self,data,doc_title):
-        with open(data, 'r', encoding='utf-8') as file:
-            j = json.loads(file.read())
-            index = 1
-            for i in j:
-                if i.get('type') == 'chart':
-                    if i.get('option'):
-                        option = i.get('option')
-                        print(option)
+    def jiexi(self,data,doc_title,filename):
+        #with open(data, 'r', encoding='utf-8') as file:
+        j = json.loads(data)
+        index = 1
+        for i in j:
+            if i.get('type') == 'chart':
+                if i.get('option'):
+                    option = i.get('option')
+                    print(option)
 
-                        ht = str(index) + '.html'
-                        with open(ht, 'w') as file:
-                            file.write(self.base_html().replace('配置', json.dumps(option)))
-                            file.write('\n')
+                    ht =  os.path.join(self.tmpdir, str(index) + '.html')
+                    logger.debug('生成html:%s,路径:%s',ht,os.path.abspath(ht))
 
-                        time.sleep(0.2)
-                        # filename不允许添加路径，必须在当前目录吓的html文件
-                        output_name = "./imgs_txt/" + str(index) + ".png"
-                        self.html_echarts(ht,output_name)
+                    with open(ht, 'w') as file:
+                        file.write(self.base_html().replace('配置', json.dumps(option)))
+                        file.write('\n')
 
-                        js_path = './js/' + str(index) + '.js'
-                        self.save_js(option,js_path)
 
-                elif i.get('type') == 'text':
-                    text = i.get('text')
-                    txt_path = './imgs_txt/' + str(index) + '.txt'
-                    self.save_txt(text,txt_path)
+                    # time.sleep(0.2)
+                    # filename不允许添加路径，必须在当前目录吓的html文件
+                    output_name =  os.path.join(self.tmpdir,  str(index) + ".png")
+                    self.html_echarts(ht,output_name)
+
+                    js_path =  os.path.join(self.tmpdir, str(index) + '.js')
+                    self.save_js(option,js_path)
+
+            elif i.get('type') == 'text':
+                text = i.get('text')
+                txt_path =  os.path.join(self.tmpdir, str(index) + '.txt')
+                self.save_txt(text,txt_path)
+
+            else:
+                continue
+            index += 1
+
+
+        #word文档
+
+        document = Document()
+        document.styles['Normal'].font.name = u'宋体'
+        document.styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+
+        document.add_heading('')
+        p = document.add_paragraph('', style='Heading 2')
+        # 添加了一个段落，不是添加标题，只是在段落上添加文字
+        p.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        title = p.add_run(doc_title)
+        title.font.name = u'宋体'
+        title.bold = True
+        title.font.size = Pt(15)
+        title._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
+
+        filepath = self.tmpdir
+        for i, j, k in os.walk(filepath):
+            logger.debug('docx文件列表:%s',k)
+            k.sort()
+            for name in  k:
+
+                houzhui = name.split('.')[-1]
+                if houzhui == 'png':
+                    path = os.path.join( filepath , name)
+                    document.add_picture('{}'.format(path), width=Inches(6.5))
+                if houzhui == 'txt':
+                    with open(os.path.join( filepath , name), 'r', encoding='utf-8')as f:
+                        txt = f.read()
+                        p2 = document.add_paragraph('')
+                        # 整个段落使用首行缩进0.25厘米
+                        p2.paragraph_format.first_line_indent = Inches(0.25)
+                        # txt = '正月里采花无哟花采，二月间采花花哟正开，二月间采花花哟正开。三月里桃花红哟似海，四月间葡萄架哟上开，四月间葡萄架哟上开。'
+                        text = p2.add_run(txt)
+                        font = text.font
+                        font.name = 'Calibri'
+                        font.size = Pt(10.5)
 
                 else:
-                    return 'error'
-                index += 1
-
-
-            #word文档
-
-            document = Document()
-            document.styles['Normal'].font.name = u'宋体'
-            document.styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
-
-            document.add_heading('')
-            p = document.add_paragraph('', style='Heading 2')
-            # 添加了一个段落，不是添加标题，只是在段落上添加文字
-            p.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-            title = p.add_run(doc_title)
-            title.font.name = u'宋体'
-            title.bold = True
-            title.font.size = Pt(15)
-            title._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
-
-            filepath = './need/'
-            for i, j, k in os.walk(filepath):
-                for name in k:
-                    houzhui = name.split('.')[-1]
-                    if houzhui == 'png':
-                        path = filepath + name
-                        document.add_picture('{}'.format(path), width=Inches(6.5))
-                    if houzhui == 'txt':
-                        with open(filepath + name, 'r', encoding='utf-8')as f:
-                            txt = f.read()
-                            p2 = document.add_paragraph('')
-                            # 整个段落使用首行缩进0.25厘米
-                            p2.paragraph_format.first_line_indent = Inches(0.25)
-                            # txt = '正月里采花无哟花采，二月间采花花哟正开，二月间采花花哟正开。三月里桃花红哟似海，四月间葡萄架哟上开，四月间葡萄架哟上开。'
-                            text = p2.add_run(txt)
-                            font = text.font
-                            font.name = 'Calibri'
-                            font.size = Pt(10.5)
-
-                    else:
-                        pass
-
-            save_docx_name=doc_title+'.docx'
-            document.save(save_docx_name)
+                    pass
+        logger.debug('生成路径:%s,标题:%s',filename,title)
+        # save_docx_name= os.path.join(self.outdir,filename)
+        document.save(filename)
+        return  filename
 
 
     # 传入HTML，将其转为图片
@@ -149,6 +138,7 @@ class Mysql_docx:
         # 选择要保存的图片的名字,需要添加后缀
 
         # filename不允许添加路径，必须在当前目录吓的html文件
+
         make_snapshot(snapshot, html, output_name)
 
 
@@ -204,15 +194,15 @@ class Mysql_docx:
         title.font.size = Pt(15)
         title._element.rPr.rFonts.set(qn('w:eastAsia'), u'宋体')
 
-        filepath = './need/'
+        filepath = 'need/'
         for i, j, k in os.walk(filepath):
             for name in k:
                 houzhui = name.split('.')[-1]
                 if houzhui == 'png':
-                    path = filepath + name
+                    path = os.path.join(filepath  ,name)
                     document.add_picture('{}'.format(path), width=Inches(6.5))
                 if houzhui == 'txt':
-                    with open(filepath + name, 'r', encoding='utf-8')as f:
+                    with open(os.path.join(filepath  ,name), 'r', encoding='utf-8')as f:
                         txt = f.read()
                         p2 = document.add_paragraph('')
                         # 整个段落使用首行缩进0.25厘米
