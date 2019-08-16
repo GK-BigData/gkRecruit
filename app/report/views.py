@@ -48,7 +48,7 @@ def index():
 
     records = {}
     for data in dataset:
-        records[data.id] = '%s %s %s'%(data.id,data.zsyear,data.status)
+        records[data.id] = '%s %s'%(data.id,data.status)
 
     records['-1']='无'
     data = Report.query.all()

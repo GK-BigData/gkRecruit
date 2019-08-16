@@ -1,5 +1,29 @@
 // admin界面的js代码
 
+var wm_records = new Vue(
+    {
+        el:'#records',
+        data:{
+            records:[]
+        },
+        methods:{
+            delete_item:function(recordid){
+                console.log('删除:'+recordid);
+                $.ajax({
+        url:"records/"+recordid,
+        method:"DELETE",
+        success:actionSuccess,
+        error:actionError
+    });
+            },
+            import_item:function (recordid) {
+                console.log('导入数据:'+recordid);
+                    window.open('setfield/'+recordid);
+            }
+        },
+        computed:{}
+    }
+);
 
 //初始化模态框等
 function initComponents()
@@ -30,8 +54,6 @@ function loadInfo(id)
 
         var table = $('#previewtable');
         table.empty();
-
-
         var a = table.append(data);
         console.log(data);
         $('#progress_info').css('display','none');
@@ -62,60 +84,27 @@ function action_info(id)
     console.log("查看信息:"+id);
 
 }
-//删除数据
-function action_delete(id) {
-    console.log("删除数据:"+id);
-    $.ajax({
-        url:"records/"+id,
-        method:"DELETE",
-        success:actionSuccess,
-        error:actionError
-    })
-
-}
-
-function action_import(id)
-{
-    console.log("导入数据动作:"+id);
-
-    window.open("setfield/"+id)
 
 
-}
+
 
 //加载记录
 function loadRecords()
 {
-    $.get("records_html",function(data){
+    $.get("records",function(data){
+
+        console.log('加载记录:');
         console.log(data);
-        var records = data;
-        //获取表格元素
-        var table = $("#records");
-        //清空元素
-        table.empty();
+        wm_records.records.splice(0,wm_records.records.length);
 
-    //    添加表头
-        table.append("<thead><tr><th>id</th> <th>时间</th> <th>数据年份</th> <th>记录数</th> <th>状态</th><th>操作</th></tr></thead>");
-
-    //     var tbody = document.createElement("tbody");
-    // //    添加行到body
-    //     records.forEach(function(item,index){
-    //         console.log(item);
-    //         $(tbody).append("<tr>"+ "<td>"+item.id+ "</td>"
-    //             + "<td>"+item.time+ "</td>"
-    //             + "<td>"+item.zsyear+ "</td>"
-    //             + "<td>"+item.status+ "</td>"
-    //             +   "</tr>")
-    //
-    //     });
-        table.append(records);
-        console.log("加载记录:");
-        console.log(records);
-
-    //    加载完的下拉,要手动初始
-        console.log("初始化下拉框...");
-    var elems = document.querySelectorAll('.dropdown-trigger');
+        data.data.forEach(function (ele) {
+            wm_records.records.push(ele);
+        });
+        wm_records.$nextTick(function () {
+            var elems = document.querySelectorAll('.dropdown-trigger');
     var instances = M.Dropdown.init(elems);
+        });
+
 
 
 
@@ -157,7 +146,7 @@ function upload() {
     $("#upload").addClass("disabled");
 
     formData.append("table",file[0]);
-    formData.append("zsyear",year);
+
 
     console.log(formData);
 

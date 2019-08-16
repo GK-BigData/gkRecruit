@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-
+{% block title %}填充数据到报告模板{% endblock %}
 {% block container %}
 
     <div class="progress" id="saveprogress" style="display: none;position: fixed;left: 0;right: 0;margin: 0 auto;top: 50%;"> <div class="indeterminate"></div></div>
@@ -9,15 +9,15 @@
         <select>
             <option value="zs">招生数据</option>
         </select>
-        <label>数据类型</label>
+        <label>报告模板</label>
     </div>
 
-    <div class="input-field col s6">
-        <select id="zsyear">
-            <option value="{{ zsyear }}">{{ zsyear }}</option>
-        </select>
-        <label>数据年份</label>
-    </div>
+{#    <div class="input-field col s6">#}
+{#        <select id="zsyear">#}
+{#            <option value="{{ zsyear }}">{{ zsyear }}</option>#}
+{#        </select>#}
+{#        <label>数据年份</label>#}
+{#    </div>#}
 
     </div>
 
@@ -25,14 +25,12 @@
     <h5>数据的需要字段列表</h5>
     {% raw %}
    <ul class="collection" id="fields" >
-   <a  v-on:click="selectValue(index)" v-for="(field,index) in fields" class="collection-item"><h5 v-bind:class="{ 'red-text':isValueEmpty(index)}"> {{ index }}.{{ field.name }}</h5><p class="black-text" >{{  field.desc }}</p><p class="black-text">{{ preview(values[index]) }}</p></a>
+   <a  v-on:click="selectValue(index)" v-for="(field,index) in fields" class="collection-item"><h6 v-bind:class="{ 'red-text':isValueEmpty(index)}"> {{ index }}.{{ field.name }}</h6><p class="black-text" >{{  field.desc }}</p><p class="black-text">{{ preview(values[index]) }}</p></a>
    </ul>
 {% endraw %}
 
     <a class="btn" id='apply' onclick="apply();">提交</a>
 </div>
-
-
 
 
 
@@ -109,7 +107,7 @@
         Zs.prototype.disable('#apply');
         Zs.prototype.display('#saveprogress');
         //select
-        var zsyear = M.FormSelect.init(document.getElementById('zsyear'));
+
 
 
         data={};
@@ -119,7 +117,7 @@
             data[setfield.fields[i].field] = setfield.values[i];
         }
         data['recordid']=recordid;
-        data['zsyear']=zsyear.getSelectedValues()[0];
+
 
 
         $.ajax({

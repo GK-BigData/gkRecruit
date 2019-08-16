@@ -3,7 +3,7 @@
 # Project :zs
 # Time  :2019/8/10 上午10:27 
 # BY    :FormatFa
-
+from sqlalchemy import and_
 
 from . import bp_user,logger
 from flask import render_template,request,redirect,url_for
@@ -71,7 +71,7 @@ from app import db
 
 @bp_user.app_context_processor
 def info():
-    report_count = Report.query.filter(Report.userid==current_user.get_id()).with_entities(func.count(Report.id)).first()[0]
+    report_count = Report.query.filter( and_(Report.userid==current_user.get_id(),Report.isdelete==0)).with_entities(func.count(Report.id)).first()[0]
     record_count = Record.query.filter(Record.userid == current_user.get_id()).with_entities(func.count(Record.id)).first()[0]
     logger.debug('获取使用折信息,记录数:%s,报告数: %s',record_count,report_count)
 

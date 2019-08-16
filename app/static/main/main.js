@@ -304,7 +304,7 @@ function loadDataSource()
                var option = $('<option></option>',{
                   value:ele.id
                });
-               option.text(ele.id+ " "+ele.zsyear+ " "+ ele.status);
+               option.text(ele.id+ " "+ " "+ ele.status);
 
                 select.append(option);
             });

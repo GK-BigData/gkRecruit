@@ -8,57 +8,58 @@
 
 {#    第一行，留空，上传按钮那些#}
 
-    <div class="row">
-
+    <div class="row section">
+    <h5>上传新数据</h5>
 {#    上传数据按钮 #}
-
-    <div class="file-field input-field col s4">
+    <div class="file-field col s4">
       <div class="btn">
         <span>选择文件</span>
         <input type="file"  id="uploadfile" name="table">
       </div>
-
-
       <div class="file-path-wrapper">
         <input class="file-path validate"   type="text" placeholder="上传一个excel文件">
       </div>
 
     </div>
 
-
-
-        <div class="input-field col s2">
-            {#        选择年份#}
-        <select id="year">
-            <option value="2016" >2016</option>
-            <option value="2017">2017</option>
-        <option value="2018" selected>2018</option>
-         <option value="2019">2019</option>
-            <option value="2020">2020</option>
-        </select>
-            <label>test</label>
-        </div>
-
-
-
     <div class="col s4"><a class="btn" id="upload" onclick="upload()">上传</a></div>
-
-
 
 
     </div>
 
 
 {#  ----------------------------------------  表格 #}
-    <div class="row">
+    <div class="row ">
+    <h5>已上传数据列表</h5>
     <div class="col s12">
 
-{#        表格内容  ajax请求的内容填充到这里#}
+        {% raw %}
         <table id="records">
+        <thead><tr><th>文件名</th> <th>上传时间</th> <th>数据总行数</th> <th>数据状态</th><th>操作</th></tr></thead>
+            <tbody >
+            <template v-for="record in records">
+                <tr>
+                    <td>{{ record.title }}</td>
+                    <td>{{ record.time }}</td>
+                    <td>{{ record.size }}</td>
+                    <td>{{ record.status }}</td>
 
+                    <td>
+                         <a class="dropdown-trigger btn" v-bind:data-target="'action'+record.id">操作</a>
+                        <ul v-bind:id="'action'+record.id" class="dropdown-content">
+    <li><a class="modal-trigger" href="#modal_info" v-bind:data-id="record.id">信息</a></li>
+    <li><a  v-on:click='delete_item(record.id)'>删除</a></li>
+    <li><a v-on:click='import_item(record.id)'>重新导入数据</a></li>
+    </ul>
 
+                    </td>
+                </tr>
+            </template>
+
+            </tbody>
 
         </table>
+        {% endraw %}
 
     </div>
 
@@ -75,7 +76,6 @@
         <div class="progress" id="progress_info" ><div class="indeterminate"></div></div>
 {#responsive-table 设置在小屏幕时可以水平滑动#}
         <table id="previewtable" class="responsive-table highlight centered">
-
 
         </table>
 

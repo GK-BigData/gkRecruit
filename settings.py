@@ -10,11 +10,8 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:gkbigdata123456@172.16.1.255:3306:3306/recruit'
     SECRET_KEY='\xca\xd4\x13\xe5\xb8\xd2X\xb3d\\\xae\xcau\x18\xfc\xf2j\x01wBLr\x89<'
     # 配置允许上传的文件
-
     UPLOADED_TABLE_DEST = "upload"
     # UPLOADED_TABLE_ALLOW=("xls", "xlsx", 'csv','pdf')
-
-
 
 class ProductConfig(Config):
     pass

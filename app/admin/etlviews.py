@@ -26,6 +26,9 @@ import json
 from datetime import datetime
 from flask_login import current_user,login_required
 
+from . import logger
+from xpinyin import Pinyin
+
 # 选择字段导入 ,
 @bp_admin.route("/setfield/import",methods=['POST'])
 @login_required
@@ -33,7 +36,7 @@ def importdata():
 
 
 
-    zsyear = request.form['zsyear']
+
     recordid = request.form['recordid']
 
     field_columns = {}
@@ -61,7 +64,7 @@ def importdata():
 
         #
         print("删除原始数据...")
-        deleteresult = zs.query.filter(zs.zsyear==zsyear).delete()
+        deleteresult = zs.query.filter(zs.recordid==recordid).delete()
         print("删除结果:",deleteresult)
         size = 0
         for row in excel_data:
@@ -71,7 +74,7 @@ def importdata():
 
                 params[key] = row[ field_columns[key] ]
 
-            params['zsyear']=zsyear
+
             params['recordid']=record.id
             #params['userid']=current_user.get_id()
             zsitem = zs(**params)
@@ -95,19 +98,17 @@ def importdata():
 
 
 
+py = Pinyin()
 #     https://www.jianshu.com/p/9d6da9b76d70
 @bp_admin.route("/upload",methods=['POST'])
 @login_required
 def upload():
-    pass
-    print(request.files)
-    print(request.args)
-    print(request.form)
+
 
     # 文件名名
     tablefile = request.files['table'].filename
-    zsyear = request.form['zsyear']
 
+    logger.debug('上传文件:%s',tablefile)
 
     # filename_py=pinyin.get_pinyin( tablefile)
     # 文件名暂时用年份来表示
@@ -121,18 +122,18 @@ def upload():
     # if result:
     #     return rjson( zsyear+ "年的数据已存在",1)
 
-    filename_py = zsyear + os.path.splitext(tablefile)[1]
+    filename_py = py.get_pinyin(tablefile)
+        #'2018' + os.path.splitext(tablefile)[1]
     # 指定保存的文件名为拼音处理后的
     filename = upload_tables.save(request.files['table'], name=filename_py)
-    print(filename)
+
     ab = os.path.abspath(os.path.join("upload", filename))
-    print("保存路径:", ab)
+    logger.debug("保存路径:%s,拼音名:%s", ab,type(filename_py))
 
     try:
-        # parse_csv(ab,zsyear)
 
-        record = Record(id=0,time=datetime.now(),zsyear=zsyear,status="未导入数据",filename=filename_py,userid=current_user.get_id())
-        print(record)
+
+        record = Record(id=0,time=datetime.now(),status="未导入数据",filename=filename_py, title=tablefile, userid=current_user.get_id())
 
 
         # 尝试解析数据
@@ -149,10 +150,10 @@ def upload():
         print("开始提交数据....")
         db.session.commit()
     except Exception as e:
-        print("发生异常,rollback回滚数据:",e)
+        logger.debug("发生异常,rollback回滚数据:%s",e,exc_info=True)
         db.session.rollback()
         return rjson("上传失败:"+str(e),1)
-        pass
+
 
 
 

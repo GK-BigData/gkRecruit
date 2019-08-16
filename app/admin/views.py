@@ -44,8 +44,6 @@ def get_fields():
 
     type = request.args['type']
 
-
-
     #预览数据
     preview_data = []
     # 选择的字段
@@ -135,7 +133,7 @@ def setfield(id):
     #                        need_columns=need_columns,
     #                        needcolumns_fields=needcolumns_fields, inputcolumns=inputcolumns,preview=json.dumps(inputcolumns),
     #                        fileds = fields)
-    return render_template('admin/import.html',zsyear=nowrecord.zsyear,recordid=nowrecord.id)
+    return render_template('admin/import.html',recordid=nowrecord.id)
 
 
 def caculateFields(need_columns:dict,inputcolumns:dict)->list:
@@ -177,7 +175,7 @@ def get_records2():
         result.append({
             "id":data.id,
             "time":data.time,
-            "zsyear":data.zsyear,
+
             "status":data.status
         })
     #
@@ -197,7 +195,7 @@ def get_records():
         result.append({
             "id":data.id,
             "time":data.time,
-            "zsyear":data.zsyear,
+            'title':data.title,
             "status":data.status
         })
     #
@@ -211,8 +209,8 @@ def preview(id):
     # 返回类型，返回json还是html表格
     type=request.args['type']
 
-    # item = Record.query.filter(  and_( Record.id==id,Record.userid==current_user.get_id())  ).first()
-    # zsyear = item.zsyear
+
+
 
     students = zs.query.filter(zs.recordid==id).order_by(func.rand()).limit(10).all()
 
@@ -231,7 +229,7 @@ def delete_record(id):
     try:
         item = Record.query.filter(  and_( Record.id == id,Record.userid==current_user.get_id())).first()
         # 先删除招生数据再删除记录
-        zss = zs.query.filter(zs.zsyear==item.zsyear).delete()
+        zss = zs.query.filter(and_( zs.recordid == id)).delete()
 
         result = db.session.delete(item)
 
@@ -249,12 +247,12 @@ def add_record():
 
     id = request.args['id']
     time = request.args['time']
-    zsyear = request.args['zsyear']
+
     status = request.args['status']
     item = Record()
     item.id=id
     item.time=time
-    item.zsyear=zsyear
+
     item.status=status
     item.size=0
     item.userid=current_user.get_id()
@@ -303,7 +301,7 @@ def parse_csv(path,year):
                 item[fields[i]] = row[fields_name[i]]
             else:
                 item[fields[i]] = None
-        item['zsyear']=year
+
         item['student_name']="*"
         zsitem  = zs(**item)
         db.session.add(zsitem)
